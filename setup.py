@@ -17,16 +17,14 @@ def install_mysql():
 def install_mysql_connector():
     # Install the MySQL Connector/Python library
     subprocess.run(['pip', 'install', 'mysql-connector-python'])
-    
 
 def create_database(database_name):
     # Create a new MySQL database
     subprocess.run(['mysql', '-u', 'root', '-p', '-e', f'CREATE DATABASE IF NOT EXISTS {database_name};'])
-    
+
 def import_database_dump(database_name, dump_file_path):
     # Import a MySQL database dump into the specified database
     subprocess.run(['mysql', '-u', 'root', '-p', database_name, '<', dump_file_path])
-
 
 def install_selenium_beautifulsoup():
     # Install Python packages: Selenium and BeautifulSoup4
@@ -39,6 +37,7 @@ def download_python_files_from_github(repository_url, files_to_download, target_
     # Download individual files from the GitHub repository
     for file in files_to_download:
         subprocess.run(['curl', '-o', os.path.join(target_directory, os.path.basename(file)), file])
+
 
 def main():
     print("Setting up your program...")

@@ -8,6 +8,10 @@ Please install MySQL before using this Library for your program
 
 You can download and install MySQL here: https://dev.mysql.com/downloads/installer/
 
+It also maybe helful to download the MySQL Workbench to view the database through a GUI
+
+You can download and install the MySQL Workbench here: https://dev.mysql.com/downloads/workbench/
+
 --Install Guide--
 
 Once you have installed MySQL, download the setup.py file

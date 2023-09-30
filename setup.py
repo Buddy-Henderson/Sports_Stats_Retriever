@@ -2,18 +2,7 @@ import os
 import subprocess
 import sys
 from datetime import date
-
-def install_mysql():
-    # Install MySQL server and client
-    subprocess.run(['sudo', 'apt', 'update'])
-    subprocess.run(['sudo', 'apt', 'install', 'mysql-server', 'mysql-client'])
-
-    # Start the MySQL service
-    subprocess.run(['sudo', 'service', 'mysql', 'start'])
-
-    # Secure MySQL installation (optional, but recommended)
-    subprocess.run(['sudo', 'mysql_secure_installation'])
-    
+  
 def install_mysql_connector():
     # Install the MySQL Connector/Python library
     subprocess.run(['pip', 'install', 'mysql-connector-python'])
@@ -42,9 +31,7 @@ def download_python_files_from_github(repository_url, files_to_download, target_
 def main():
     print("Setting up your program...")
 
-    # Install MySQL if desired
-    install_mysql()
-    
+    # Install MySQL Connector
     install_mysql_connector()
 
     # Install Selenium and BeautifulSoup4

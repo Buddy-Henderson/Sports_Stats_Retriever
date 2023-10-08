@@ -14,6 +14,9 @@ You can download and install the MySQL Workbench here: https://dev.mysql.com/dow
 
 Tutorial on how to install MySQL and MySQL Workbench to you windows machine: https://www.youtube.com/watch?v=u96rVINbAUI
 
+When you install MySQL, be sure to also install MySQL.Connector for Python. 
+This is an option when using the MySQL Installer.
+
 --Install Guide--
 
 Once you have installed MySQL, download the setup.py file

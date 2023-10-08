@@ -3,18 +3,22 @@ import subprocess
 import sys
 from datetime import date
 import mysql.connector
-  
+
+
+    
 def install_mysql_connector():
     # Install the MySQL Connector/Python library
     subprocess.run(['pip', 'install', 'mysql-connector-python'])
+    
 
 def create_database(database_name):
     # Create a new MySQL database
     subprocess.run(['mysql', '-u', 'root', '-p', '-e', f'CREATE DATABASE IF NOT EXISTS {database_name};'])
-
+    
 def import_database_dump(database_name, dump_file_path):
     # Import a MySQL database dump into the specified database
     subprocess.run(['mysql', '-u', 'root', '-p', database_name, '<', dump_file_path])
+
 
 def install_selenium_beautifulsoup():
     # Install Python packages: Selenium and BeautifulSoup4
@@ -28,15 +32,20 @@ def download_python_files_from_github(repository_url, files_to_download, target_
     for file in files_to_download:
         subprocess.run(['curl', '-o', os.path.join(target_directory, os.path.basename(file)), file])
 
-
 def main():
     print("Setting up your program...")
 
-    # Install MySQL Connector
+    
+    #Install MySQL Connector
     install_mysql_connector()
+    
+    print("MySQL Connector Installed")
 
     # Install Selenium and BeautifulSoup4
     install_selenium_beautifulsoup()
+    
+    print("Selenium Installed")
+    print("BeautifulSoup4 Installed")
     
     current_date = date.today()
     formatted_date = current_date.strftime("%m-%d-%Y")
@@ -84,8 +93,8 @@ def main():
     # Download Python files from GitHub
     download_python_files_from_github(github_repository_url, files_to_download, target_directory)
     database_CategoryList = ['MLB', 'NFL']
-    for db_name in databases_to_create:
-        dump_file_path = f'Desktop/Sports_Stats_Retrieval_Library/{db_name}Dump.sql'  # Replace with the actual path
+    for db_name in database_CategoryList:
+        dump_file_path = f'Desktop/Sports_Stats_Retrieval_Library/{formatted_date}{db_name}Dump.sql'  # Replace with the actual path
         import_database_dump(db_name, dump_file_path)
 
     print("Setup completed successfully!")

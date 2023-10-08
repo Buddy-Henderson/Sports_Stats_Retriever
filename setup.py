@@ -3,6 +3,7 @@ import subprocess
 import sys
 from datetime import date
 import mysql.connector
+import requests
 
 
     
@@ -27,6 +28,15 @@ def install_selenium_beautifulsoup():
 def download_python_files_from_github(repository_url, files_to_download, target_directory):
     # Create the target directory if it doesn't exist
     os.makedirs(target_directory, exist_ok=True)
+
+    # Get the raw content of the file from GitHub and save it locally
+    response = requests.get(repository_url)
+    
+    if response.status_code == 200:
+        with open(os.path.join(target_directory, os.path.basename(repository_url)), 'wb') as file:
+            file.write(response.content)
+    else:
+        print(f"Failed to download file from {repository_url}")
 
     # Download individual files from the GitHub repository
     for file in files_to_download:

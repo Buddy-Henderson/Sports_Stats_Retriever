@@ -17,8 +17,7 @@ def create_database(database_name):
     
 def import_database_dump(database_name, dump_file_path):
     
-    with open(dump_file_path, 'rb') as dump_file:
-        subprocess.run(['mysql', '-u', 'root', '-p', database_name], stdin=dump_file)
+    subprocess.run(['mysql', '-u', 'root', '-p', database_name, '<', dump_file_path], shell=True)
 
 
 def install_selenium_beautifulsoup():

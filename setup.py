@@ -95,7 +95,7 @@ def main():
     download_python_files_from_github(github_repository_url, files_to_download, target_directory)
     database_CategoryList = ['MLB', 'NFL']
     for db_name in database_CategoryList:
-        dump_file_path = f'Desktop/Sports_Stats_Retrieval_Library/{formatted_date}-{db_name}Dump.sql'  
+        dump_file_path = os.path.expanduser("~Desktop/Sports_Stats_Retrieval_Library/{formatted_date}-{db_name}Dump.sql")
         import_database_dump(db_name, dump_file_path)
 
     print("Setup completed successfully!")

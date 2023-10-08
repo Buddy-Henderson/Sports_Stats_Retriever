@@ -2,6 +2,7 @@ import os
 import subprocess
 import sys
 from datetime import date
+import mysql.connector
   
 def install_mysql_connector():
     # Install the MySQL Connector/Python library

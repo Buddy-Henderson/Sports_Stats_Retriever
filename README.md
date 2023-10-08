@@ -24,6 +24,6 @@ The setup file will download the neccessary database dump files as well as depen
 
 The main library, calculation library, and prediction library will be saved to your desktop in a file
 
-import these libraries into you project
+import these libraries into your project
 
 Enjoy!

@@ -12,6 +12,8 @@ It also maybe helful to download the MySQL Workbench to view the database throug
 
 You can download and install the MySQL Workbench here: https://dev.mysql.com/downloads/workbench/
 
+Tutorial on how to install MySQL and MySQL Workbench to you windows machine: https://www.youtube.com/watch?v=u96rVINbAUI
+
 --Install Guide--
 
 Once you have installed MySQL, download the setup.py file

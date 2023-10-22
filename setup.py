@@ -16,7 +16,31 @@ def create_database(database_name):
     # Create a new MySQL database
     subprocess.run(['mysql', '-u', 'root', '-p', '-e', f'CREATE DATABASE IF NOT EXISTS {database_name};'])
     
+def clean_database_dump(dump_file_path):
+    
+    with open(dump_file_path, "r") as file:
+        lines = file.readlines()
+        
+    mysql_dump_index = None
+    
+    for i , line in enumerate(lines):
+        
+        if "-- MySQL dump" in line:
+            mysql_dump_index = i
+        
+            break
+        
+    if mysql_dump_index is not None:
+        
+        clean_dump = lines[mysql_dump_index:]
+        
+        with open(dump_file_path, "w") as new_file:
+            
+            new_file.writelines(clean_dump)
+    
 def import_database_dump(database_name, dump_file_path):
+    
+    clean_database_dump(dump_file_path)
     
     subprocess.run(['mysql', '-u', 'root', '-p', database_name, '<', dump_file_path], shell=True)
 

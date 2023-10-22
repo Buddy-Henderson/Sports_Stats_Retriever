@@ -3,7 +3,7 @@ import subprocess
 import sys
 from datetime import date
 import mysql.connector
-import requests
+
 
 
     

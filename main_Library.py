@@ -20,6 +20,7 @@ import time
 from datetime import datetime
 from datetime import date
 import math
+import re
 
 
 chrome_driver_path = 'C:\\Users\\buddy\\.wdm\\drivers\\chromedriver.exe'
@@ -3642,6 +3643,8 @@ def getNFLStat(*args):
         for arg in args[2:]:
             userChoices.append(arg)   
     
+    connection = create_connection("nfl_stats")
+    
     #-- Quarterback Stats -- 
     
     # Quarterback Total Stats
@@ -3766,14 +3769,6 @@ def getNFLStat(*args):
     DEFTEAM_PASSTOUCHDOWNS_PERGAME = "DefTeam_PassTouchdowns_PerGame"
     DEFTEAM_SACKS_PERGAME = "DefTeam_Sacks_PerGame"
     
-    
-    
-    # Defense Team Passing Home Stats
-    
-    # Defense Team Passing Away Stats
-    
-    #-- Defense Team Rushing Stats -- 
-    
     # Defense Team Rushing Total Stats
     DEFTEAM_RUSHATTEMPTS_PERGAME = "DefTeam_RushAttempts_PerGame"
     DEFTEAM_RUSHYARDS_PERGAME = "DefTeam_RushYards_PerGame"
@@ -3781,15 +3776,65 @@ def getNFLStat(*args):
     DEFTEAM_RUSHTOUCHDOWNS_PERGAME = "DefTeam_RushTouchdowns_PerGame"
     DEFTEAM_RUSHYARDS_PERATTEMPT = "DefTeam_RushYards_PerAttempt"
     
-    # Defense Team Rushing Home Stats
+    #--Defense Team Totals--
+    DEF_YARDS_PERGAME_ALLOWED = "Def_Yards_PerGame_Allowed"
+    DEF_PLAYS_PERGAME_ALLOWED = "Def_Plays_PerGame_Allowed"
+    DEF_YARDS_PERPLAY_ALLOWED = "Def_Yards_PerPlay_Allowed"
+    DEF_FIRSTDOWNS_PERGAME_ALLOWED = "Def_Firstdowns_PerGame_Allowed"
+    DEF_THIRDDOWNS_PERGAME_FORCED = "Def_Thirddowns_PerGame_Forced"
+    DEF_THIRDDOWNCONVERSIONS_PERGAME_ALLOWED = "Def_ThirddownConversions_PerGame_Allowed"
+    DEF_THIRDDOWNCONVERSIONS_PERC_ALLOWED = "Def_ThirddownConversions_Perc_Allowed"
+    DEF_FOURTHDOWNS_PERGAME_FORCED = "Def_Fourthdowns_PerGame_Forced"
+    DEF_FOURTHDOWNCONVERSIONS_PERGAME_ALLOWED = "Def_FourthdownConversions_PerGame_Allowed"
+    DEF_FOURTHDOWNCONVERSIONS_PERC_ALLOWED = "Def_FourthdownConversions_Perc_Allowed"
+    DEF_AVGTIMEPOSSESSION_PERGAME_ALLOWED = "Def_AvgTimePossession_PerGame_Allowed"
+    DEF_POINTS_PERGAME_ALLOWED = "Def_Points_PerGame_Allowed"
+    DEF_TOUCHDOWNS_PERGAME_ALLOWED = "Def_Touchdowns_PerGame_Allowed"
+    DEF_REDZONESCORINGATTEMPTS_PERGAME_ALLOWED = "Def_RedZoneScoringAttempts_PerGame_Allowed"
+    DEF_REDZONESCORES_PERGAME_ALLOWED = "Def_RedZoneScores_PerGame_Allowed"
+    DEF_REDZONESCORING_PERC_ALLOWED = "Def_RedZoneScoring_Perc_Allowed"
     
-    # Defense Team Rushing Away Stats
+    
+    
+    #-- Offense Team Passing Stats --
+    OFF_PASSATTEMPTS_PERGAME = "Off_PassAttempts_PerGame"
+    OFF_COMPLETIONS_PERGAME = "Off_Completions_PerGame"
+    OFF_COMPLETION_PERC = "Off_Completion_Perc"
+    OFF_PASSYARDS_PERGAME = "Off_PassYards_PerGame"
+    OFF_PASSYARDS_PERATTEMPT = "Off_PassYards_PerAttempt"
+    OFF_PASSYARDS_PERCOMPLETION = "Off_PassYards_PerCompletion"
+    OFF_PASSTOUCHDOWNS_PERGAME = "Off_PassTouchdowns_PerGame"
+    OFF_SACKS_PERGAME = "Off_Sacks_PerGame"
+    
+    #-- Offense Team Rushing Stats --
+    OFF_RUSHATTEMPTS_PERGAME = "Off_RushAttempts_PerGame"
+    OFF_RUSHFIRSTDOWNS_PERGAME = "Off_RushFirstdowns_PerGame"
+    OFF_RUSHYARDS_PERGAME = "Off_RushYards_PerGame"
+    OFF_RUSHTOUCHDOWNS_PERGAME = "Off_RushTouchdowns_PerGame"
+    OFF_RUSHYARDS_PERATTEMPT = "Off_RushYards_PerAttempt"
+    
+    #-- Offense Team Totals--
+    OFF_YARDS_PERGAME = "Off_Yards_PerGame"
+    OFF_PLAYS_PERGAME = "Off_Plays_PerGame"
+    OFF_YARDS_PERPLAY = "Off_Yards_PerPlay"
+    OFF_FIRSTDOWNS_PERGAME = "Off_Firstdowns_PerGame"
+    OFF_THIRDDOWNS_PERGAME = "Off_Thirddowns_PerGame"
+    OFF_THIRDDOWNCONVERSIONS_PERGAME = "Off_ThirddownConversions_PerGame"
+    OFF_FORTHDOWNS_PERGAME = "Off_Forthdowns_PerGame"
+    OFF_FORTHDOWNCONVERSIONS_PERGAME = "Off_ForthdownConversions_PerGame"
+    OFF_AVGTIMEPOSSESSIONS_PERGAME = "Off_AvgTimePossessions_PerGame"
+    OFF_POINTS_PERGAME = "Off_Points_PerGame"
+    OFF_AVGSCOREMARGIN_PERGAME = "Off_AvgScoreMargin_PerGame"
+    OFF_TOUCHDOWNS_PERGAME = "Off_Touchdowns_PerGame"
+    OFF_REDZONESCORING_ATTEMPTS_PERGAME = "Off_RedZoneScoring_Attempts_PerGame"
+    OFF_REDZONESCORES_PERGAME = "Off_RedZoneScores_PerGame"
+    OFF_REDZONESCORING_PERC = "Off_RedZoneScoring_Perc"
     
     
     if category == "Quarterback":
         
         quarterback_Count = 0
-        connection = create_connection("nfl_stats")
+        
         for stat in userChoices:
             
             # Quarterback Totals
@@ -4001,13 +4046,13 @@ def getNFLStat(*args):
             
         # Close connection at the end of loop    
         close_connection(connection)
-                
+               
         return statsToReturn
     
     elif category == "Runningback":
         
         runningback_Count = 0
-        connection = create_connection("nfl_stats")
+        
         
         for stat in userChoices:
             
@@ -4128,13 +4173,13 @@ def getNFLStat(*args):
             
         # Close connection at the end of loop    
         close_connection(connection)
-                
+               
         return statsToReturn
     
     elif category == "Wide_Receiver":
         
         wideReceiver_Count = 0
-        connection = create_connection("nfl_stats")
+        
         
         for stat in userChoices:
             
@@ -4283,7 +4328,7 @@ def getNFLStat(*args):
     elif category == "Defense_Team_Passing":
         
         DefTeam_Count = 0
-        connection = create_connection("nfl_stats")
+        
         
         for stat in userChoices:
             
@@ -4335,7 +4380,7 @@ def getNFLStat(*args):
     elif category == "Defense_Team_Rushing":
         
         DefTeam_Count = 0
-        connection = create_connection("nfl_stats")
+        
         
         for stat in userChoices:
             
@@ -4366,29 +4411,266 @@ def getNFLStat(*args):
             
         # Close connection at the end of loop    
         close_connection(connection)
-                
+        
         return statsToReturn
 
+    elif category == "Defense_Team_Totals":
+        
+        DefTeam_Count = 0
+        
+        
+        for stat in userChoices:
+            
+            if userChoices[DefTeam_Count] == DEF_YARDS_PERGAME_ALLOWED:
+                yards_PerGame = get_statData(connection, teamName, "team_total_defense", "yards_PerGame")
+                statsToReturn.append(float(yards_PerGame))
+                
+            elif userChoices[DefTeam_Count] == DEF_PLAYS_PERGAME_ALLOWED:
+                plays_PerGame = get_statData(connection, teamName, "team_total_defense", "plays_PerGame")
+                statsToReturn.append(float(plays_PerGame))
+                
+            elif userChoices[DefTeam_Count] == DEF_YARDS_PERPLAY_ALLOWED:
+                yards_PerPlay = get_statData(connection, teamName, "team_total_defense", "yards_PerPlay")
+                statsToReturn.append(float(yards_PerPlay))
+                
+            elif userChoices[DefTeam_Count] == DEF_FIRSTDOWNS_PERGAME_ALLOWED:
+                firstdowns_PerGame = get_statData(connection, teamName, "team_total_defense", "firstdowns_PerGame")
+                statsToReturn.append(float(firstdowns_PerGame))
+                
+            elif userChoices[DefTeam_Count] == DEF_THIRDDOWNS_PERGAME_FORCED:
+                thirddowns_PerGame = get_statData(connection, teamName, "team_total_defense", "thirddowns_PerGame")
+                statsToReturn.append(float(thirddowns_PerGame))
+                
+            elif userChoices[DefTeam_Count] == DEF_THIRDDOWNCONVERSIONS_PERGAME_ALLOWED:
+                thirddownConversions_PerGame = get_statData(connection, teamName, "team_total_defense", "thirddownConversions_PerGame")
+                statsToReturn.append(float(thirddownConversions_PerGame))
+                
+            elif userChoices[DefTeam_Count] == DEF_THIRDDOWNCONVERSIONS_PERC_ALLOWED:
+                thirddownConversions_Perc = get_statData(connection, teamName, "team_total_defense", "thirddownConversion_Perc")
+                statsToReturn.append(float(thirddownConversions_Perc))
+                
+            elif userChoices[DefTeam_Count] == DEF_THIRDDOWNCONVERSIONS_PERC_ALLOWED:
+                thirddownConversions_Perc = get_statData(connection, teamName, "team_total_defense", "thirddownConversions_Perc")
+                statsToReturn.append(float(thirddownConversions_Perc))
+                
+            elif userChoices[DefTeam_Count] == DEF_FOURTHDOWNS_PERGAME_FORCED:
+                fourthdowns_PerGame = get_statData(connection, teamName, "team_total_defense", "fourthdowns_PerGame")
+                statsToReturn.append(float(fourthdowns_PerGame))
+                
+            elif userChoices[DefTeam_Count] == DEF_FOURTHDOWNCONVERSIONS_PERGAME_ALLOWED:
+                fourthdownConversions_PerGame = get_statData(connection, teamName, "team_total_defense", "fourthdownConversions_PerGame")
+                statsToReturn.append(float(fourthdownConversions_PerGame))
+                
+            elif userChoices[DefTeam_Count] == DEF_FOURTHDOWNCONVERSIONS_PERC_ALLOWED:
+                fourthdownConversions_Perc = get_statData(connection, teamName, "team_total_defense", "fourthdownConversion_Perc")
+                statsToReturn.append(float(fourthdownConversions_Perc))
+                
+            elif userChoices[DefTeam_Count] == DEF_AVGTIMEPOSSESSION_PERGAME_ALLOWED:
+                AvgTimePossession_PerGame = get_statData(connection, teamName, "team_total_defense", "avgTimePossession")
+                statsToReturn.append(str(AvgTimePossession_PerGame))
+                
+            elif userChoices[DefTeam_Count] == DEF_POINTS_PERGAME_ALLOWED:
+                points_PerGame = get_statData(connection, teamName, "team_total_defense", "pointsAllowed_PerGame")
+                statsToReturn.append(float(points_PerGame))
+                
+            elif userChoices[DefTeam_Count] == DEF_TOUCHDOWNS_PERGAME_ALLOWED:
+                touchdowns_PerGame = get_statData(connection, teamName, "team_total_defense", "touchdowns_PerGame")
+                statsToReturn.append(float(touchdowns_PerGame))
+                
+            elif userChoices[DefTeam_Count] == DEF_REDZONESCORINGATTEMPTS_PERGAME_ALLOWED:
+                redZoneScoringAttempts_PerGame = get_statData(connection, teamName, "team_total_defense", "redzoneScoring_Attempts_PerGame")
+                statsToReturn.append(float(redZoneScoringAttempts_PerGame))
+                
+            elif userChoices[DefTeam_Count] == DEF_REDZONESCORES_PERGAME_ALLOWED:
+                redZoneScores_PerGame = get_statData(connection, teamName, "team_total_defense", "redzoneScores_PerGame")
+                statsToReturn.append(float(redZoneScores_PerGame))
+                
+            elif userChoices[DefTeam_Count] == DEF_REDZONESCORING_PERC_ALLOWED:
+                redZoneScoring_Perc = get_statData(connection, teamName, "team_total_defense", "redzoneScoring_Perc")
+                statsToReturn.append(float(redZoneScoring_Perc))
+
+            # Add one to counter  
+            DefTeam_Count +=1
+            
+        # Close connection at the end of loop    
+        close_connection(connection)
+                
+        return statsToReturn
+    
     elif category == "Offense_Team_Passing":
         
-        pass
+        OffTeam_Count = 0
+        
+        
+        for stat in userChoices:
+            
+            if userChoices[OffTeam_Count] == OFF_PASSATTEMPTS_PERGAME:
+                passAttempts_PerGame = get_statData(connection, teamName, "offteam_passing_stats", "PassAttempts_PerGame")
+                statsToReturn.append(float(passAttempts_PerGame))
+                
+            elif userChoices[OffTeam_Count] == OFF_COMPLETIONS_PERGAME:
+                completions_PerGame = get_statData(connection, teamName, "offteam_passing_stats", "Completions_PerGame")
+                statsToReturn.append(float(completions_PerGame))
+                
+            elif userChoices[OffTeam_Count] == OFF_COMPLETION_PERC:
+                completions_Perc = get_statData(connection, teamName, "offteam_passing_stats", "Completion_Perc")
+                statsToReturn.append(float(completions_Perc))
+                
+            elif userChoices[OffTeam_Count] == OFF_PASSYARDS_PERGAME:
+                passYards_PerGame = get_statData(connection, teamName, "offteam_passing_stats", "PassYards_PerGame")
+                statsToReturn.append(float(passYards_PerGame))
+                
+            elif userChoices[OffTeam_Count] == OFF_PASSYARDS_PERATTEMPT:
+                passYards_PerAttempt = get_statData(connection, teamName, "offteam_passing_stats", "PassYards_PerAttempt")
+                statsToReturn.append(float(passYards_PerAttempt))
+                
+            elif userChoices[OffTeam_Count] == OFF_PASSYARDS_PERCOMPLETION:
+                passYards_PerCompletion = get_statData(connection, teamName, "offteam_passing_stats", "PassYards_PerCompletion")
+                statsToReturn.append(float(passYards_PerCompletion))
+                
+            elif userChoices[OffTeam_Count] == OFF_PASSTOUCHDOWNS_PERGAME:
+                passTouchdowns_PerGame = get_statData(connection, teamName, "offteam_passing_stats", "PassTouchdowns_PerGame")
+                statsToReturn.append(float(passTouchdowns_PerGame))
+                
+            elif userChoices[OffTeam_Count] == OFF_SACKS_PERGAME:
+                sacks_PerGame = get_statData(connection, teamName, "offteam_passing_stats", "Sacks_PerGame")
+                statsToReturn.append(float(sacks_PerGame))
+                
+            # Add one to counter  
+            OffTeam_Count +=1
+            
+        # Close connection at the end of loop    
+        close_connection(connection)
+        
+        return statsToReturn
     
     elif category == "Offense_Team_Rushing":
         
-        pass
+        OffTeam_Count = 0
+        
+        
+        for stat in userChoices:
+            
+            if userChoices[OffTeam_Count] == OFF_RUSHATTEMPTS_PERGAME:
+                rushAttempts_PerGame = get_statData(connection, teamName, "offteam_rushing_stats", "RushAttempts_PerGame")
+                statsToReturn.append(float(rushAttempts_PerGame))
+                
+            elif userChoices[OffTeam_Count] == OFF_RUSHFIRSTDOWNS_PERGAME:
+                rushFirstdowns_PerGame = get_statData(connection, teamName, "offteam_rushing_stats", "RushFirstDowns_PerGame")
+                statsToReturn.append(float(rushFirstdowns_PerGame))
+                
+            elif userChoices[OffTeam_Count] == OFF_RUSHYARDS_PERGAME:
+                rushYards_PerGame = get_statData(connection, teamName, "offteam_rushing_stats", "RushYards_PerGame")
+                statsToReturn.append(float(rushYards_PerGame))
+                
+            elif userChoices[OffTeam_Count] == OFF_RUSHTOUCHDOWNS_PERGAME:
+                rushTouchdowns_PerGame = get_statData(connection, teamName, "offteam_rushing_stats", "RushTouchdowns_PerGame")
+                statsToReturn.append(float(rushTouchdowns_PerGame))
+                
+            elif userChoices[OffTeam_Count] == OFF_RUSHYARDS_PERATTEMPT:
+                rushYards_PerAttempt = get_statData(connection, teamName, "offteam_rushing_stats", "RushYards_PerAttempt")
+                statsToReturn.append(float(rushYards_PerAttempt))
+                
+            # Add one to counter  
+            OffTeam_Count +=1
+            
+        # Close connection at the end of loop    
+        close_connection(connection)
+         
+        return statsToReturn
+    
+    elif category == "Offense_Team_Totals":
+        
+        OffTeam_Count = 0
+        
+        
+        for stat in userChoices:
+            
+            if userChoices[OffTeam_Count] == OFF_YARDS_PERGAME:
+                yards_PerGame = get_statData(connection, teamName, "team_total_offense", "yards_PerGame")
+                statsToReturn.append(float(yards_PerGame))
+                
+            elif userChoices[OffTeam_Count] == OFF_PLAYS_PERGAME:
+                plays_PerGame = get_statData(connection, teamName, "team_total_offense", "plays_PerGame")
+                statsToReturn.append(float(plays_PerGame))
+                
+            elif userChoices[OffTeam_Count] == OFF_YARDS_PERPLAY:
+                yards_PerPlay = get_statData(connection, teamName, "team_total_offense", "yards_PerPlay")
+                statsToReturn.append(float(yards_PerPlay))
+                
+            elif userChoices[OffTeam_Count] == OFF_FIRSTDOWNS_PERGAME:
+                firstdowns_PerGame = get_statData(connection, teamName, "team_total_offense", "firstdowns_PerGame")
+                statsToReturn.append(float(firstdowns_PerGame))
+                
+            elif userChoices[OffTeam_Count] == OFF_THIRDDOWNS_PERGAME:
+                thirddowns_PerGame = get_statData(connection, teamName, "team_total_offense", "thirddowns_PerGame")
+                statsToReturn.append(float(thirddowns_PerGame))
+                
+            elif userChoices[OffTeam_Count] == OFF_THIRDDOWNCONVERSIONS_PERGAME:
+                thirddownConversions_PerGame = get_statData(connection, teamName, "team_total_offense", "thirddownConversions_PerGame")
+                statsToReturn.append(float(thirddownConversions_PerGame))
+                
+            elif userChoices[OffTeam_Count] == OFF_FORTHDOWNS_PERGAME:
+                forthdowns_PerGame = get_statData(connection, teamName, "team_total_offense", "forthdowns_PerGame")
+                statsToReturn.append(float(forthdowns_PerGame))
+                
+            elif userChoices[OffTeam_Count] == OFF_FORTHDOWNCONVERSIONS_PERGAME:
+                forthdownConversions_PerGame = get_statData(connection, teamName, "team_total_offense", "forthdownConversions_PerGame")
+                statsToReturn.append(float(forthdownConversions_PerGame))
+                
+            elif userChoices[OffTeam_Count] == OFF_AVGTIMEPOSSESSIONS_PERGAME:
+                avgTimePossessions_PerGame = get_statData(connection, teamName, "team_total_offense", "avgTimePossession")
+                statsToReturn.append(str(avgTimePossessions_PerGame))
+                
+            elif userChoices[OffTeam_Count] == OFF_POINTS_PERGAME:
+                points_PerGame = get_statData(connection, teamName, "team_total_offense", "points_PerGame")
+                statsToReturn.append(float(points_PerGame))
+                
+            elif userChoices[OffTeam_Count] == OFF_AVGSCOREMARGIN_PERGAME:
+                avgScoreMargin_PerGame = get_statData(connection, teamName, "team_total_offense", "avgScoreMargin")
+                statsToReturn.append(float(avgScoreMargin_PerGame))
+                
+            elif userChoices[OffTeam_Count] == OFF_TOUCHDOWNS_PERGAME:
+                touchdowns_PerGame = get_statData(connection, teamName, "team_total_offense", "touchdowns_PerGame")
+                statsToReturn.append(float(touchdowns_PerGame))
+                
+            elif userChoices[OffTeam_Count] == OFF_REDZONESCORING_ATTEMPTS_PERGAME:
+                redZoneScoring_Attempts_PerGame = get_statData(connection, teamName, "team_total_offense", "redzoneScoring_Attempts_PerGame")
+                statsToReturn.append(float(redZoneScoring_Attempts_PerGame))
+                
+            elif userChoices[OffTeam_Count] == OFF_REDZONESCORES_PERGAME:
+                redZoneScores_PerGame = get_statData(connection, teamName, "team_total_offense", "redzoneScores_PerGame")
+                statsToReturn.append(float(redZoneScores_PerGame))
+                
+            elif userChoices[OffTeam_Count] == OFF_REDZONESCORING_PERC:
+                redZoneScoring_Perc = get_statData(connection, teamName, "team_total_offense", "redzoneScoring_Perc")
+                statsToReturn.append(float(redZoneScoring_Perc))
+                
+            # Add one to counter  
+            OffTeam_Count +=1
+            
+        # Close connection at the end of loop    
+        close_connection(connection)
+               
+        return statsToReturn
 
 def get_NFL_GamesData(week):
     
     homeTeams = []
     awayTeams = []
     gameTimes = []
+    seasonType = "regular"
     
+    if week > 18:
+        
+        seasonType = "postseason"
+        
     
     # Set Up webdriver
     chrome_options = Options()
     chrome_options.add_argument("--headless")
     driver = webdriver.Chrome(options=chrome_options)
-    driver.get("https://www.cbssports.com/nfl/schedule/2023/regular/" +str(week) + "/")
+    driver.get("https://www.cbssports.com/nfl/schedule/2023/"+str(seasonType) +"/" +str(week) + "/")
     
     # Sleep for 5 seconds to let content load
     time.sleep(2)
@@ -4402,11 +4684,14 @@ def get_NFL_GamesData(week):
     
     gameTimes1 = tables[0].find_all('div', class_="CellGame")
     gameTimes2 = tables[1].find_all('div', class_="CellGame")
-    gameTimes3 = tables[2].find_all('div', class_="CellGame")
+    
+    if len(tables) >2:
+        gameTimes3 = tables[2].find_all('div', class_="CellGame")
     
     teamName_elements1 =  tables[0].find_all('span', class_="TeamName")
     teamName_elements2 =  tables[1].find_all('span', class_="TeamName")
-    teamName_elements3 =  tables[2].find_all('span', class_="TeamName")
+    if len(tables) >2:
+        teamName_elements3 =  tables[2].find_all('span', class_="TeamName")
     
     element_count = 0
     for element in teamName_elements1:
@@ -4437,21 +4722,21 @@ def get_NFL_GamesData(week):
             homeTeams.append(teamName_elements2[element_count].get_text())
             
             element_count +=1
-    
-    element_count = 0    
-    for element in teamName_elements3:
-        
-        if element_count % 2 == 0 or element_count == 0:
+    if len(tables) >2:
+        element_count = 0    
+        for element in teamName_elements3:
             
-            awayTeams.append(teamName_elements3[element_count].get_text())
-            
-            element_count +=1
-            
-        else:
-            
-            homeTeams.append(teamName_elements3[element_count].get_text())
-            
-            element_count +=1
+            if element_count % 2 == 0 or element_count == 0:
+                
+                awayTeams.append(teamName_elements3[element_count].get_text())
+                
+                element_count +=1
+                
+            else:
+                
+                homeTeams.append(teamName_elements3[element_count].get_text())
+                
+                element_count +=1
 
     gameTime_Count = 0
     for times in gameTimes1:
@@ -4467,16 +4752,28 @@ def get_NFL_GamesData(week):
         gameTimes.append(gameTimes2[gameTime_Count].get_text())
         
         gameTime_Count += 1
-        
-    gameTime_Count = 0    
-    for times in gameTimes3:
-        
-        gameTimes.append(gameTimes3[gameTime_Count].get_text())
-        
-        gameTime_Count += 1
+    
+    if len(tables) >2:    
+        gameTime_Count = 0    
+        for times in gameTimes3:
+            
+            gameTimes.append(gameTimes3[gameTime_Count].get_text())
+            
+            gameTime_Count += 1
         
     cleanTimes = [item.split(" am")[0] + " am" if "am" in item else item.split(" pm")[0] + " pm" for item in gameTimes]
 
+    
+    
+    
+    
+    awayTeams = [re.sub(r'\n|\xa0|[1-7]', '', team).strip() for team in awayTeams]
+    
+    homeTeams = [re.sub(r'\n|\xa0|[1-7]', '', team).strip() for team in homeTeams]
+        
+    print(awayTeams)
+    print(homeTeams)
+    
     return awayTeams, homeTeams, cleanTimes
 
 def formatNFLTeamLists(teamList):
@@ -4492,7 +4789,1045 @@ def formatNFLTeamLists(teamList):
             teamList[i] = "NY Giants"
     return teamList
             
+def formatNFLTeamName(unformattedName):
+    
+    
+    if unformattedName == "Tennessee":
+        
+        formatedName = "titans"
+        
+    elif unformattedName == "Pittsburgh":
+        
+        formatedName = "steelers"
+    
+    elif unformattedName == "Miami":
+        
+        formatedName = "dolphins"
+        
+    elif unformattedName == "Kansas City":
+        
+        formatedName = "chiefs"
+        
+    elif unformattedName == "Chicago":
+        
+        formatedName = "bears"
+        
+    elif unformattedName == "New Orleans":
+        
+        formatedName = "saints"
+        
+    elif unformattedName == "Arizona":
+        
+        formatedName = "cardinals"
+        
+    elif unformattedName == "Cleveland":
+        
+        formatedName = "browns"
+        
+    elif unformattedName == "LA Rams":
+        
+        formatedName = "rams"
+        
+    elif unformattedName == "Green Bay":
+        
+        formatedName = "packers"
+        
+    elif unformattedName == "Minnesota":
+        
+        formatedName = "vikings"
+        
+    elif unformattedName == "Atlanta":
+        
+        formatedName = "falcons"
+        
+    elif unformattedName == "Seattle":
+        
+        formatedName = "seahawks"
+        
+    elif unformattedName == "Baltimore":
+        
+        formatedName = "ravens"
+        
+    elif unformattedName == "Tampa Bay":
+        
+        formatedName = "buccaneers"
+        
+    elif unformattedName == "Houston":
+        
+        formatedName = "texans"
+        
+    elif unformattedName == "Washington":
+        
+        formatedName = "commanders"
+        
+    elif unformattedName == "New England":
+        
+        formatedName = "patriots"
+        
+    elif unformattedName == "Indianapolis":
+        
+        formatedName = "colts"
+        
+    elif unformattedName == "Carolina":
+        
+        formatedName = "panthers"
+        
+    elif unformattedName == "Dallas":
+        
+        formatedName = "cowboys"
+        
+    elif unformattedName == "Philadelphia":
+        
+        formatedName = "eagles"
+        
+    elif unformattedName == "NY Giants":
+        
+        formatedName = "giants"
+        
+    elif unformattedName == "Las Vegas":
+        
+        formatedName = "raiders"
+        
+    elif unformattedName == "Buffalo":
+        
+        formatedName = "bills"
+        
+    elif unformattedName == "Cincinnati":
+        
+        formatedName = "bengals"
+        
+    elif unformattedName == "LA Chargers":
+        
+        formatedName = "chargers"
+        
+    elif unformattedName == "NY Jets":
+        
+        formatedName = "jets"
+        
+    elif unformattedName == "Jacksonville":
+        
+        formatedName = "jaguars"
+        
+    elif unformattedName == "San Francisco":
+        
+        formatedName = "sanfrancisco"
+        
+    elif unformattedName == "Denver":
+        
+        formatedName = "broncos"
+        
+    elif unformattedName == "Detroit":
+        
+        formatedName = "lions"
+    
+    return formatedName
+    
+def checkNFL_PlayerHasStats(playerName, position):
+    
+    connection = create_connection("nfl_stats")
+    
+    cursor = connection.cursor()
+    
+    if position == "QB":
+        
+        
+        query = f"SELECT * FROM qb_total_stats WHERE Name = %s"
+        cursor.execute(query, (playerName,))
+        result = cursor.fetchone()
 
+        if not result:  # If no result found in any table, return False
+            cursor.close()
+            connection.close()
+            return False
+            
+        return True
+    
+    elif position == "RB":
+        
+        query = f"SELECT * FROM rb_total_stats WHERE Name = %s"
+        cursor.execute(query, (playerName,))
+        result = cursor.fetchone()
+
+        if not result:  # If no result found in any table, return False
+            cursor.close()
+            connection.close()
+            return False
+            
+        return True
+    
+    elif position == "WR" or position == "TE":
+        
+        query = f"SELECT * FROM wr_total_stats WHERE Name = %s"
+        cursor.execute(query, (playerName,))
+        result = cursor.fetchone()
+
+        if not result:  # If no result found in any table, return False
+            cursor.close()
+            connection.close()
+            return False
+            
+        return True
+    
+    cursor.close()
+    connection.close()
+    
+#NBA Section of the Library
+
+def getNBAStat(*args):
+    
+    teamNames = ["Boston", "Brooklyn", "New York", "Philadelphia", "Toronto", "Chicago", "Cleveland", "Detroit", "Indiana", "Milwaukee",
+                 "Atlanta", "Charlotte", "Miami", "Orlando", "Washington", "Denver", "Minnesota", "Okla City", "Portland", "Utah",
+                 "Golden State", "LA Clippers", "LA Lakers", "Phoenix", "Sacramento", "Dallas", "Houston", "Memphis", "New Orleans", "San Antonio"]
+
+    userChoices = []
+    statsToReturn = []
+    
+    if args[0] in teamNames:
+        
+        teamName = args[0]
+        
+        category = args[1]
+        
+        for arg in args[2:]:
+            userChoices.append(arg)
+        
+    else:
+        
+        playerName = args[0]
+        category = args[1]
+        
+        for arg in args[2:]:
+            userChoices.append(arg)
+            
+    connection = create_connection("nba_stats")
+    
+    # Player MISC
+    PLAYER_GAMESPLAYED = "Player_GamesPlayed"
+    PLAYER_GAMESSTARTED = "Player_GamesStarted"
+    PLAYER_MINUTES_PERGAME = "Player_Minutes_PerGame"
+    
+    # Player Scoring
+    PLAYER_POINTS_PERGAME = "Player_Points_PerGame"
+    PLAYER_FIELDGOALS_MADE = "Player_FieldGoals_Made"
+    PLAYER_FIELDGOALS_ATTEMPTED = "Player_FieldGoals_Attempted"
+    PLAYER_FIELDGOAL_PERC = "Player_FieldGoal_Perc"
+    PLAYER_THREEPOINTERS_MADE = "Player_ThreePointers_Made"
+    PLAYER_THREEPOINTERS_ATTEMPTED = "Player_ThreePointers_Attempted"
+    PLAYER_THREEPOINTER_PERC = "Player_ThreePointers_Perc"
+    PLAYER_FREETHROWS_MADE = "Player_FreeThrows_Made"
+    PLAYER_FREETHROWS_ATTEMPTED = "Player_FreeThrows_Attempted"
+    PLAYER_FREETHROW_PERC = "Player_FreeThrows_Perc"
+    
+    # Player rebounds
+    PLAYER_OFFENSIVE_REBOUNDS = "Player_Offensive_Rebounds"
+    PLAYER_DEFENSIVE_REBOUNDS = "Player_Defensive_Rebounds"
+    PLAYER_TOTAL_REBOUNDS = "Player_Total_Rebounds"
+    PLAYER_REBOUNDS_PERGAME = "Player_Rebounds_PerGame"
+    
+    # Player fouls
+    PLAYER_PERSONAL_FOULS = "Player_Personal_Fouls"
+    PLAYER_PERSONAL_FOULS_PERGAME = "Player_Personal_Fouls_PerGame"
+    PLAYER_FLAGRANT_FOULS = "Player_Flagrant_Fouls"
+    PLAYER_TECHNICAL_FOULS = "Player_Technical_Fouls"
+    PLAYER_EJECTIONS = "Player_Ejections"
+    PLAYER_DISQUALIFICATIONS = "Player_Disqualifications"
+    
+    # Player Block
+    PLAYER_BLOCKS = "Player_Blocks"
+    PLAYER_BLOCKS_PERGAME = "Player_Blocks_PerGame"
+    
+    # Player Assists/Turnovers
+    PLAYER_ASSISTS_TOTAL = "Player_Assists_Total"
+    PLAYER_ASSISTS_PERGAME = "Player_Assists_PerGame"
+    PLAYER_TURNOVERS = "Player_Turnovers"
+    PLAYER_TURNOVERS_PERGAME = "Player_Turnovers_PerGame"
+    PLAYER_ASSISTS_PERTURNOVER = "Player_Assists_PerTurnover"
+    
+    # Team Defense Scoring
+    TEAM_OPP_POINTS_PERGAME = "Team_Opp_Points_PerGame"
+    TEAM_OPP_AVG_SCOREMARGIN = "Team_Opp_Avg_ScoreMargin"
+    TEAM_OPP_FIRSTQUARTER_POINTS_PERGAME = "Team_Opp_FirstQuarter_Points_PerGame"
+    TEAM_OPP_SECONDQUARTER_POINTS_PERGAME = "Team_Opp_SecondQuarter_Points_PerGame"
+    TEAM_OPP_THIRDQUARTER_POINTS_PERGAME = "Team_Opp_ThirdQuarter_Points_PerGame"
+    TEAM_OPP_FOURTHQUARTER_POINTS_PERGAME = "Team_Opp_FourthQuarter_Points_PerGame"
+    TEAM_OPP_POINTS_TWOPOINTERS = "Team_Opp_Points_TwoPointers"
+    TEAM_OPP_POINTS_THREEPOINTERS = "Team_Opp_Points_ThreePointers"
+    
+    # Team Defense Shooting
+    TEAM_OPP_SHOOTING_PERC = "Team_Opp_Shooting_Perc"
+    TEAM_OPP_THREEPOINT_PERC = "Team_Opp_ThreePoint_Perc"
+    TEAM_OPP_FIELDGOALS_PERGAME = "Team_Opp_FieldGoals_PerGame"
+    TEAM_OPP_FIELDGOAL_ATTEMPTS_PERGAME = "Team_Opp_FieldGoal_Attempts_PerGame"
+    TEAM_OPP_THREEPOINTERS_PERGAME = "Team_Opp_ThreePointers_PerGame"
+    TEAM_OPP_THREEPOINTER_ATTEMPTS_PERGAME = "Team_Opp_ThreePointer_Attempts_PerGame"
+    
+    # Team Opponents Misc
+    TEAM_OPP_OFFREBOUNDS_PERGAME = "Team_Opp_OffRebounds_PerGame"
+    TEAM_OPP_DEFREBOUNDS_PERGAME = "Team_Opp_DefRebounds_PerGame"
+    TEAM_OPP_BLOCKS_PERGAME = "Team_Opp_Blocks_PerGame"
+    TEAM_OPP_STEALS_PERGAME = "Team_Opp_Steals_PerGame"
+    TEAM_OPP_STEALS_PERPOSSESSION = "Team_Opp_Steals_PerPossession"
+    TEAM_OPP_STEALS_PERDEFPLAY = "Team_Opp_Steals_PerDefPlay"
+    TEAM_OPP_ASSISTS_PERGAME = "Team_Opp_Assists_PerGame"
+    TEAM_OPP_TURNOVERS_PERGAME = "Team_Opp_Turnovers_PerGame"
+    TEAM_OPP_TURNOVERS_PERPOSSESSION = "Team_Opp_Turnovers_PerPossession"
+    TEAM_OPP_TURNOVERS_PEROFFPLAY = "Team_Opp_Turnovers_PerOffPlay"
+    TEAM_OPP_FOULS_PERGAME = "Team_Opp_Fouls_PerGame"
+     
+    # Team Misc
+    TEAM_OFFREBOUNDS_PERGAME = "Team_OffRebounds_PerGame"
+    TEAM_DEFREBOUNDS_PERGAME = "Team_DefRebounds_PerGame"
+    TEAM_BLOCKS_PERGAME = "Team_Blocks_PerGame"
+    TEAM_STEALS_PERGAME = "Team_Steals_PerGame"
+    TEAM_ASSISTS_PERGAME = "Team_Assists_PerGame"
+    TEAM_TURNOVERS_PERGAME = "Team_Turnovers_PerGame"
+    TEAM_PERSONALFOULS_PERGAME = "Team_PersonalFouls_PerGame"
+    TEAM_TECHNICALFOULS_PERGAME = "Team_TechnicalFouls_PerGame"
+    
+    # Team Offensive Scoring
+    TEAM_POINTS_PERGAME = "Team_Points_PerGame"
+    TEAM_AVERAGE_SCOREMARGIN = "Team_Average_ScoreMargin"
+    TEAM_FIRSTQUARTER_POINTS_PERGAME = "Team_FirstQuarter_Points_PerGame"
+    TEAM_SECONDQUARTER_POINTS_PERGAME = "Team_SecondQuarter_Points_PerGame"
+    TEAM_THIRDQUARTER_POINTS_PERGAME = "Team_ThirdQuarter_Points_PerGame"
+    TEAM_FOURTHQUARTER_POINTS_PERGAME = "Team_FourthQuarter_Points_PerGame"
+    TEAM_AVG_FIRSTQUARTER_MARGIN = "Team_Avg_FirstQuarter_Margin"
+    TEAM_AVG_SECONDQUARTER_MARGIN = "Team_Avg_SecondQuarter_Margin"
+    TEAM_AVG_THIRDQUARTER_MARGIN = "Team_Avg_ThirdQuarter_Margin"
+    TEAM_AVG_FOURTHQUARTER_MARGIN = "Team_Avg_FourthQuarter_Margin"
+    TEAM_POINTS_TWOPOINTERS = "Team_Points_TwoPointers"
+    TEAM_POINTS_THREEPOINTERS = "Team_Points_ThreePointers"
+    
+    # Team Offensive Shooting
+    TEAM_SHOOTING_PERC = "Team_Shooting_Perc"
+    TEAM_THREEPOINT_PERC = "Team_ThreePoint_Perc"
+    TEAM_FIELDGOALS_PERGAME = "Team_FieldGoals_PerGame"
+    TEAM_FIELDGOALS_ATTEMPTED_PERGAME = "Team_FieldGoals_Attempted_PerGame"
+    TEAM_THREEPOINTERS_PERGAME = "Team_ThreePointers_PerGame"
+    TEAM_THREEPOINTERS_ATTEMPTED_PERGAME = "Team_ThreePointers_Attempted_PerGames"
+    
+    # Team Winning Perc
+    TEAM_WINPERC_ALLGAMES = "Team_WinPerc_AllGames"
+    TEAM_WINPERC_CLOSEGAMES = "Team_WinPerc_CloseGames"
+    TEAM_OPP_WINPERC_ALLGAMES = "Team_Opp_WinPerc_AllGames"
+    TEAM_OPP_WINPERC_CLOSEGAMES = "Team_Opp_WinPerc_CloseGames"
+    
+    if category == "Player_Misc":
+        
+        count = 0
+        
+        for choice in userChoices:
+            
+            # Player Games Played
+            if userChoices[count] == PLAYER_GAMESPLAYED:
+                
+                Player_GamesPlayed = get_statData(connection, playerName, "player_scoring_totals", "GamesPlayed")
+                    
+                statsToReturn.append(int(Player_GamesPlayed))
+                
+            # Player Games Started
+            elif userChoices[count] == PLAYER_GAMESSTARTED:
+                
+                Player_GamesStarted = get_statData(connection, playerName, "player_scoring_totals", "GamesStarted")
+                    
+                statsToReturn.append(Player_GamesStarted)
+                
+            # Player Minutes Per Game
+            elif userChoices[count] == PLAYER_MINUTES_PERGAME:
+                
+                Player_MinutesPerGame = get_statData(connection, playerName, "player_scoring_totals", "MinutesPerGame")
+                    
+                statsToReturn.append(Player_MinutesPerGame)
+            
+                
+            count += 1
+        
+    elif category == "Player_Scoring":
+        
+        count = 0
+        for choice in userChoices:
+            
+            # Player Points Per Game
+            if userChoices[count] == PLAYER_POINTS_PERGAME:
+                
+                Player_Points_PerGame = get_statData(connection, playerName, "player_scoring_totals", "PointsPerGame")
+                    
+                statsToReturn.append(float(Player_Points_PerGame))
+                
+            # Player Field Goals Made
+            elif userChoices[count] == PLAYER_FIELDGOALS_MADE:
+                
+                Player_fieldGoalsMade = get_statData(connection, playerName, "player_scoring_totals", "FieldGoalsMade")
+                    
+                statsToReturn.append(Player_fieldGoalsMade)
+                
+            # Player Field Goals Attempted
+            elif userChoices[count] == PLAYER_FIELDGOALS_ATTEMPTED:
+                
+                Player_fieldGoalsAttempted = get_statData(connection, playerName, "player_scoring_totals", "FieldGoalsAttempted")
+                    
+                statsToReturn.append(Player_fieldGoalsAttempted)
+                
+            # Player Field Goal Percentage
+            elif userChoices[count] == PLAYER_FIELDGOAL_PERC:
+                
+                Player_fieldGoalsPerc = get_statData(connection, playerName, "player_scoring_totals", "FieldGoalPerc")
+                    
+                statsToReturn.append(Player_fieldGoalsPerc)
+                
+            # Player 3 pointers Made
+            elif userChoices[count] == PLAYER_THREEPOINTERS_MADE:
+                
+                Player_ThreePointersMade = get_statData(connection, playerName, "player_scoring_totals", "ThreePointersMade")
+                    
+                statsToReturn.append(Player_ThreePointersMade)
+                
+            # Player 3 pointers Attempted
+            elif userChoices[count] == PLAYER_THREEPOINTERS_ATTEMPTED:
+                
+                Player_ThreePointersAttempted = get_statData(connection, playerName, "player_scoring_totals", "ThreePointersAttempted")
+                    
+                statsToReturn.append(int(Player_ThreePointersAttempted))
+                
+            # Player 3 pointers Percentage
+            elif userChoices[count] == PLAYER_THREEPOINTER_PERC:
+                
+                Player_ThreePointersPerc = get_statData(connection, playerName, "player_scoring_totals", "ThreePointerPerc")
+                    
+                statsToReturn.append(float(Player_ThreePointersPerc))
+                
+            # Player Free Throws Made
+            elif userChoices[count] == PLAYER_FREETHROWS_MADE:
+                
+                Player_FreeThrowsMade = get_statData(connection, playerName, "player_scoring_totals", "FreeThrowsMade")
+                    
+                statsToReturn.append(Player_FreeThrowsMade)
+                
+            # Player Free Throws Attmepted
+            elif userChoices[count] == PLAYER_FREETHROWS_ATTEMPTED:
+                
+                Player_FreeThrowsAttempted = get_statData(connection, playerName, "player_scoring_totals", "FreeThrowsAttempted")
+                    
+                statsToReturn.append(Player_FreeThrowsAttempted)
+                
+            # Player Free Throws Percentage
+            elif userChoices[count] == PLAYER_FREETHROW_PERC:
+                
+                Player_FreeThrowPerc = get_statData(connection, playerName, "player_scoring_totals", "FreeThrowPerc")
+                    
+                statsToReturn.append(Player_FreeThrowPerc)
+
+            count += 1
+            
+    elif category == "Player_Rebounds":
+        
+        count = 0
+        
+        for choice in userChoices:
+            
+            # Player Offensive Rebounds
+            if userChoices[count] == PLAYER_OFFENSIVE_REBOUNDS:
+                
+                Player_Off_Rebounds = get_statData(connection, playerName, "player_rebounds_totals", "OffRebounds")
+                    
+                statsToReturn.append(Player_Off_Rebounds)
+                
+            # Player Defensive Rebounds
+            elif userChoices[count] == PLAYER_DEFENSIVE_REBOUNDS:
+                
+                Player_Def_Rebounds = get_statData(connection, playerName, "player_rebounds_totals", "DefRebounds")
+                    
+                statsToReturn.append(Player_Def_Rebounds)
+                
+            # Player Total Rebounds
+            elif userChoices[count] == PLAYER_TOTAL_REBOUNDS:
+                
+                Player_Total_Rebounds = get_statData(connection, playerName, "player_rebounds_totals", "TotalRebounds")
+                    
+                statsToReturn.append(Player_Total_Rebounds)
+                
+             # Player Rebounds Per Game
+            elif userChoices[count] == PLAYER_REBOUNDS_PERGAME:
+                
+                Player_Rebounds_PerGame = get_statData(connection, playerName, "player_rebounds_totals", "ReboundsPerGame")
+                    
+                statsToReturn.append(Player_Rebounds_PerGame)
+                
+            count += 1
+    
+    elif category == "Player_Fouls":
+        
+        count = 0
+        
+        for choice in userChoices:
+            
+            # Player Personal Fouls
+            if userChoices[count] == PLAYER_PERSONAL_FOULS:
+                
+                Player_Personal_Fouls = get_statData(connection, playerName, "player_fouls_totals", "PersonalFouls")
+                    
+                statsToReturn.append(Player_Personal_Fouls)
+                
+            # Player Personal Fouls Per Game
+            elif userChoices[count] == PLAYER_PERSONAL_FOULS_PERGAME:
+                
+                Player_Personal_Fouls_PerGame = get_statData(connection, playerName, "player_fouls_totals", "PersonalFoulsPerGame")
+                    
+                statsToReturn.append(Player_Personal_Fouls_PerGame)
+                
+            # Player Flagrant Fouls
+            elif userChoices[count] == PLAYER_FLAGRANT_FOULS:
+                
+                Player_Flagrant_Fouls_PerGame = get_statData(connection, playerName, "player_fouls_totals", "FlagrantFouls")
+                    
+                statsToReturn.append(Player_Flagrant_Fouls_PerGame)
+                
+            # Player Technical Fouls
+            elif userChoices[count] == PLAYER_TECHNICAL_FOULS:
+                
+                Player_Technical_Fouls = get_statData(connection, playerName, "player_fouls_totals", "TechnicalFouls")
+                    
+                statsToReturn.append(Player_Technical_Fouls)
+                
+            # Player Ejections
+            elif userChoices[count] == PLAYER_EJECTIONS:
+                
+                Player_Ejections = get_statData(connection, playerName, "player_fouls_totals", "Ejections")
+                    
+                statsToReturn.append(Player_Ejections)
+                
+            # Player Disqualifications
+            elif userChoices[count] == PLAYER_DISQUALIFICATIONS:
+                
+                Player_Disqualifications = get_statData(connection, playerName, "player_fouls_totals", "Disqualifications")
+                    
+                statsToReturn.append(Player_Disqualifications)
+                
+            count += 1
+    
+    elif category == "Player_Blocks":
+        
+        count = 0
+        
+        for choice in userChoices:
+            
+            # Player Blocks
+            if userChoices[count] == PLAYER_BLOCKS:
+                
+                Player_Blocks = get_statData(connection, playerName, "player_blocks_totals", "Blocks")
+                    
+                statsToReturn.append(Player_Blocks)
+                
+             # Player Blocks Per Game
+            elif userChoices[count] == PLAYER_BLOCKS_PERGAME:
+                
+                Player_Blocks_PerGame = get_statData(connection, playerName, "player_blocks_totals", "BlocksPerGame")
+                    
+                statsToReturn.append(Player_Blocks_PerGame)
+                
+            count += 1
+    
+    elif category == "Player_Assists_Turnovers":
+        
+        count = 0
+        
+        for choice in userChoices:
+            
+            # Player Total Assists
+            if userChoices[count] == PLAYER_ASSISTS_TOTAL:
+                
+                Player_Total_Assists = get_statData(connection, playerName, "player_assists_turnovers_totals", "TotalAssists")
+                    
+                statsToReturn.append(int(Player_Total_Assists))
+                
+            # Player Assists Per Game
+            elif userChoices[count] == PLAYER_ASSISTS_PERGAME:
+                
+                Player_Assists_PerGame = get_statData(connection, playerName, "player_assists_turnovers_totals", "AssistsPerGame")
+                    
+                statsToReturn.append(float(Player_Assists_PerGame))
+                
+            # Player Turnovers
+            elif userChoices[count] == PLAYER_TURNOVERS:
+                
+                Player_Turnovers = get_statData(connection, playerName, "player_assists_turnovers_totals", "Turnovers")
+                    
+                statsToReturn.append(int(Player_Turnovers))
+                
+            # Player Turnovers Per Game
+            elif userChoices[count] == PLAYER_TURNOVERS_PERGAME:
+                
+                Player_Turnovers_PerGame = get_statData(connection, playerName, "player_assists_turnovers_totals", "TurnoversPerGame")
+                    
+                statsToReturn.append(float(Player_Turnovers_PerGame))
+                
+            # Player Assists Per Turnover
+            elif userChoices[count] == PLAYER_ASSISTS_PERTURNOVER:
+                
+                Player_Assists_PerTurnover = get_statData(connection, playerName, "player_assists_turnovers_totals", "AssistsPerTurnover")
+                    
+                statsToReturn.append(float(Player_Assists_PerTurnover))
+            
+            count += 1
+    
+    elif category == "Team_Defensive_Scoring":
+        
+        count = 0
+        
+        for choice in userChoices:
+            
+            # Team Opponents Points Per Game
+            if userChoices[count] == TEAM_OPP_POINTS_PERGAME:
+                
+                Team_Opp_Points_PerGame = get_NBA_teamStatData(connection, teamName, "team_defense_scoring", "opp_Points_PerGame")
+                    
+                statsToReturn.append(float(Team_Opp_Points_PerGame))
+                
+            # Team Opponents Points Per Game
+            elif userChoices[count] == TEAM_OPP_AVG_SCOREMARGIN:
+                
+                Team_Opp_Avg_ScoreMargin = get_NBA_teamStatData(connection, teamName, "team_defense_scoring", "opp_Avg_ScoreMargin")
+                    
+                statsToReturn.append(Team_Opp_Avg_ScoreMargin)
+                
+            # Team Opponents Points in 1st quarter Per Game
+            elif userChoices[count] == TEAM_OPP_FIRSTQUARTER_POINTS_PERGAME:
+                
+                Team_Opp_FirstQuarter_Points_PerGame = get_NBA_teamStatData(connection, teamName, "team_defense_scoring", "opp_1stQuarter_Points_PerGame")
+                    
+                statsToReturn.append(Team_Opp_FirstQuarter_Points_PerGame)
+                
+            # Team Opponents Points in 2nd quarter Per Game
+            elif userChoices[count] == TEAM_OPP_SECONDQUARTER_POINTS_PERGAME:
+                
+                Team_Opp_SecondQuarter_Points_PerGame = get_NBA_teamStatData(connection, teamName, "team_defense_scoring", "opp_2ndQuarter_Points_PerGame")
+                    
+                statsToReturn.append(Team_Opp_SecondQuarter_Points_PerGame)
+                
+            # Team Opponents Points in 3rd quarter Per Game
+            elif userChoices[count] == TEAM_OPP_THIRDQUARTER_POINTS_PERGAME:
+                
+                Team_Opp_ThirdQuarter_Points_PerGame = get_NBA_teamStatData(connection, teamName, "team_defense_scoring", "opp_3rdQuarter_Points_PerGame")
+                    
+                statsToReturn.append(Team_Opp_ThirdQuarter_Points_PerGame)
+                
+            # Team Opponents Points in 4th quarter Per Game
+            elif userChoices[count] == TEAM_OPP_FOURTHQUARTER_POINTS_PERGAME:
+                
+                Team_Opp_FourthQuarter_Points_PerGame = get_NBA_teamStatData(connection, teamName, "team_defense_scoring", "opp_4thQuarter_Points_PerGame")
+                    
+                statsToReturn.append(Team_Opp_FourthQuarter_Points_PerGame)
+                
+            # Team Opponents Points for 2 pointers
+            elif userChoices[count] == TEAM_OPP_POINTS_TWOPOINTERS:
+                
+                Team_Opp_Points_TwoPointers = get_NBA_teamStatData(connection, teamName, "team_defense_scoring", "opp_Points_2Pointers")
+                    
+                statsToReturn.append(Team_Opp_Points_TwoPointers)
+                
+            # Team Opponents Points for 3 pointers
+            elif userChoices[count] == TEAM_OPP_POINTS_THREEPOINTERS:
+                
+                Team_Opp_Points_ThreePointers = get_NBA_teamStatData(connection, teamName, "team_defense_scoring", "opp_Points_3Pointers")
+                    
+                statsToReturn.append(Team_Opp_Points_ThreePointers)
+            
+            count += 1
+    
+    elif category == "Team_Defensive_Shooting":
+        
+        count = 0
+        
+        for choice in userChoices:
+            
+            # Team Opponents Shooting Percentage
+            if userChoices[count] == TEAM_OPP_SHOOTING_PERC:
+                
+                Team_Opp_ShootingPerc = get_NBA_teamStatData(connection, teamName, "team_defense_shooting", "opp_Shooting_Perc")
+                    
+                statsToReturn.append(float(Team_Opp_ShootingPerc))
+                
+            # Team Opponents Three Point Shooting Percentage
+            elif userChoices[count] == TEAM_OPP_THREEPOINT_PERC:
+                
+                Team_Opp_ThreePoint_Perc = get_NBA_teamStatData(connection, teamName, "team_defense_shooting", "opp_ThreePoint_Perc")
+                    
+                statsToReturn.append(float(Team_Opp_ThreePoint_Perc))
+                
+            # Team Opponents Field Goals Per Game
+            elif userChoices[count] == TEAM_OPP_FIELDGOALS_PERGAME:
+                
+                Team_Opp_FieldGoals_PerGame = get_NBA_teamStatData(connection, teamName, "team_defense_shooting", "opp_FieldGoals_PerGame")
+                    
+                statsToReturn.append(float(Team_Opp_FieldGoals_PerGame))
+                
+            # Team Opponents Field Goals Attempts Per Game
+            elif userChoices[count] == TEAM_OPP_FIELDGOAL_ATTEMPTS_PERGAME:
+                
+                Team_Opp_FieldGoals_Attempts_PerGame = get_NBA_teamStatData(connection, teamName, "team_defense_shooting", "opp_FieldGoals_Attempts_PerGame")
+                    
+                statsToReturn.append(float(Team_Opp_FieldGoals_Attempts_PerGame))
+                
+            # Team Opponents 3 pointers Per Game
+            elif userChoices[count] == TEAM_OPP_THREEPOINTERS_PERGAME:
+                
+                Team_Opp_ThreePointers_PerGame = get_NBA_teamStatData(connection, teamName, "team_defense_shooting", "opp_3Pointers_PerGame")
+                    
+                statsToReturn.append(float(Team_Opp_ThreePointers_PerGame))
+                
+            # Team Opponents 3 pointer Attempts Per Game
+            elif userChoices[count] == TEAM_OPP_THREEPOINTER_ATTEMPTS_PERGAME:
+                
+                Team_Opp_ThreePointers_Attempts_PerGame = get_NBA_teamStatData(connection, teamName, "team_defense_shooting", "opp_3Pointers_Attempts_PerGame")
+                    
+                statsToReturn.append(float(Team_Opp_ThreePointers_Attempts_PerGame))
+            
+            count += 1
+    
+    elif category == "Team_Opp_Misc":
+        
+        count = 0
+        
+        for choice in userChoices:
+            
+            # Team Opponents Offensive Rebounds Per Game
+            if userChoices[count] == TEAM_OPP_OFFREBOUNDS_PERGAME:
+                
+                Team_Opp_OffRebounds_PerGame = get_NBA_teamStatData(connection, teamName, "team_opp_misc", "opp_OffRebounds_PerGame")
+                    
+                statsToReturn.append(float(Team_Opp_OffRebounds_PerGame))
+                
+            # Team Opponents Defensive Rebounds Per Game
+            elif userChoices[count] == TEAM_OPP_DEFREBOUNDS_PERGAME:
+                
+                Team_Opp_DefRebounds_PerGame = get_NBA_teamStatData(connection, teamName, "team_opp_misc", "opp_DefRebounds_PerGame")
+                    
+                statsToReturn.append(float(Team_Opp_DefRebounds_PerGame))
+                
+            # Team Opponents Blocks Per Game
+            elif userChoices[count] == TEAM_OPP_BLOCKS_PERGAME:
+                
+                Team_Opp_Blocks_PerGame = get_NBA_teamStatData(connection, teamName, "team_opp_misc", "opp_Blocks_PerGame")
+                    
+                statsToReturn.append(float(Team_Opp_Blocks_PerGame))
+                
+            # Team Opponents Steals Per Game
+            elif userChoices[count] == TEAM_OPP_STEALS_PERGAME:
+                
+                Team_Opp_Steals_PerGame = get_NBA_teamStatData(connection, teamName, "team_opp_misc", "opp_Steals_PerGame")
+                    
+                statsToReturn.append(float(Team_Opp_Steals_PerGame))
+                
+            # Team Opponents Steals Per Possession
+            elif userChoices[count] == TEAM_OPP_STEALS_PERPOSSESSION:
+                
+                Team_Opp_Steals_PerPossession = get_NBA_teamStatData(connection, teamName, "team_opp_misc", "opp_Steals_PerPossession")
+                    
+                statsToReturn.append(float(Team_Opp_Steals_PerPossession))
+                
+            # Team Opponents Steals Per Defensive Play
+            elif userChoices[count] == TEAM_OPP_STEALS_PERDEFPLAY:
+                
+                Team_Opp_Steals_PerDefPlay = get_NBA_teamStatData(connection, teamName, "team_opp_misc", "opp_Steals_PerDefPlay")
+                    
+                statsToReturn.append(float(Team_Opp_Steals_PerDefPlay))
+                
+            # Team Opponents Assists Per Game
+            elif userChoices[count] == TEAM_OPP_ASSISTS_PERGAME:
+                
+                Team_Opp_Assists_PerGame = get_NBA_teamStatData(connection, teamName, "team_opp_misc", "opp_Assists_PerGame")
+                    
+                statsToReturn.append(float(Team_Opp_Assists_PerGame))
+                
+            # Team Opponents Turnovers Per Game
+            elif userChoices[count] == TEAM_OPP_TURNOVERS_PERGAME:
+                
+                Team_Opp_Turnovers_PerGame = get_NBA_teamStatData(connection, teamName, "team_opp_misc", "opp_Turnovers_PerGame")
+                    
+                statsToReturn.append(float(Team_Opp_Turnovers_PerGame))
+                
+            # Team Opponents Turnovers Per Possession
+            elif userChoices[count] == TEAM_OPP_TURNOVERS_PERPOSSESSION:
+                
+                Team_Opp_Turnovers_PerPossession = get_NBA_teamStatData(connection, teamName, "team_opp_misc", "opp_Turnovers_PerPossession")
+                    
+                statsToReturn.append(float(Team_Opp_Turnovers_PerPossession))
+                
+            # Team Opponents Turnovers Per Offensive Play
+            elif userChoices[count] == TEAM_OPP_TURNOVERS_PEROFFPLAY:
+                
+                Team_Opp_Turnovers_PerOffPlay = get_NBA_teamStatData(connection, teamName, "team_opp_misc", "opp_Turnovers_PerOffensivePlay")
+                    
+                statsToReturn.append(float(Team_Opp_Turnovers_PerOffPlay))
+                
+            # Team Opponents Turnovers Per Offensive Play
+            elif userChoices[count] == TEAM_OPP_FOULS_PERGAME:
+                
+                Team_Opp_Fouls_PerGame = get_NBA_teamStatData(connection, teamName, "team_opp_misc", "opp_Fouls_PerGame")
+                    
+                statsToReturn.append(float(Team_Opp_Fouls_PerGame))
+                
+            count += 1
+    
+    elif category == "Team_Misc":
+        
+        count = 0
+        
+        for choice in userChoices:
+            
+            # Team  Offensive Rebounds Per Game
+            if userChoices[count] == TEAM_OFFREBOUNDS_PERGAME:
+                
+                Team_OffRebounds_PerGame = get_NBA_teamStatData(connection, playerName, "team_misc", "off_Rebounds_PerGame")
+                    
+                statsToReturn.append(Team_OffRebounds_PerGame)
+                
+            # Team  Defensive Rebounds Per Game
+            elif userChoices[count] == TEAM_DEFREBOUNDS_PERGAME:
+                
+                Team_DefRebounds_PerGame = get_NBA_teamStatData(connection, playerName, "team_misc", "def_Rebounds_PerGame")
+                    
+                statsToReturn.append(Team_DefRebounds_PerGame)
+                
+            # Team  Blocks Per Game
+            elif userChoices[count] == TEAM_BLOCKS_PERGAME:
+                
+                Team_Blocks_PerGame = get_NBA_teamStatData(connection, playerName, "team_misc", "blocks_PerGame")
+                    
+                statsToReturn.append(Team_Blocks_PerGame)
+                
+            # Team  Steals Per Game
+            elif userChoices[count] == TEAM_STEALS_PERGAME:
+                
+                Team_Steals_PerGame = get_NBA_teamStatData(connection, playerName, "team_misc", "steals_PerGame")
+                    
+                statsToReturn.append(Team_Steals_PerGame)
+                
+            # Team  Steals Per Game
+            elif userChoices[count] == TEAM_ASSISTS_PERGAME:
+                
+                Team_Assists_PerGame = get_NBA_teamStatData(connection, playerName, "team_misc", "assists_PerGame")
+                    
+                statsToReturn.append(Team_Assists_PerGame)
+                
+            # Team  Turnovers Per Game
+            elif userChoices[count] == TEAM_TURNOVERS_PERGAME:
+                
+                Team_Turnovers_PerGame = get_NBA_teamStatData(connection, playerName, "team_misc", "turnovers_PerGame")
+                    
+                statsToReturn.append(Team_Turnovers_PerGame)
+                
+            # Team  Personal Fouls Per Game
+            elif userChoices[count] == TEAM_PERSONALFOULS_PERGAME:
+                
+                Team_PersonalFouls_PerGame = get_NBA_teamStatData(connection, playerName, "team_misc", "personalFouls_PerGame")
+                    
+                statsToReturn.append(Team_PersonalFouls_PerGame)
+                
+            # Team  Personal Fouls Per Game
+            elif userChoices[count] == TEAM_TECHNICALFOULS_PERGAME:
+                
+                Team_TechnicalFouls_PerGame = get_NBA_teamStatData(connection, playerName, "team_misc", "technicalFouls_PerGame")
+                    
+                statsToReturn.append(Team_TechnicalFouls_PerGame)
+                
+            count += 1
+    
+    elif category == "Team_Offensive_Scoring":
+        
+        count = 0
+        
+        for choice in userChoices:
+            
+            # Team  Points Per Game
+            if userChoices[count] == TEAM_POINTS_PERGAME:
+                
+                Team_Points_PerGame = get_NBA_teamStatData(connection, playerName, "team_offensive_scoring", "points_PerGame")
+                    
+                statsToReturn.append(Team_Points_PerGame)
+                
+            # Team  Average Score Margin
+            elif userChoices[count] == TEAM_AVERAGE_SCOREMARGIN:
+                
+                Team_Avg_ScoreMargin = get_NBA_teamStatData(connection, playerName, "team_offensive_scoring", "average_ScoreMargin")
+                    
+                statsToReturn.append(Team_Avg_ScoreMargin)
+                
+            # Team  1st Quarter Points
+            elif userChoices[count] == TEAM_FIRSTQUARTER_POINTS_PERGAME:
+                
+                Team_FirstQuarter_Points_PerGame = get_NBA_teamStatData(connection, playerName, "team_offensive_scoring", "1stQuarter_Points_PerGame")
+                    
+                statsToReturn.append(Team_FirstQuarter_Points_PerGame)
+                
+            # Team  2nd Quarter Points
+            elif userChoices[count] == TEAM_SECONDQUARTER_POINTS_PERGAME:
+                
+                Team_SecondQuarter_Points_PerGame = get_NBA_teamStatData(connection, playerName, "team_offensive_scoring", "2ndQuarter_Points_PerGame")
+                    
+                statsToReturn.append(Team_SecondQuarter_Points_PerGame)
+                
+            # Team  3rd Quarter Points
+            elif userChoices[count] == TEAM_THIRDQUARTER_POINTS_PERGAME:
+                
+                Team_ThirdQuarter_Points_PerGame = get_NBA_teamStatData(connection, playerName, "team_offensive_scoring", "3rdQuarter_Points_PerGame")
+                    
+                statsToReturn.append(Team_ThirdQuarter_Points_PerGame)
+                
+            # Team  4th Quarter Points
+            elif userChoices[count] == TEAM_FOURTHQUARTER_POINTS_PERGAME:
+                
+                Team_FourthQuarter_Points_PerGame = get_NBA_teamStatData(connection, playerName, "team_offensive_scoring", "4thQuarter_Points_PerGame")
+                    
+                statsToReturn.append(Team_FourthQuarter_Points_PerGame)
+                
+            # Team  Average First Quarter Margin
+            elif userChoices[count] == TEAM_AVG_FIRSTQUARTER_MARGIN:
+                
+                Team_Avg_FirstQuarter_Margin = get_NBA_teamStatData(connection, playerName, "team_offensive_scoring", "avg_1stQuarter_Margin")
+                    
+                statsToReturn.append(Team_Avg_FirstQuarter_Margin)
+                
+            # Team  Average Second Quarter Margin
+            elif userChoices[count] == TEAM_AVG_SECONDQUARTER_MARGIN:
+                
+                Team_Avg_SecondQuarter_Margin = get_NBA_teamStatData(connection, playerName, "team_offensive_scoring", "avg_2ndQuarter_Margin")
+                    
+                statsToReturn.append(Team_Avg_SecondQuarter_Margin)
+                
+            # Team  Average Third Quarter Margin
+            elif userChoices[count] == TEAM_AVG_THIRDQUARTER_MARGIN:
+                
+                Team_Avg_ThirdQuarter_Margin = get_NBA_teamStatData(connection, playerName, "team_offensive_scoring", "avg_3rdQuarter_Margin")
+                    
+                statsToReturn.append(Team_Avg_ThirdQuarter_Margin)
+                
+            # Team  Average Fourth Quarter Margin
+            elif userChoices[count] == TEAM_AVG_FOURTHQUARTER_MARGIN:
+                
+                Team_Avg_FourthQuarter_Margin = get_NBA_teamStatData(connection, playerName, "team_offensive_scoring", "avg_4thQuarter_Margin")
+                    
+                statsToReturn.append(Team_Avg_FourthQuarter_Margin)
+                
+            # Team  Points From 2 Pointers
+            elif userChoices[count] == TEAM_POINTS_TWOPOINTERS:
+                
+                Team_Points_TwoPoints = get_NBA_teamStatData(connection, playerName, "team_offensive_scoring", "points_2Pointers")
+                    
+                statsToReturn.append(Team_Points_TwoPoints)
+                
+            # Team  Points From 3 Pointers
+            elif userChoices[count] == TEAM_POINTS_THREEPOINTERS:
+                
+                Team_Points_ThreePoints = get_NBA_teamStatData(connection, playerName, "team_offensive_scoring", "points_3Pointers")
+                    
+                statsToReturn.append(Team_Points_ThreePoints)
+            
+            count += 1
+           
+    elif category == "Team_Offensive_Shooting":
+        
+        count = 0
+        
+        for choice in userChoices:
+            
+            # Team Shooting Perc
+            if userChoices[count] == TEAM_SHOOTING_PERC:
+                
+                Team_Shooting_Perc = get_NBA_teamStatData(connection, playerName, "team_offensive_shooting", "shooting_Perc")
+                    
+                statsToReturn.append(Team_Shooting_Perc)
+                
+            # Team Three Point Shooting Perc
+            elif userChoices[count] == TEAM_THREEPOINT_PERC:
+                
+                Team_ThreePoint_Perc = get_NBA_teamStatData(connection, playerName, "team_offensive_shooting", "3Point_Perc")
+                    
+                statsToReturn.append(Team_ThreePoint_Perc)
+                
+            # Team Field Goals Per Game
+            elif userChoices[count] == TEAM_FIELDGOALS_PERGAME:
+                
+                Team_FieldGoals_PerGame = get_NBA_teamStatData(connection, playerName, "team_offensive_shooting", "fieldGoals_PerGame")
+                    
+                statsToReturn.append(Team_FieldGoals_PerGame)
+                
+            # Team Field Goals Attempted Per Game
+            elif userChoices[count] == TEAM_FIELDGOALS_ATTEMPTED_PERGAME:
+                
+                Team_FieldGoals_Attempted_PerGame = get_NBA_teamStatData(connection, playerName, "team_offensive_shooting", "fieldGoals_Attempted_PerGame")
+                    
+                statsToReturn.append(Team_FieldGoals_Attempted_PerGame)
+                
+            # Team Three Pointers Per Game
+            elif userChoices[count] == TEAM_THREEPOINTERS_PERGAME:
+                
+                Team_ThreePointers_PerGame = get_NBA_teamStatData(connection, playerName, "team_offensive_shooting", "3Pointers_PerGame")
+                    
+                statsToReturn.append(Team_ThreePointers_PerGame)
+                
+            # Team Three Pointers Attempted Per Game
+            elif userChoices[count] == TEAM_THREEPOINTERS_ATTEMPTED_PERGAME:
+                
+                Team_ThreePointers_Attempted_PerGame = get_NBA_teamStatData(connection, playerName, "team_offensive_shooting", "3Pointers_Attempted_PerGame")
+                    
+                statsToReturn.append(Team_ThreePointers_Attempted_PerGame)
+            
+            count += 1
+    
+    elif category == "Team_Winning_Perc":
+        
+        count = 0
+        
+        for choice in userChoices:
+            
+            # Team Win Percentage All Games
+            if userChoices[count] == TEAM_WINPERC_ALLGAMES:
+                
+                Team_WinningPerc_AllGames = get_NBA_teamStatData(connection, playerName, "team_offensive_shooting", "winPerc_AllGames")
+                    
+                statsToReturn.append(Team_WinningPerc_AllGames)
+                
+            # Team Win Percentage Close Games
+            elif userChoices[count] == TEAM_WINPERC_CLOSEGAMES:
+                
+                Team_WinningPerc_CloseGames = get_NBA_teamStatData(connection, playerName, "team_offensive_shooting", "winPerc_CloseGames")
+                    
+                statsToReturn.append(Team_WinningPerc_CloseGames)
+                
+            # Team Opponents Win Percentage All Games
+            elif userChoices[count] == TEAM_OPP_WINPERC_ALLGAMES:
+                
+                Team_Opp_WinPerc_AllGames = get_NBA_teamStatData(connection, playerName, "team_offensive_shooting", "opp_winPerc_AllGames")
+                    
+                statsToReturn.append(Team_Opp_WinPerc_AllGames)
+                
+            # Team Opponents Win Percentage All Games
+            elif userChoices[count] == TEAM_OPP_WINPERC_CLOSEGAMES:
+                
+                Team_Opp_WinPerc_CloseGames = get_NBA_teamStatData(connection, playerName, "team_offensive_shooting", "opp_winPerc_CloseGames")
+                    
+                statsToReturn.append(Team_Opp_WinPerc_CloseGames)
+            
+            count += 1
+    
+    # Close connection at the end of loop    
+    close_connection(connection)
+               
+    return statsToReturn
+    
+
+# Removes players jr/sr/lll
+def clean_PlayerName(playerName):
+    
+    # Define a pattern to match common name suffixes like "Jr", "Sr", "III", etc.
+    suffix_pattern = r' (Jr|Jr.|JR|JR.|jr|jr.|Sr|Sr.|SR|SR.|sr.|sr|I{1,3}|III|V|VI|VII|VIII|IX)$'
+    
+    # Use regular expression to remove the suffix from the player's name
+    cleaned_name = re.sub(suffix_pattern, '', playerName)
+    
+    return cleaned_name
+    
 # Create Connection To Database
 def create_connection(database):
     connection = None
@@ -4518,6 +5853,54 @@ def create_connection(database):
             connection = mysql.connector.connect(
                 host='127.0.0.1',
                 database='nfl_stats',
+                user='root',
+                password='root'
+            )
+            if connection.is_connected():
+                pass
+        except Error as e:
+            print(f"Error connecting to MySQL database: {e}")
+        
+        return connection
+    
+    elif database == "nba_stats":
+
+        try:
+            connection = mysql.connector.connect(
+                host='127.0.0.1',
+                database='nba_stats',
+                user='root',
+                password='root'
+            )
+            if connection.is_connected():
+                pass
+        except Error as e:
+            print(f"Error connecting to MySQL database: {e}")
+        
+        return connection
+    
+    elif database == "nfl_players_gamelogs":
+        
+        try:
+            connection = mysql.connector.connect(
+                host='127.0.0.1',
+                database='nfl_players_gamelogs',
+                user='root',
+                password='root'
+            )
+            if connection.is_connected():
+                pass
+        except Error as e:
+            print(f"Error connecting to MySQL database: {e}")
+        
+        return connection
+    
+    elif database == "nfl_teams_gamelogs":
+        
+        try:
+            connection = mysql.connector.connect(
+                host='127.0.0.1',
+                database='nfl_teams_defensive_gamelogs',
                 user='root',
                 password='root'
             )
@@ -4582,6 +5965,26 @@ def get_teamStatData(connection, name, table, stat):
         try:
             # Use a parameterized query to avoid SQL injection
             query = "SELECT {} FROM {} WHERE Team_Name = %s".format(stat, table)
+            cursor = connection.cursor()
+            cursor.execute(query, (name,))
+
+            # Fetch the value from the result set
+            result = cursor.fetchone()
+            if result:
+                stat_value = result[0]
+
+        except Error as e:
+            print(f"Error fetching data: {e}")
+    else:
+        print("Connection is None")
+    return stat_value
+
+def get_NBA_teamStatData(connection, name, table, stat):
+    stat_value = None
+    if connection is not None:
+        try:
+            # Use a parameterized query to avoid SQL injection
+            query = "SELECT {} FROM {} WHERE Team = %s".format(stat, table)
             cursor = connection.cursor()
             cursor.execute(query, (name,))
 

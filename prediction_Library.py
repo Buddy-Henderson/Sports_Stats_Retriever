@@ -940,3 +940,769 @@ def getMLBPred(*args):
 
     close_connection(connection)       
     return statsToReturn
+
+def getNFLPred(*args):
+    
+    playerName = ""
+    teamName = ""
+    
+    
+    category = args[1]
+    
+    userChoices = []
+    statsToReturn = []
+    
+    teamNames = ["Arizona", "Atlanta", "Baltimore", "Buffalo", "Carolina", "Chicago", "Cincinnati", "Cleveland", "Dallas", "Denver", "Detroit",
+                 "Green Bay", "Houston", "Indianapolis", "Jacksonville", "Kansas City", "LA Chargers", "LA Rams", "Las Vegas", "Miami", "Minnesota",
+                 "New England", "New Orleans", "NY Giants", "NY Jets", "Philadelphia", "Pittsburgh", "San Francisco", "Seattle", "Tampa Bay", "Tennessee", 
+                 "Washington"]
+    
+    if args[0] in teamNames:
+        
+        teamName = args[0]
+        
+        for arg in args[2:]:
+            userChoices.append(arg)
+        
+    else:
+        
+        playerName = args[0]
+        
+        if args[2] in teamNames:
+            
+            teamName = args[2]
+            
+            for arg in args[3:]:
+                userChoices.append(arg)
+            
+        else:
+            
+            for arg in args[2:]:
+                userChoices.append(arg)
+    
+    connection = create_connection("nfl_stats")
+    
+               
+    # ----Stat Call Commands----
+    
+    # --Quarterback--
+    
+    QB_PRED_PASSYARDS = "QB_Pred_PassYards"
+    QB_PRED_TOUCHDOWNS = "QB_Pred_Touchdowns"
+    QB_PRED_COMPLETIONS = "QB_Pred_Completions"
+    QB_PRED_RUSHYARDS = "QB_Pred_RushYard"
+    QB_PRED_RUSHATTEMPTS = "QB_Pred_RushAttempts"
+    
+    # --Runningback--
+    RB_PRED_RUSHYARDS = "RB_Pred_RushYards"
+    RB_PRED_TOUCHDOWNS = "RB_Pred_Touchdowns"
+    RB_PRED_ATTEMPTS = "RB_Pred_Attempts"
+    RB_PRED_YPA = "RB_Pred_YPA"
+    RB_PRED_RECYARDS = "RB_Pred_RecYards"
+    
+    # --Wide Recievers--
+    WR_PRED_RECYARDS = "WR_Pred_RecYards"
+    WR_PRED_TOUCHDOWNS = "WR_Pred_Touchdowns"
+    WR_PRED_COMPLETIONS = "WR_Pred_Completions"
+    WR_PRED_YPC = "WR_Pred_YPC"
+    
+    # --Tight Ends--
+    TE_PRED_RECYARDS = "TE_Pred_RecYards"
+    TE_PRED_TOUCHDOWNS = "TE_Pred_Touchdowns"
+    TE_PRED_COMPLETIONS = "TE_Pred_Completions"
+    
+    # --Team---
+    TEAM_PRED_POINTS = "Team_Pred_Points"
+            
+    for choice in userChoices:
+        
+        
+        
+        if category == "Quarterback":
+        
+            if choice == QB_PRED_PASSYARDS:
+                
+                # Get QB's Pass Yards Per Game
+                QB_PassYards_PerGame = getNFLCalc(playerName, "Quarterback", "QB_Calc_PassYards_PerGame")
+                QB_PassYards_PerGame = float(QB_PassYards_PerGame[0])
+                
+                # Get versus team's pass yards allowed per game
+                vsTeam_PassYards_Allowed_PerGame =  get_statData(connection, teamName, "defteam_passing_stats", "PassYards_PerGame")
+                vsTeam_PassYards_Allowed_PerGame = float(vsTeam_PassYards_Allowed_PerGame)
+                
+                # Get everyteam's pass yards allowed per game
+                league_PassYards_PerGame_List= []
+                for team in teamNames:
+                    
+                    statToGet = "DefTeam_PassYards_PerGame"
+                    stat = getNFLStat(team, "Defense_Team_Passing", statToGet)
+        
+                    league_PassYards_PerGame_List.append(stat[0])
+                
+                # Sum All team's pass yards allowed per game
+                league_PassYards_PerGame_Sum = 0   
+                for yard in league_PassYards_PerGame_List:
+                    
+                    league_PassYards_PerGame_Sum += float(yard)
+                    
+                # Calculate the league average of pass yards allowed per game
+                league_PassYards_PerGame_AVG = (league_PassYards_PerGame_Sum/len(league_PassYards_PerGame_List))
+                
+                # Calculate pass Yards allowed difference between versus team and league average as a percentage
+                percentage_passYards_Diff = ((vsTeam_PassYards_Allowed_PerGame - league_PassYards_PerGame_AVG) / league_PassYards_PerGame_AVG) * 100
+                percentage_passYards_Diff = percentage_passYards_Diff/2
+                
+                # Calculate predicted QB's pass touchdowns as a percentage change from QB's average
+                pred_QB_PassingYards = QB_PassYards_PerGame * (1 + percentage_passYards_Diff / 100)
+                
+                statsToReturn.append(round(pred_QB_PassingYards,1))
+                
+            elif choice == QB_PRED_TOUCHDOWNS:
+                
+                QB_Touchdowns_PerGame = getNFLCalc(playerName, "Quarterback", "QB_Calc_Touchdowns_PerGame")
+                QB_Touchdowns_PerGame = float(QB_Touchdowns_PerGame[0])
+                
+                vsTeam_PassTouchdowns_Allowed_PerGame =  get_statData(connection, teamName, "defteam_passing_stats", "PassTouchdowns_PerGame")
+                vsTeam_PassTouchdowns_Allowed_PerGame = float(vsTeam_PassTouchdowns_Allowed_PerGame)
+                
+                # Get everyteam's Pass Touchdowns allowed per game
+                league_PassTouchdowns_PerGame_List= []
+                for team in teamNames:
+                    
+                    statToGet = "DefTeam_PassTouchdowns_PerGame"
+                    stat = getNFLStat(team, "Defense_Team_Passing", statToGet)
+        
+                    league_PassTouchdowns_PerGame_List.append(stat[0])
+                
+                # Sum All team's Pass Touchdowns allowed per game
+                league_PassTouchdowns_PerGame_Sum = 0   
+                for touchdowns in league_PassTouchdowns_PerGame_List:
+                    
+                    league_PassTouchdowns_PerGame_Sum += float(touchdowns)
+                   
+                # Calculate the league average of pass Touchdowns allowed per game
+                league_PassTouchdowns_PerGame_AVG = (league_PassTouchdowns_PerGame_Sum/len(league_PassTouchdowns_PerGame_List))
+                
+                # Calculate pass touchdowns allowed difference between versus team and league average as a percentage
+                percentage_passTouchdowns_Diff = ((vsTeam_PassTouchdowns_Allowed_PerGame - league_PassTouchdowns_PerGame_AVG) / league_PassTouchdowns_PerGame_AVG) * 100
+                percentage_passTouchdowns_Diff = percentage_passTouchdowns_Diff/2
+                
+                # Calculate predicted QB's pass touchdowns as a percentage change from QB's average
+                pred_QB_PassingTouchdowns = QB_Touchdowns_PerGame * (1 + percentage_passTouchdowns_Diff / 100)
+                
+                statsToReturn.append(round(pred_QB_PassingTouchdowns,1))
+                
+            elif choice == QB_PRED_COMPLETIONS:
+                
+                QB_Completions_PerGame = getNFLCalc(playerName, "Quarterback", "QB_Calc_Completions_PerGame")
+                QB_Completions_PerGame = float(QB_Completions_PerGame[0])
+                
+                vsTeam_Completions_Allowed_PerGame =  get_statData(connection, teamName, "defteam_passing_stats", "Completions_PerGame")
+                vsTeam_Completions_Allowed_PerGame = float(vsTeam_Completions_Allowed_PerGame)
+                
+                
+                # Get everyteam's Pass Touchdowns allowed per game
+                league_Completions_PerGame_List= []
+                for team in teamNames:
+                    
+                    statToGet = "DefTeam_Completions_PerGame"
+                    stat = getNFLStat(team, "Defense_Team_Passing", statToGet)
+        
+                    league_Completions_PerGame_List.append(stat[0])
+                
+                # Sum All team's Pass Touchdowns allowed per game
+                league_Completions_PerGame_Sum = 0   
+                for completions in league_Completions_PerGame_List:
+                    
+                    league_Completions_PerGame_Sum += float(completions)
+                   
+                # Calculate the league average of pass Touchdowns allowed per game
+                league_Completions_PerGame_AVG = (league_Completions_PerGame_Sum/len(league_Completions_PerGame_List))
+                
+                # Calculate pass completions allowed difference between versus team and league average as a percentage
+                percentage_passCompletions_Diff = ((vsTeam_Completions_Allowed_PerGame - league_Completions_PerGame_AVG) / league_Completions_PerGame_AVG) * 100
+                percentage_passCompletions_Diff = percentage_passCompletions_Diff/2
+                
+                # Calculate predicted QB's pass touchdowns as a percentage change from QB's average
+                pred_QB_PassingCompletions = QB_Completions_PerGame * (1 + percentage_passCompletions_Diff / 100)
+                
+                statsToReturn.append(round(pred_QB_PassingCompletions,1))
+                
+        elif category == "Runningback":
+            
+            if choice == RB_PRED_RUSHYARDS:
+                
+                RB_RushYards_PerGame = getNFLCalc(playerName, "Runningback", "RB_Calc_RushYards_PerGame")
+                RB_RushYards_PerGame = float(RB_RushYards_PerGame[0])
+                
+                vsTeam_RushYards_Allowed_PerGame =  get_statData(connection, teamName, "defteam_rushing_stats", "RushYards_PerGame")
+                vsTeam_RushYards_Allowed_PerGame = float(vsTeam_RushYards_Allowed_PerGame)
+                
+                # Get everyteam's Rush Yards allowed per game
+                league_RushYards_PerGame_List= []
+                for team in teamNames:
+                    
+                    statToGet = "DefTeam_RushYards_PerGame"
+                    stat = getNFLStat(team, "Defense_Team_Rushing", statToGet)
+        
+                    league_RushYards_PerGame_List.append(stat[0])
+                
+                # Sum All team's Pass Touchdowns allowed per game
+                league_RushYards_PerGame_Sum = 0   
+                for yards in league_RushYards_PerGame_List:
+                    
+                    league_RushYards_PerGame_Sum += float(yards)
+                   
+                # Calculate the league average of pass Touchdowns allowed per game
+                league_RushYards_PerGame_AVG = (league_RushYards_PerGame_Sum/len(league_RushYards_PerGame_List))
+                
+                # Calculate Rush Yards allowed difference between versus team and league average as a percentage
+                percentage_RushYards_Diff = ((vsTeam_RushYards_Allowed_PerGame - league_RushYards_PerGame_AVG) / league_RushYards_PerGame_AVG) * 100
+                percentage_RushYards_Diff = percentage_RushYards_Diff/2
+                
+                # Calculate predicted RB's Rush Yards as a percentage change from QB's average
+                pred_RB_RushingYards = RB_RushYards_PerGame * (1 + percentage_RushYards_Diff / 100)
+                
+                statsToReturn.append(round(pred_RB_RushingYards,1))
+                
+            elif choice == RB_PRED_TOUCHDOWNS:
+                
+                RB_RushTouchdowns_PerGame = getNFLCalc(playerName, "Runningback", "RB_Calc_Touchdowns_PerGame")
+                RB_RushTouchdowns_PerGame = float(RB_RushTouchdowns_PerGame[0])
+                
+                vsTeam_RushTouchdowns_Allowed_PerGame =  get_statData(connection, teamName, "defteam_rushing_stats", "RushTouchdowns_PerGame")
+                vsTeam_RushTouchdowns_Allowed_PerGame = float(vsTeam_RushTouchdowns_Allowed_PerGame)
+                
+                # Get everyteam's rush touchdowns allowed per game
+                league_RushTouchdowns_PerGame_List= []
+                for team in teamNames:
+                    
+                    statToGet = "DefTeam_RushTouchdowns_PerGame"
+                    stat = getNFLStat(team, "Defense_Team_Rushing", statToGet)
+        
+                    league_RushTouchdowns_PerGame_List.append(stat[0])
+                
+                # Sum All team's Rush Touchdowns allowed per game
+                league_RushTouchdowns_PerGame_Sum = 0   
+                for touchdowns in league_RushTouchdowns_PerGame_List:
+                    
+                    league_RushTouchdowns_PerGame_Sum += float(touchdowns)
+                   
+                # Calculate the league average of Rush Touchdowns allowed per game
+                league_RushTouchdowns_PerGame_AVG = (league_RushTouchdowns_PerGame_Sum/len(league_RushTouchdowns_PerGame_List))
+                
+                # Calculate Rush Touchdowns allowed difference between versus team and league average as a percentage
+                percentage_RushTouchdowns_Diff = ((vsTeam_RushTouchdowns_Allowed_PerGame - league_RushTouchdowns_PerGame_AVG) / league_RushTouchdowns_PerGame_AVG) * 100
+                percentage_RushTouchdowns_Diff = percentage_RushTouchdowns_Diff/2
+                
+                # Calculate predicted RB's Rushing touchdowns as a percentage change from QB's average
+                pred_RB_RushTouchdowns = RB_RushTouchdowns_PerGame * (1 + percentage_RushTouchdowns_Diff / 100)
+                
+                
+                statsToReturn.append(round(pred_RB_RushTouchdowns,1))
+                
+            elif choice == RB_PRED_ATTEMPTS:
+                
+                RB_Attempts_PerGame = getNFLCalc(playerName, "Runningback", "RB_Calc_Attempts_PerGame")
+                RB_Attempts_PerGame = float(RB_Attempts_PerGame[0])
+                
+                vsTeam_Attempts_Allowed_PerGame =  get_statData(connection, teamName, "defteam_rushing_stats", "RushAttempts_PerGame")
+                vsTeam_Attempts_Allowed_PerGame = float(vsTeam_Attempts_Allowed_PerGame)
+                
+                # Get everyteam's rush Attempts allowed per game
+                league_Attempts_PerGame_List= []
+                for team in teamNames:
+                    
+                    statToGet = "DefTeam_RushAttempts_PerGame"
+                    stat = getNFLStat(team, "Defense_Team_Rushing", statToGet)
+        
+                    league_Attempts_PerGame_List.append(stat[0])
+                
+                # Sum All team's Rush Attempts allowed per game
+                league_Attempts_PerGame_Sum = 0   
+                for attempts in league_Attempts_PerGame_List:
+                    
+                    league_Attempts_PerGame_Sum += float(attempts)
+                   
+                # Calculate the league average of Rush Attempts allowed per game
+                league_Attempts_PerGame_AVG = (league_Attempts_PerGame_Sum/len(league_Attempts_PerGame_List))
+                
+                # Calculate Rush Attempts allowed difference between versus team and league average as a percentage
+                percentage_RushAttempts_Diff = ((vsTeam_Attempts_Allowed_PerGame - league_Attempts_PerGame_AVG) / league_Attempts_PerGame_AVG) * 100
+                percentage_RushAttempts_Diff = percentage_RushAttempts_Diff/2
+                
+                # Calculate predicted RB's Rushing touchdowns as a percentage change from QB's average
+                pred_RB_RushAttempts = RB_Attempts_PerGame * (1 + percentage_RushAttempts_Diff / 100)
+                
+                
+                statsToReturn.append(round(pred_RB_RushAttempts,1))
+                
+            elif choice == RB_PRED_YPA:
+                
+                RB_YPA_AVG = get_statData(connection, playerName, "rb_total_stats", "Yards_PerAttempt")
+                RB_YPA_AVG = float(RB_YPA_AVG)
+                
+                vsTeam_YPA_Allowed =  getNFLStat(teamName, "Defense_Team_Rushing", "DefTeam_RushYards_PerAttempt")
+                vsTeam_YPA_Allowed = float(vsTeam_YPA_Allowed[0])
+                
+                # Get everyteam's rush yards per attempt allowed
+                league_YPA_List = []
+                for team in teamNames:
+                    
+                    statToGet = "DefTeam_RushYards_PerAttempt"
+                    stat = getNFLStat(team, "Defense_Team_Rushing", statToGet)
+        
+                    league_YPA_List.append(stat[0])
+                    
+                # Sum All team's Rush Yards allowed per attempt
+                league_YPA_Sum = 0   
+                for Yards in league_YPA_List:
+                    
+                    league_YPA_Sum += float(Yards)
+                    
+                # Calculate the league average of YPA allowed 
+                league_YPA_AVG = (league_YPA_Sum/len(league_YPA_List))
+                
+                # Calculate YPA allowed difference between versus team and league average as a percentage
+                percentage_YPA_Diff = ((vsTeam_YPA_Allowed - league_YPA_AVG) / league_YPA_AVG) * 100
+                percentage_YPA_Diff = percentage_YPA_Diff/2
+                
+                # Calculate predicted RB's Rushing touchdowns as a percentage change from QB's average
+                pred_RB_YPA = RB_YPA_AVG * (1 + percentage_YPA_Diff / 100)
+                
+                statsToReturn.append(round(pred_RB_YPA,1))
+                
+                
+        
+        elif category == "WideReciever":
+            
+            if choice == WR_PRED_RECYARDS:
+                
+                WR_RecYards_PerGame = getNFLCalc(playerName, "WideReciever", "WR_Calc_RecYards_PerGame")
+                WR_RecYards_PerGame = float(WR_RecYards_PerGame[0])
+                
+                vsTeam_PassYards_Allowed_PerGame =  get_statData(connection, teamName, "defteam_passing_stats", "PassYards_PerGame")
+                vsTeam_PassYards_Allowed_PerGame = float(vsTeam_PassYards_Allowed_PerGame)
+                
+                # Get everyteam's Pass Yards allowed per game
+                league_PassYards_PerGame_List= []
+                for team in teamNames:
+                    
+                    statToGet = "DefTeam_PassYards_PerGame"
+                    stat = getNFLStat(team, "Defense_Team_Passing", statToGet)
+        
+                    league_PassYards_PerGame_List.append(stat[0])
+                    
+                # Sum All team's Pass Yards allowed per game
+                league_PassYards_PerGame_Sum = 0   
+                for yards in league_PassYards_PerGame_List:
+                    
+                    league_PassYards_PerGame_Sum += float(yards)
+                    
+                # Calculate the league average of Pass Yards allowed per game
+                league_PassYards_PerGame_AVG = (league_PassYards_PerGame_Sum/len(league_PassYards_PerGame_List))
+                
+                # Calculate Pass Yards allowed difference between versus team and league average as a percentage
+                percentage_PassYards_Diff = ((vsTeam_PassYards_Allowed_PerGame - league_PassYards_PerGame_AVG) / league_PassYards_PerGame_AVG) * 100
+                percentage_PassYards_Diff = percentage_PassYards_Diff/2
+                
+                # Calculate predicted WR Rec Yards as a percentage change from QB's average
+                pred_WR_RecYards = WR_RecYards_PerGame * (1 + percentage_PassYards_Diff / 100)
+                
+                statsToReturn.append(round(pred_WR_RecYards,1))
+            
+            elif choice == WR_PRED_TOUCHDOWNS:
+                
+                WR_RecTouchdowns_PerGame = getNFLCalc(playerName, "WideReciever", "WR_Calc_Touchdowns_PerGame")
+                WR_RecTouchdowns_PerGame = float(WR_RecTouchdowns_PerGame[0])
+                
+                vsTeam_PassTouchdowns_Allowed_PerGame =  get_statData(connection, teamName, "defteam_passing_stats", "PassTouchdowns_PerGame")
+                vsTeam_PassTouchdowns_Allowed_PerGame = float(vsTeam_PassTouchdowns_Allowed_PerGame)
+                
+                # Get everyteam's Touchdowns allowed per game
+                league_PassTouchdowns_PerGame_List= []
+                for team in teamNames:
+                    
+                    statToGet = "DefTeam_PassTouchdowns_PerGame"
+                    stat = getNFLStat(team, "Defense_Team_Passing", statToGet)
+        
+                    league_PassTouchdowns_PerGame_List.append(stat[0])
+                    
+                # Sum All team's Pass Touchdowns allowed per game
+                league_PassTouchdowns_PerGame_Sum = 0   
+                for yards in league_PassTouchdowns_PerGame_List:
+                    
+                    league_PassTouchdowns_PerGame_Sum += float(yards)
+                    
+                # Calculate the league average of Pass Touchdowns allowed per game
+                league_PassTouchdowns_PerGame_AVG = (league_PassTouchdowns_PerGame_Sum/len(league_PassTouchdowns_PerGame_List))
+                
+                # Calculate Pass Touchdowns allowed difference between versus team and league average as a percentage
+                percentage_PassTouchdowns_Diff = ((vsTeam_PassTouchdowns_Allowed_PerGame - league_PassTouchdowns_PerGame_AVG) / league_PassTouchdowns_PerGame_AVG) * 100
+                percentage_PassTouchdowns_Diff = percentage_PassTouchdowns_Diff/2
+                
+                # Calculate predicted WR Rec Touchdowns as a percentage change from QB's average
+                pred_WR_RecTouchdowns = WR_RecTouchdowns_PerGame * (1 + percentage_PassTouchdowns_Diff / 100)
+                
+                statsToReturn.append(round(pred_WR_RecTouchdowns,1))
+            
+            elif choice == WR_PRED_COMPLETIONS:
+                
+                WR_Completions_PerGame = getNFLCalc(playerName, "WideReciever", "WR_Calc_Completions_PerGame")
+                WR_Completions_PerGame = float(WR_Completions_PerGame[0])
+                
+                vsTeam_Completions_Allowed_PerGame = get_statData(connection, teamName, "defteam_passing_stats", "Completions_PerGame")
+                vsTeam_Completions_Allowed_PerGame = float(vsTeam_Completions_Allowed_PerGame)
+                
+
+                # Get every team's completions allowed per game
+                league_Completions_PerGame_List = []
+                for team in teamNames:
+                    
+                    statToGet = "DefTeam_Completions_PerGame"
+                    stat = getNFLStat(team, "Defense_Team_Passing", statToGet)
+                    league_Completions_PerGame_List.append(float(stat[0]))
+
+                # Sum All team's completions allowed per game
+                league_Completions_PerGame_Sum = sum(league_Completions_PerGame_List)
+
+                # Calculate the league average of completions allowed per game
+                league_Completions_PerGame_AVG = league_Completions_PerGame_Sum / len(league_Completions_PerGame_List)
+
+                # Calculate completions allowed difference between versus team and league average as a percentage
+                percentage_Completions_Diff = ((vsTeam_Completions_Allowed_PerGame - league_Completions_PerGame_AVG) / league_Completions_PerGame_AVG) * 100
+                percentage_Completions_Diff = percentage_Completions_Diff/2
+
+                # Calculate predicted WR completions as a percentage change from WR's average
+                pred_WR_Completions = WR_Completions_PerGame * (1 + percentage_Completions_Diff / 100)
+
+                statsToReturn.append(round(pred_WR_Completions, 1))
+                
+            elif choice == WR_PRED_YPC:
+                
+                # Yards Per Catch
+                WR_YPC = get_statData(connection, playerName, "wr_total_stats", "Yards_PerReception")
+                WR_YPC = float(WR_YPC)
+                
+                if WR_YPC <= 0.0:
+                    WR_YPC = 1.0
+                
+                vsTeam_YPC_Allowed_PerGame = getNFLStat(teamName, "Defense_Team_Passing", "DefTeam_PassYards_PerCompletion")
+                vsTeam_YPC_Allowed_PerGame = float(vsTeam_YPC_Allowed_PerGame[0])
+                
+
+                # Get every team's completions allowed per game
+                league_YPC_List = []
+                for team in teamNames:
+                    
+                    statToGet = "DefTeam_PassYards_PerCompletion"
+                    stat = getNFLStat(team, "Defense_Team_Passing", statToGet)
+                    league_YPC_List.append(float(stat[0]))
+
+                # Sum All team's completions allowed per game
+                league_YPC_Sum = sum(league_YPC_List)
+
+                # Calculate the league average of completions allowed per game
+                league_YPC_AVG = league_YPC_Sum / len(league_YPC_List)
+
+                # Calculate completions allowed difference between versus team and league average as a percentage
+                percentage_YPC_Diff = ((vsTeam_YPC_Allowed_PerGame - league_YPC_AVG) / league_YPC_AVG) * 100
+                percentage_YPC_Diff = percentage_YPC_Diff/2
+
+                # Calculate predicted WR completions as a percentage change from WR's average
+                pred_WR_YPC = WR_YPC * (1 + percentage_YPC_Diff / 100)
+
+                statsToReturn.append(round(pred_WR_YPC, 1))
+        
+        elif category == "TightEnd":
+            
+            if choice == TE_PRED_RECYARDS:
+                
+                TE_RecYards_PerGame = getNFLCalc(playerName, "TightEnd", "TE_Calc_RecYards_PerGame")
+                TE_RecYards_PerGame = float(TE_RecYards_PerGame[0])
+                
+                vsTeam_PassYards_Allowed_PerGame =  get_statData(connection, teamName, "defteam_passing_stats", "PassYards_PerGame")
+                vsTeam_PassYards_Allowed_PerGame = float(vsTeam_PassYards_Allowed_PerGame)
+                
+                # Get everyteam's Pass Yards allowed per game
+                league_PassYards_PerGame_List= []
+                for team in teamNames:
+                    
+                    statToGet = "DefTeam_PassYards_PerGame"
+                    stat = getNFLStat(team, "Defense_Team_Passing", statToGet)
+        
+                    league_PassYards_PerGame_List.append(stat[0])
+                    
+                # Sum All team's Pass Yards allowed per game
+                league_PassYards_PerGame_Sum = 0   
+                for yards in league_PassYards_PerGame_List:
+                    
+                    league_PassYards_PerGame_Sum += float(yards)
+                    
+                # Calculate the league average of Pass Yards allowed per game
+                league_PassYards_PerGame_AVG = (league_PassYards_PerGame_Sum/len(league_PassYards_PerGame_List))
+                
+                # Calculate Pass Yards allowed difference between versus team and league average as a percentage
+                percentage_PassYards_Diff = ((vsTeam_PassYards_Allowed_PerGame - league_PassYards_PerGame_AVG) / league_PassYards_PerGame_AVG) * 100
+                percentage_PassYards_Diff = percentage_PassYards_Diff/2
+                
+                # Calculate predicted TE Rec Yards as a percentage change from QB's average
+                pred_TE_RecYards = TE_RecYards_PerGame * (1 + percentage_PassYards_Diff / 100)
+                
+                statsToReturn.append(round(pred_TE_RecYards,1))
+            
+            elif choice == TE_PRED_TOUCHDOWNS:
+                
+                TE_RecTouchdowns_PerGame = getNFLCalc(playerName, "TightEnd", "TE_Calc_Touchdowns_PerGame")
+                TE_RecTouchdowns_PerGame = float(TE_RecTouchdowns_PerGame[0])
+                
+                vsTeam_PassTouchdowns_Allowed_PerGame =  get_statData(connection, teamName, "defteam_passing_stats", "PassTouchdowns_PerGame")
+                vsTeam_PassTouchdowns_Allowed_PerGame = float(vsTeam_PassTouchdowns_Allowed_PerGame)
+                
+                # Get everyteam's Touchdowns allowed per game
+                league_PassTouchdowns_PerGame_List= []
+                for team in teamNames:
+                    
+                    statToGet = "DefTeam_PassTouchdowns_PerGame"
+                    stat = getNFLStat(team, "Defense_Team_Passing", statToGet)
+        
+                    league_PassTouchdowns_PerGame_List.append(stat[0])
+                    
+                # Sum All team's Pass Touchdowns allowed per game
+                league_PassTouchdowns_PerGame_Sum = 0   
+                for yards in league_PassTouchdowns_PerGame_List:
+                    
+                    league_PassTouchdowns_PerGame_Sum += float(yards)
+                    
+                # Calculate the league average of Pass Touchdowns allowed per game
+                league_PassTouchdowns_PerGame_AVG = (league_PassTouchdowns_PerGame_Sum/len(league_PassTouchdowns_PerGame_List))
+                
+                # Calculate Pass Touchdowns allowed difference between versus team and league average as a percentage
+                percentage_PassTouchdowns_Diff = ((vsTeam_PassTouchdowns_Allowed_PerGame - league_PassTouchdowns_PerGame_AVG) / league_PassTouchdowns_PerGame_AVG) * 100
+                percentage_PassTouchdowns_Diff = percentage_PassTouchdowns_Diff/2
+                
+                # Calculate predicted TE Rec Touchdowns as a percentage change from QB's average
+                pred_TE_RecTouchdowns = TE_RecTouchdowns_PerGame * (1 + percentage_PassTouchdowns_Diff / 100)
+                
+                statsToReturn.append(round(pred_TE_RecTouchdowns,1))    
+    
+            elif choice == TE_PRED_COMPLETIONS:
+                
+                TE_Completions_PerGame = getNFLCalc(playerName, "TightEnd", "TE_Calc_Completions_PerGame")
+                TE_Completions_PerGame = float(TE_Completions_PerGame[0])
+                
+                vsTeam_Completions_Allowed_PerGame = get_statData(connection, teamName, "defteam_passing_stats", "Completions_PerGame")
+                vsTeam_Completions_Allowed_PerGame = float(vsTeam_Completions_Allowed_PerGame)
+                
+
+                # Get every team's completions allowed per game
+                league_Completions_PerGame_List = []
+                for team in teamNames:
+                    
+                    statToGet = "DefTeam_Completions_PerGame"
+                    stat = getNFLStat(team, "Defense_Team_Passing", statToGet)
+                    league_Completions_PerGame_List.append(float(stat[0]))
+
+                # Sum All team's completions allowed per game
+                league_Completions_PerGame_Sum = sum(league_Completions_PerGame_List)
+
+                # Calculate the league average of completions allowed per game
+                league_Completions_PerGame_AVG = league_Completions_PerGame_Sum / len(league_Completions_PerGame_List)
+
+                # Calculate completions allowed difference between versus team and league average as a percentage
+                percentage_Completions_Diff = ((vsTeam_Completions_Allowed_PerGame - league_Completions_PerGame_AVG) / league_Completions_PerGame_AVG) * 100
+                percentage_Completions_Diff = percentage_Completions_Diff/2
+
+                # Calculate predicted TE completions as a percentage change from TE's average
+                pred_TE_Completions = TE_Completions_PerGame * (1 + percentage_Completions_Diff / 100)
+
+                statsToReturn.append(round(pred_TE_Completions, 1))
+ 
+        
+               
+    connection.close()  
+     
+    return statsToReturn 
+
+def getNBAPred(*args):
+    
+    playerName = ""
+    teamName = ""
+    
+    
+    category = args[1]
+    
+    userChoices = []
+    statsToReturn = []
+    
+    teamNames = ["Boston", "Brooklyn", "New York", "Philadelphia", "Toronto", "Chicago", "Cleveland", "Detroit", "Indiana", "Milwaukee",
+                 "Atlanta", "Charlotte", "Miami", "Orlando", "Washington", "Denver", "Minnesota", "Okla City", "Portland", "Utah",
+                 "Golden State", "LA Clippers", "LA Lakers", "Phoenix", "Sacramento", "Dallas", "Houston", "Memphis", "New Orleans", "San Antonio"]
+    
+    if args[0] in teamNames:
+        
+        teamName = args[0]
+        
+        for arg in args[2:]:
+            userChoices.append(arg)
+        
+    else:
+        
+        playerName = args[0]
+        
+        if args[2] in teamNames:
+            
+            teamName = args[2]
+            
+            for arg in args[3:]:
+                userChoices.append(arg)
+            
+        else:
+            
+            for arg in args[2:]:
+                userChoices.append(arg)
+    
+    connection = create_connection("nba_stats")
+    
+               
+    # ----Stat Call Commands----
+    
+    # Offensive scoring
+    PLAYER_PRED_POINTS = "Player_Pred_Points"
+    PLAYER_PRED_ASSISTS = "Player_Pred_Assists"
+    PLAYER_PRED_THREES = "Player_Pred_Threes"
+    PLAYER_PRED_REBOUNDS = "Player_Pred_Rebounds"
+    
+    # DEFENSE
+    PLAYER_PRED_STEALS = "Player_Pred_Steals"
+    PLAYER_PRED_BLOCKS = "Player_Pred_Blocks"
+    
+    # TEAM MISC
+    TEAM_PRED_POINTS = "Team_Pred_Points"
+    
+    for choice in userChoices:
+        
+        if category == "Offense":
+            
+            if choice == PLAYER_PRED_POINTS:
+                
+                teams_Avg_Points_PerGameAllowed = []
+                
+                player_Points_PerGame = getNBAStat(playerName, "Player_Scoring", "Player_Points_PerGame")
+                player_Points_PerGame = player_Points_PerGame[0]
+                
+                vs_team_PointsAllowed_PerGame = getNBAStat(teamName, "Team_Defensive_Scoring", "Team_Opp_Points_PerGame")
+                vs_team_PointsAllowed_PerGame = vs_team_PointsAllowed_PerGame[0]
+                
+                for team in teamNames:
+                    
+                    team_pointsAllowed = getNBAStat(team, "Team_Defensive_Scoring", "Team_Opp_Points_PerGame")
+                    team_pointsAllowed = team_pointsAllowed[0]
+                    teams_Avg_Points_PerGameAllowed.append(team_pointsAllowed)
+                    
+                league_Avg_PointsAllowed = sum(teams_Avg_Points_PerGameAllowed) / len(teams_Avg_Points_PerGameAllowed) 
+                
+                if league_Avg_PointsAllowed != 0:
+                    percentage_difference = (vs_team_PointsAllowed_PerGame / league_Avg_PointsAllowed)
+                    
+                adjusted_player_Points_PerGame = player_Points_PerGame * (1 + (2 * percentage_difference)/100)
+                
+                statsToReturn.append(adjusted_player_Points_PerGame)
+                
+            elif choice == PLAYER_PRED_ASSISTS:
+                
+                teams_Avg_Assists_PerGameAllowed = []
+                
+                player_Assists_PerGame = getNBAStat(playerName, "Player_Assists_Turnovers", "Player_Assists_PerGame")
+                player_Assists_PerGame = player_Assists_PerGame[0]
+                
+                vs_team_AssistsAllowed_PerGame = getNBAStat(teamName, "Team_Opp_Misc", "Team_Opp_Assists_PerGame")
+                vs_team_AssistsAllowed_PerGame = vs_team_AssistsAllowed_PerGame[0]
+                
+                for team in teamNames:
+                    
+                    team_AssistsAllowed = getNBAStat(team, "Team_Opp_Misc", "Team_Opp_Assists_PerGame")
+                    team_AssistsAllowed = team_AssistsAllowed[0]
+                    teams_Avg_Assists_PerGameAllowed.append(team_AssistsAllowed)
+                    
+                league_Avg_AssistsAllowed = sum(teams_Avg_Assists_PerGameAllowed) / len(teams_Avg_Assists_PerGameAllowed)
+                
+                if league_Avg_AssistsAllowed != 0:
+                    percentage_difference = (vs_team_AssistsAllowed_PerGame / league_Avg_AssistsAllowed)
+                  
+                adjusted_player_Assists_PerGame = player_Assists_PerGame * (1 + (2 * percentage_difference)/100)
+                
+                statsToReturn.append(adjusted_player_Assists_PerGame)
+        
+            elif choice == PLAYER_PRED_THREES:
+                
+                teams_Avg_ThreesAttempted_PerGameAllowed_List = []
+                teams_Avg_ThreesPerc_PerGameAllowed_List = []
+                
+                player_threeAttempts_Total = getNBAStat(playerName,"Player_Scoring", "Player_ThreePointers_Attempted")
+                player_threeAttempts_Total = player_threeAttempts_Total[0]
+                
+                player_GamesPlayed = getNBAStat(playerName,"Player_Misc", "Player_GamesPlayed")
+                player_GamesPlayed = player_GamesPlayed[0]
+                
+                if player_threeAttempts_Total != 0 and player_GamesPlayed != 0:
+                    player_threeAttempts_PerGame = player_threeAttempts_Total/player_GamesPlayed
+                    
+                else:
+                    
+                    player_threeAttempts_PerGame = 1
+                    
+                player_threePoint_Perc = getNBAStat(playerName,"Player_Scoring", "Player_ThreePointers_Perc")
+                player_threePoint_Perc = player_threePoint_Perc[0]
+                
+                vs_Team_ThreePointers_Attempted_PerGame = getNBAStat(teamName, "Team_Defensive_Shooting", "Team_Opp_ThreePointer_Attempts_PerGame")
+                vs_Team_ThreePointers_Attempted_PerGame = vs_Team_ThreePointers_Attempted_PerGame[0]
+                
+                for team in teamNames:
+                    
+                    team_ThreePointers_Attempted_PerGame = getNBAStat(team, "Team_Defensive_Shooting", "Team_Opp_ThreePointer_Attempts_PerGame")
+                    team_ThreePointers_Attempted_PerGame = team_ThreePointers_Attempted_PerGame[0]
+                    
+                    teams_Avg_ThreesAttempted_PerGameAllowed_List.append(team_ThreePointers_Attempted_PerGame)
+                    
+                league_Avg_Threes_PerGameAllowedSum = sum(teams_Avg_ThreesAttempted_PerGameAllowed_List) / len(teams_Avg_ThreesAttempted_PerGameAllowed_List)
+                
+                if league_Avg_Threes_PerGameAllowedSum != 0:
+                    percentage_difference_Attempts = (vs_Team_ThreePointers_Attempted_PerGame / league_Avg_Threes_PerGameAllowedSum)
+                    
+                adjusted_player_ThreesAttempts_PerGame = player_threeAttempts_PerGame * (1 + (5 * percentage_difference_Attempts)/100)
+                
+                
+                vs_Team_ThreePointers_Perc_PerGame = getNBAStat(teamName, "Team_Defensive_Shooting", "Team_Opp_ThreePoint_Perc")
+                vs_Team_ThreePointers_Perc_PerGame = vs_Team_ThreePointers_Perc_PerGame[0]
+                
+                for team in teamNames:
+                    
+                    team_ThreePointersPerc_PerGame = getNBAStat(team, "Team_Defensive_Shooting", "Team_Opp_ThreePoint_Perc")
+                    team_ThreePointersPerc_PerGame = team_ThreePointersPerc_PerGame[0]
+                    
+                    teams_Avg_ThreesPerc_PerGameAllowed_List.append(team_ThreePointersPerc_PerGame)
+                    
+                league_Avg_ThreesPerc_PerGameAllowedSum = sum(teams_Avg_ThreesPerc_PerGameAllowed_List) / len(teams_Avg_ThreesPerc_PerGameAllowed_List)
+                
+                if league_Avg_ThreesPerc_PerGameAllowedSum != 0:
+                    percentage_difference_Perc = (vs_Team_ThreePointers_Perc_PerGame - league_Avg_ThreesPerc_PerGameAllowedSum) / league_Avg_ThreesPerc_PerGameAllowedSum
+                    
+                adjusted_player_ThreesPerc_PerGame = player_threePoint_Perc * (1 + (5 * percentage_difference_Perc)/100)
+                
+                player_Pred_Threes = adjusted_player_ThreesAttempts_PerGame * (adjusted_player_ThreesPerc_PerGame/100)
+                
+                statsToReturn.append(player_Pred_Threes)
+            
+        elif category == "Defense":
+            
+            pass
+        
+        elif category == "Team":
+            
+            pass
+        
+    
+    connection.close()  
+     
+    return statsToReturn

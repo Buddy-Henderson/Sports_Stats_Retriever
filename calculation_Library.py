@@ -1803,3 +1803,336 @@ def calculate_PitcherOverall_Score(era, whip, k9):
     
         return 0.00
     
+    
+def getNFLCalc(*args):
+    
+    playerName = ""
+    teamName = ""
+    
+    
+    category = args[1]
+    
+    userChoices = []
+    statsToReturn = []
+    
+    teamNames = ["Arizona", "Atlanta", "Baltimore", "Buffalo", "Carolina", "Chicago", "Cincinnati", "Cleveland", "Dallas", "Denver", "Detroit",
+                 "Green Bay", "Houston", "Indianapolis", "Jacksonville", "Kansas City", "LA Chargers", "LA Rams", "Las Vegas", "Miami", "Minnesota",
+                 "New England", "New Orleans", "NY Giants", "NY Jets", "Philadelphia", "Pittsburgh", "San Francisco", "Seattle", "Tampa Bay", "Tennessee", 
+                 "Washington"]
+    
+    if args[0] in teamNames:
+        
+        teamName = args[0]
+        
+        userChoices = args[2:]
+        
+    else:
+        
+        playerName = args[0]
+        
+        if args[2] in teamNames:
+            
+            teamName = args[2]
+            
+            userChoices = args[3:]
+            
+        else:
+            
+            userChoices = args[2:]
+    
+    connection = create_connection("nfl_stats")
+    print("connected")        
+    # ----Stat Call Commands----
+    
+    # --Quarterback--
+    
+    QB_CALC_PASSYARDS_PERGAME = "QB_Calc_PassYards_PerGame"
+    QB_CALC_TOUCHDOWNS_PERGAME = "QB_Calc_Touchdowns_PerGame"
+    QB_CALC_COMPLETIONS_PERGAME = "QB_Calc_Completions_PerGame"
+    
+    # --Runningback--
+    RB_CALC_RUSHYARDS_PERGAME = "RB_Calc_RushYards_PerGame"
+    RB_CALC_TOUCHDOWNS_PERGAME = "RB_Calc_Touchdowns_PerGame"
+    RB_CALC_ATTEMPTS_PERGAME = "RB_Calc_Attempts_PerGame"
+    
+    # --Wide Recievers--
+    WR_CALC_RECYARDS_PERGAME = "WR_Calc_RecYards_PerGame"
+    WR_CALC_TOUCHDOWNS_PERGAME = "WR_Calc_Touchdowns_PerGame"
+    WR_CALC_TARGETS_PERGAME = "WR_Calc_Targets_PerGame"
+    WR_CALC_COMPLETIONS_PERGAME = "WR_Calc_Completions_PerGame"
+    
+    # --Tight Ends--
+    TE_CALC_RECYARDS_PERGAME = "TE_Calc_RecYards_PerGame"
+    TE_CALC_TOUCHDOWNS_PERGAME = "TE_Calc_Touchdowns_PerGame"
+    TE_CALC_TARGETS_PERGAME = "TE_Calc_Targets_PerGame"
+    TE_CALC_COMPLETIONS_PERGAME = "TE_Calc_Completions_PerGame"
+    
+    
+    for choice in userChoices:
+        
+        
+        
+        if category == "Quarterback":
+            
+            if choice == QB_CALC_PASSYARDS_PERGAME:
+                
+                QB_PassYards = get_statData(connection, playerName, "qb_total_stats", "Pass_Yards")
+               
+                QB_GamesPlayed = get_statData(connection, playerName, "qb_total_stats", "Games_Played")
+               
+                if QB_PassYards != 0 or QB_GamesPlayed != 0:
+                    QB_PassYards_PerGame = (QB_PassYards/QB_GamesPlayed)
+                    
+                else:
+                    
+                    QB_PassYards_PerGame = 0
+                    
+                statsToReturn.append(QB_PassYards_PerGame)
+            
+            elif choice == QB_CALC_TOUCHDOWNS_PERGAME:
+                
+                QB_Touchdowns = get_statData(connection, playerName, "qb_total_stats", "Touchdowns")
+               
+                QB_GamesPlayed = get_statData(connection, playerName, "qb_total_stats", "Games_Played")
+                
+                if QB_Touchdowns != 0 or QB_GamesPlayed != 0:
+                    QB_Touchdowns_PerGame = (QB_Touchdowns/QB_GamesPlayed)
+                    
+                else:
+                    
+                    QB_Touchdowns_PerGame = 0
+                    
+                statsToReturn.append(QB_Touchdowns_PerGame)
+                
+                
+            elif choice == QB_CALC_COMPLETIONS_PERGAME:
+                
+                QB_Completions = get_statData(connection, playerName, "qb_total_stats", "Completions")
+               
+                QB_GamesPlayed = get_statData(connection, playerName, "qb_total_stats", "Games_Played")
+                
+                if QB_Completions != 0 or QB_GamesPlayed != 0:
+                    QB_Completions_PerGame = (QB_Completions/QB_GamesPlayed)
+                    
+                else:
+                    
+                    QB_Completions_PerGame = 0
+                    
+                statsToReturn.append(QB_Completions_PerGame)
+                       
+        elif category == "Runningback":
+            
+            if choice == RB_CALC_RUSHYARDS_PERGAME:
+                
+                RB_RushYards = get_statData(connection, playerName, "rb_total_stats", "Yards")
+               
+                RB_GamesPlayed = get_statData(connection, playerName, "rb_total_stats", "Games_Played")
+                
+                if RB_RushYards != 0 and RB_GamesPlayed != 0:
+                    RB_RushYards_PerGame = (RB_RushYards/RB_GamesPlayed)
+                    
+                else:
+                    
+                    RB_RushYards_PerGame = 0
+                    
+                statsToReturn.append(RB_RushYards_PerGame)
+                
+            elif choice == RB_CALC_TOUCHDOWNS_PERGAME:
+                
+                RB_Touchdowns = get_statData(connection, playerName, "rb_total_stats", "Touchdowns")
+               
+                RB_GamesPlayed = get_statData(connection, playerName, "rb_total_stats", "Games_Played")
+                
+                if RB_Touchdowns != 0 and RB_GamesPlayed != 0:
+                    RB_Touchdowns_PerGame = (RB_Touchdowns/RB_GamesPlayed)
+                    
+                else:
+                    
+                    RB_Touchdowns_PerGame = 0
+                    
+                statsToReturn.append(RB_Touchdowns_PerGame)
+                
+            elif choice == RB_CALC_ATTEMPTS_PERGAME:
+                
+                RB_Attemts = get_statData(connection, playerName, "rb_total_stats", "Attempts")
+               
+                RB_GamesPlayed = get_statData(connection, playerName, "rb_total_stats", "Games_Played")
+                
+                if RB_Attemts != 0 and RB_GamesPlayed != 0:
+                    RB_Attemts_PerGame = (RB_Attemts/RB_GamesPlayed)
+                    
+                else:
+                    
+                    RB_Attemts_PerGame = 0
+                    
+                statsToReturn.append(RB_Attemts_PerGame)
+                    
+        elif category == "WideReciever":
+            
+            if choice == WR_CALC_RECYARDS_PERGAME:
+                
+                WR_Yards = get_statData(connection, playerName, "wr_total_stats", "Yards")
+               
+                WR_GamesPlayed = get_statData(connection, playerName, "wr_total_stats", "Games_Played")
+                
+                if WR_Yards != 0 or WR_GamesPlayed != 0:
+                    WR_Yards_PerGame = (WR_Yards/WR_GamesPlayed)
+                    
+                else:
+                    
+                    WR_Yards_PerGame = 0
+                    
+                statsToReturn.append(WR_Yards_PerGame)
+                
+            elif choice == WR_CALC_TOUCHDOWNS_PERGAME:
+                
+                WR_Touchdowns = get_statData(connection, playerName, "wr_total_stats", "Touchdowns")
+               
+                WR_GamesPlayed = get_statData(connection, playerName, "wr_total_stats", "Games_Played")
+                
+                if WR_Touchdowns != 0 or WR_GamesPlayed != 0:
+                    WR_Touchdowns_PerGame = (WR_Touchdowns/WR_GamesPlayed)
+                    
+                else:
+                    
+                    WR_Touchdowns_PerGame = 0
+                    
+                statsToReturn.append(WR_Touchdowns_PerGame)
+                
+            elif choice == WR_CALC_TARGETS_PERGAME:
+                
+                WR_Targets = get_statData(connection, playerName, "wr_total_stats", "Targets")
+               
+                WR_GamesPlayed = get_statData(connection, playerName, "wr_total_stats", "Games_Played")
+                
+                if WR_Targets != 0 or WR_GamesPlayed != 0:
+                    WR_Targets_PerGame = (WR_Targets/WR_GamesPlayed)
+                    
+                else:
+                    
+                    WR_Targets_PerGame = 0
+                    
+                statsToReturn.append(WR_Targets_PerGame)
+                
+            elif choice == WR_CALC_COMPLETIONS_PERGAME:
+                
+                WR_Completions = get_statData(connection, playerName, "wr_total_stats", "Catches")
+               
+                WR_GamesPlayed = get_statData(connection, playerName, "wr_total_stats", "Games_Played")
+                
+                if WR_Completions != 0 or WR_GamesPlayed != 0:
+                    WR_Completions_PerGame = (WR_Completions/WR_GamesPlayed)
+                    
+                else:
+                    
+                    WR_Completions_PerGame = 0
+                    
+                statsToReturn.append(WR_Completions_PerGame)
+                
+        elif category == "TightEnd":
+            
+            if choice == TE_CALC_RECYARDS_PERGAME:
+                
+                TE_Yards = get_statData(connection, playerName, "WR_total_stats", "Yards")
+               
+                TE_GamesPlayed = get_statData(connection, playerName, "WR_total_stats", "Games_Played")
+                
+                if TE_Yards != 0 or TE_GamesPlayed != 0:
+                    TE_Yards_PerGame = (TE_Yards/TE_GamesPlayed)
+                    
+                else:
+                    
+                    TE_Yards_PerGame = 0
+                    
+                statsToReturn.append(TE_Yards_PerGame)
+                
+            elif choice == TE_CALC_TARGETS_PERGAME:
+                
+                TE_Targets = get_statData(connection, playerName, "wr_total_stats", "Targets")
+               
+                TE_GamesPlayed = get_statData(connection, playerName, "wr_total_stats", "Games_Played")
+                
+                if TE_Targets != 0 or TE_GamesPlayed != 0:
+                    TE_Targets_PerGame = (TE_Targets/TE_GamesPlayed)
+                    
+                else:
+                    
+                    TE_Targets_PerGame = 0
+                    
+                statsToReturn.append(TE_Targets_PerGame)
+                
+            elif choice == TE_CALC_TOUCHDOWNS_PERGAME:
+                
+                TE_Touchdowns = get_statData(connection, playerName, "wr_total_stats", "Touchdowns")
+               
+                TE_GamesPlayed = get_statData(connection, playerName, "wr_total_stats", "Games_Played")
+                
+                if TE_Touchdowns != 0 or TE_GamesPlayed != 0:
+                    TE_Touchdowns_PerGame = (TE_Touchdowns/TE_GamesPlayed)
+                    
+                else:
+                    
+                    TE_Touchdowns_PerGame = 0
+                    
+                statsToReturn.append(TE_Touchdowns_PerGame)
+                
+            elif choice == TE_CALC_COMPLETIONS_PERGAME:
+                
+                TE_Completions = get_statData(connection, playerName, "wr_total_stats", "Catches")
+               
+                TE_GamesPlayed = get_statData(connection, playerName, "wr_total_stats", "Games_Played")
+                
+                if TE_Completions != 0 or TE_GamesPlayed != 0:
+                    TE_Completions_PerGame = (TE_Completions/TE_GamesPlayed)
+                    
+                else:
+                    
+                    TE_Completions_PerGame = 0
+                    
+                statsToReturn.append(TE_Completions_PerGame)
+            
+                  
+        
+    connection.close()
+    
+    return statsToReturn   
+        
+def getNBACalc(*args):
+    
+    playerName = ""
+    teamName = ""
+    
+    
+    category = args[1]
+    
+    userChoices = []
+    statsToReturn = []
+    
+    teamNames_Short = ["bos", "bkn", "ny", "phi", "tor", "gs",
+                       "lac", "lal", "phx", "sac", "chi", "cle",
+                       "det", "ind", "mil", "dal", "hou", "mem",
+                       "no", "sa", "atl", "cha", "mia", "orl",
+                       "wsh", "den", "min", "okc", "por", "utah"]
+    
+    if args[0] in teamNames_Short:
+        
+        teamName = args[0]
+        
+        userChoices = args[2:]
+        
+    else:
+        
+        playerName = args[0]
+        
+        if args[2] in teamNames_Short:
+            
+            teamName = args[2]
+            
+            userChoices = args[3:]
+            
+        else:
+            
+            userChoices = args[2:]
+    
+    connection = create_connection("nba_stats")
+    print("connected")        

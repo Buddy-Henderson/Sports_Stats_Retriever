@@ -4668,7 +4668,7 @@ def get_NFL_GamesData(week):
     
     # Set Up webdriver
     chrome_options = Options()
-    chrome_options.add_argument("--headless")
+    #chrome_options.add_argument("--headless")
     driver = webdriver.Chrome(options=chrome_options)
     driver.get("https://www.cbssports.com/nfl/schedule/2023/"+str(seasonType) +"/" +str(week) + "/")
     
@@ -4683,13 +4683,18 @@ def get_NFL_GamesData(week):
     tables = soup.find_all('table', class_ = "TableBase-table")
     
     gameTimes1 = tables[0].find_all('div', class_="CellGame")
-    gameTimes2 = tables[1].find_all('div', class_="CellGame")
+    
+    if len(tables) >2: 
+        gameTimes2 = tables[1].find_all('div', class_="CellGame")
     
     if len(tables) >2:
         gameTimes3 = tables[2].find_all('div', class_="CellGame")
     
     teamName_elements1 =  tables[0].find_all('span', class_="TeamName")
-    teamName_elements2 =  tables[1].find_all('span', class_="TeamName")
+    
+    if len(tables) >2:
+        teamName_elements2 =  tables[1].find_all('span', class_="TeamName")
+        
     if len(tables) >2:
         teamName_elements3 =  tables[2].find_all('span', class_="TeamName")
     
@@ -4707,21 +4712,21 @@ def get_NFL_GamesData(week):
             homeTeams.append(teamName_elements1[element_count].get_text())
             
             element_count +=1
-    
-    element_count = 0    
-    for element in teamName_elements2:
-        
-        if element_count % 2 == 0 or element_count == 0:
+    if len(tables) >2:
+        element_count = 0    
+        for element in teamName_elements2:
             
-            awayTeams.append(teamName_elements2[element_count].get_text())
-            
-            element_count +=1
-            
-        else:
-            
-            homeTeams.append(teamName_elements2[element_count].get_text())
-            
-            element_count +=1
+            if element_count % 2 == 0 or element_count == 0:
+                
+                awayTeams.append(teamName_elements2[element_count].get_text())
+                
+                element_count +=1
+                
+            else:
+                
+                homeTeams.append(teamName_elements2[element_count].get_text())
+                
+                element_count +=1
     if len(tables) >2:
         element_count = 0    
         for element in teamName_elements3:
@@ -4745,13 +4750,13 @@ def get_NFL_GamesData(week):
         
         gameTime_Count += 1
         
-        
-    gameTime_Count = 0    
-    for times in gameTimes2:
-        
-        gameTimes.append(gameTimes2[gameTime_Count].get_text())
-        
-        gameTime_Count += 1
+    if len(tables) >2:    
+        gameTime_Count = 0    
+        for times in gameTimes2:
+            
+            gameTimes.append(gameTimes2[gameTime_Count].get_text())
+            
+            gameTime_Count += 1
     
     if len(tables) >2:    
         gameTime_Count = 0    
@@ -5122,6 +5127,10 @@ def getNBAStat(*args):
             if userChoices[count] == PLAYER_GAMESPLAYED:
                 
                 Player_GamesPlayed = get_statData(connection, playerName, "player_scoring_totals", "GamesPlayed")
+                
+                if Player_GamesPlayed == None:
+                    
+                    Player_GamesPlayed = 1
                     
                 statsToReturn.append(int(Player_GamesPlayed))
                 
@@ -5136,8 +5145,11 @@ def getNBAStat(*args):
             elif userChoices[count] == PLAYER_MINUTES_PERGAME:
                 
                 Player_MinutesPerGame = get_statData(connection, playerName, "player_scoring_totals", "MinutesPerGame")
+                
+                if Player_MinutesPerGame == None:
+                    Player_MinutesPerGame = 1
                     
-                statsToReturn.append(Player_MinutesPerGame)
+                statsToReturn.append(float(Player_MinutesPerGame))
             
                 
             count += 1
@@ -5151,6 +5163,10 @@ def getNBAStat(*args):
             if userChoices[count] == PLAYER_POINTS_PERGAME:
                 
                 Player_Points_PerGame = get_statData(connection, playerName, "player_scoring_totals", "PointsPerGame")
+                
+                if Player_Points_PerGame == None:
+                    
+                    Player_Points_PerGame = 1
                     
                 statsToReturn.append(float(Player_Points_PerGame))
                 
@@ -5158,34 +5174,54 @@ def getNBAStat(*args):
             elif userChoices[count] == PLAYER_FIELDGOALS_MADE:
                 
                 Player_fieldGoalsMade = get_statData(connection, playerName, "player_scoring_totals", "FieldGoalsMade")
+                
+                if Player_fieldGoalsMade == None:
                     
-                statsToReturn.append(Player_fieldGoalsMade)
+                    Player_fieldGoalsMade  = 1
+                    
+                statsToReturn.append(int(Player_fieldGoalsMade))
                 
             # Player Field Goals Attempted
             elif userChoices[count] == PLAYER_FIELDGOALS_ATTEMPTED:
                 
                 Player_fieldGoalsAttempted = get_statData(connection, playerName, "player_scoring_totals", "FieldGoalsAttempted")
+                
+                if Player_fieldGoalsAttempted == None:
                     
-                statsToReturn.append(Player_fieldGoalsAttempted)
+                    Player_fieldGoalsAttempted = 1
+                    
+                statsToReturn.append(int(Player_fieldGoalsAttempted))
                 
             # Player Field Goal Percentage
             elif userChoices[count] == PLAYER_FIELDGOAL_PERC:
                 
                 Player_fieldGoalsPerc = get_statData(connection, playerName, "player_scoring_totals", "FieldGoalPerc")
+                
+                if Player_fieldGoalsPerc == None:
                     
-                statsToReturn.append(Player_fieldGoalsPerc)
+                    Player_fieldGoalsPerc = .15
+                    
+                statsToReturn.append(float(Player_fieldGoalsPerc))
                 
             # Player 3 pointers Made
             elif userChoices[count] == PLAYER_THREEPOINTERS_MADE:
                 
                 Player_ThreePointersMade = get_statData(connection, playerName, "player_scoring_totals", "ThreePointersMade")
+                
+                if Player_ThreePointersMade == None:
                     
-                statsToReturn.append(Player_ThreePointersMade)
+                    Player_ThreePointersMade = 1
+                    
+                statsToReturn.append(int(Player_ThreePointersMade))
                 
             # Player 3 pointers Attempted
             elif userChoices[count] == PLAYER_THREEPOINTERS_ATTEMPTED:
                 
                 Player_ThreePointersAttempted = get_statData(connection, playerName, "player_scoring_totals", "ThreePointersAttempted")
+                
+                if Player_ThreePointersAttempted == None:
+                    
+                    Player_ThreePointersAttempted = 1
                     
                 statsToReturn.append(int(Player_ThreePointersAttempted))
                 
@@ -5193,6 +5229,10 @@ def getNBAStat(*args):
             elif userChoices[count] == PLAYER_THREEPOINTER_PERC:
                 
                 Player_ThreePointersPerc = get_statData(connection, playerName, "player_scoring_totals", "ThreePointerPerc")
+                
+                if Player_ThreePointersPerc == None:
+                    
+                    Player_ThreePointersPerc = .10
                     
                 statsToReturn.append(float(Player_ThreePointersPerc))
                 
@@ -5201,21 +5241,21 @@ def getNBAStat(*args):
                 
                 Player_FreeThrowsMade = get_statData(connection, playerName, "player_scoring_totals", "FreeThrowsMade")
                     
-                statsToReturn.append(Player_FreeThrowsMade)
+                statsToReturn.append(int(Player_FreeThrowsMade))
                 
             # Player Free Throws Attmepted
             elif userChoices[count] == PLAYER_FREETHROWS_ATTEMPTED:
                 
                 Player_FreeThrowsAttempted = get_statData(connection, playerName, "player_scoring_totals", "FreeThrowsAttempted")
                     
-                statsToReturn.append(Player_FreeThrowsAttempted)
+                statsToReturn.append(int(Player_FreeThrowsAttempted))
                 
             # Player Free Throws Percentage
             elif userChoices[count] == PLAYER_FREETHROW_PERC:
                 
                 Player_FreeThrowPerc = get_statData(connection, playerName, "player_scoring_totals", "FreeThrowPerc")
                     
-                statsToReturn.append(Player_FreeThrowPerc)
+                statsToReturn.append(float(Player_FreeThrowPerc))
 
             count += 1
             
@@ -5229,6 +5269,10 @@ def getNBAStat(*args):
             if userChoices[count] == PLAYER_OFFENSIVE_REBOUNDS:
                 
                 Player_Off_Rebounds = get_statData(connection, playerName, "player_rebounds_totals", "OffRebounds")
+                
+                if Player_Off_Rebounds == None:
+                    
+                    Player_Off_Rebounds = 1
                     
                 statsToReturn.append(Player_Off_Rebounds)
                 
@@ -5236,6 +5280,10 @@ def getNBAStat(*args):
             elif userChoices[count] == PLAYER_DEFENSIVE_REBOUNDS:
                 
                 Player_Def_Rebounds = get_statData(connection, playerName, "player_rebounds_totals", "DefRebounds")
+                
+                if Player_Def_Rebounds == None:
+                    
+                    Player_Def_Rebounds = 1
                     
                 statsToReturn.append(Player_Def_Rebounds)
                 
@@ -5243,6 +5291,10 @@ def getNBAStat(*args):
             elif userChoices[count] == PLAYER_TOTAL_REBOUNDS:
                 
                 Player_Total_Rebounds = get_statData(connection, playerName, "player_rebounds_totals", "TotalRebounds")
+                
+                if Player_Total_Rebounds == None:
+                    
+                    Player_Total_Rebounds = 1
                     
                 statsToReturn.append(Player_Total_Rebounds)
                 
@@ -5250,6 +5302,10 @@ def getNBAStat(*args):
             elif userChoices[count] == PLAYER_REBOUNDS_PERGAME:
                 
                 Player_Rebounds_PerGame = get_statData(connection, playerName, "player_rebounds_totals", "ReboundsPerGame")
+                
+                if Player_Rebounds_PerGame == None:
+                    
+                    Player_Rebounds_PerGame = 1
                     
                 statsToReturn.append(Player_Rebounds_PerGame)
                 
@@ -5642,86 +5698,86 @@ def getNBAStat(*args):
             # Team  Points Per Game
             if userChoices[count] == TEAM_POINTS_PERGAME:
                 
-                Team_Points_PerGame = get_NBA_teamStatData(connection, playerName, "team_offensive_scoring", "points_PerGame")
+                Team_Points_PerGame = get_NBA_teamStatData(connection, teamName, "team_offensive_scoring", "points_PerGame")
                     
-                statsToReturn.append(Team_Points_PerGame)
+                statsToReturn.append(float(Team_Points_PerGame))
                 
             # Team  Average Score Margin
             elif userChoices[count] == TEAM_AVERAGE_SCOREMARGIN:
                 
-                Team_Avg_ScoreMargin = get_NBA_teamStatData(connection, playerName, "team_offensive_scoring", "average_ScoreMargin")
+                Team_Avg_ScoreMargin = get_NBA_teamStatData(connection, teamName, "team_offensive_scoring", "average_ScoreMargin")
                     
-                statsToReturn.append(Team_Avg_ScoreMargin)
+                statsToReturn.append(float(Team_Avg_ScoreMargin))
                 
             # Team  1st Quarter Points
             elif userChoices[count] == TEAM_FIRSTQUARTER_POINTS_PERGAME:
                 
-                Team_FirstQuarter_Points_PerGame = get_NBA_teamStatData(connection, playerName, "team_offensive_scoring", "1stQuarter_Points_PerGame")
+                Team_FirstQuarter_Points_PerGame = get_NBA_teamStatData(connection, teamName, "team_offensive_scoring", "1stQuarter_Points_PerGame")
                     
-                statsToReturn.append(Team_FirstQuarter_Points_PerGame)
+                statsToReturn.append(float(Team_FirstQuarter_Points_PerGame))
                 
             # Team  2nd Quarter Points
             elif userChoices[count] == TEAM_SECONDQUARTER_POINTS_PERGAME:
                 
-                Team_SecondQuarter_Points_PerGame = get_NBA_teamStatData(connection, playerName, "team_offensive_scoring", "2ndQuarter_Points_PerGame")
+                Team_SecondQuarter_Points_PerGame = get_NBA_teamStatData(connection, teamName, "team_offensive_scoring", "2ndQuarter_Points_PerGame")
                     
-                statsToReturn.append(Team_SecondQuarter_Points_PerGame)
+                statsToReturn.append(float(Team_SecondQuarter_Points_PerGame))
                 
             # Team  3rd Quarter Points
             elif userChoices[count] == TEAM_THIRDQUARTER_POINTS_PERGAME:
                 
-                Team_ThirdQuarter_Points_PerGame = get_NBA_teamStatData(connection, playerName, "team_offensive_scoring", "3rdQuarter_Points_PerGame")
+                Team_ThirdQuarter_Points_PerGame = get_NBA_teamStatData(connection, teamName, "team_offensive_scoring", "3rdQuarter_Points_PerGame")
                     
-                statsToReturn.append(Team_ThirdQuarter_Points_PerGame)
+                statsToReturn.append(float(Team_ThirdQuarter_Points_PerGame))
                 
             # Team  4th Quarter Points
             elif userChoices[count] == TEAM_FOURTHQUARTER_POINTS_PERGAME:
                 
-                Team_FourthQuarter_Points_PerGame = get_NBA_teamStatData(connection, playerName, "team_offensive_scoring", "4thQuarter_Points_PerGame")
+                Team_FourthQuarter_Points_PerGame = get_NBA_teamStatData(connection, teamName, "team_offensive_scoring", "4thQuarter_Points_PerGame")
                     
-                statsToReturn.append(Team_FourthQuarter_Points_PerGame)
+                statsToReturn.append(float(Team_FourthQuarter_Points_PerGame))
                 
             # Team  Average First Quarter Margin
             elif userChoices[count] == TEAM_AVG_FIRSTQUARTER_MARGIN:
                 
-                Team_Avg_FirstQuarter_Margin = get_NBA_teamStatData(connection, playerName, "team_offensive_scoring", "avg_1stQuarter_Margin")
+                Team_Avg_FirstQuarter_Margin = get_NBA_teamStatData(connection, teamName, "team_offensive_scoring", "avg_1stQuarter_Margin")
                     
-                statsToReturn.append(Team_Avg_FirstQuarter_Margin)
+                statsToReturn.append(float(Team_Avg_FirstQuarter_Margin))
                 
             # Team  Average Second Quarter Margin
             elif userChoices[count] == TEAM_AVG_SECONDQUARTER_MARGIN:
                 
-                Team_Avg_SecondQuarter_Margin = get_NBA_teamStatData(connection, playerName, "team_offensive_scoring", "avg_2ndQuarter_Margin")
+                Team_Avg_SecondQuarter_Margin = get_NBA_teamStatData(connection, teamName, "team_offensive_scoring", "avg_2ndQuarter_Margin")
                     
-                statsToReturn.append(Team_Avg_SecondQuarter_Margin)
+                statsToReturn.append(float(Team_Avg_SecondQuarter_Margin))
                 
             # Team  Average Third Quarter Margin
             elif userChoices[count] == TEAM_AVG_THIRDQUARTER_MARGIN:
                 
-                Team_Avg_ThirdQuarter_Margin = get_NBA_teamStatData(connection, playerName, "team_offensive_scoring", "avg_3rdQuarter_Margin")
+                Team_Avg_ThirdQuarter_Margin = get_NBA_teamStatData(connection, teamName, "team_offensive_scoring", "avg_3rdQuarter_Margin")
                     
-                statsToReturn.append(Team_Avg_ThirdQuarter_Margin)
+                statsToReturn.append(float(Team_Avg_ThirdQuarter_Margin))
                 
             # Team  Average Fourth Quarter Margin
             elif userChoices[count] == TEAM_AVG_FOURTHQUARTER_MARGIN:
                 
-                Team_Avg_FourthQuarter_Margin = get_NBA_teamStatData(connection, playerName, "team_offensive_scoring", "avg_4thQuarter_Margin")
+                Team_Avg_FourthQuarter_Margin = get_NBA_teamStatData(connection, teamName, "team_offensive_scoring", "avg_4thQuarter_Margin")
                     
-                statsToReturn.append(Team_Avg_FourthQuarter_Margin)
+                statsToReturn.append(float(Team_Avg_FourthQuarter_Margin))
                 
             # Team  Points From 2 Pointers
             elif userChoices[count] == TEAM_POINTS_TWOPOINTERS:
                 
-                Team_Points_TwoPoints = get_NBA_teamStatData(connection, playerName, "team_offensive_scoring", "points_2Pointers")
+                Team_Points_TwoPoints = get_NBA_teamStatData(connection, teamName, "team_offensive_scoring", "points_2Pointers")
                     
-                statsToReturn.append(Team_Points_TwoPoints)
+                statsToReturn.append(float(Team_Points_TwoPoints))
                 
             # Team  Points From 3 Pointers
             elif userChoices[count] == TEAM_POINTS_THREEPOINTERS:
                 
-                Team_Points_ThreePoints = get_NBA_teamStatData(connection, playerName, "team_offensive_scoring", "points_3Pointers")
+                Team_Points_ThreePoints = get_NBA_teamStatData(connection, teamName, "team_offensive_scoring", "points_3Pointers")
                     
-                statsToReturn.append(Team_Points_ThreePoints)
+                statsToReturn.append(float(Team_Points_ThreePoints))
             
             count += 1
            
@@ -5815,7 +5871,392 @@ def getNBAStat(*args):
     close_connection(connection)
                
     return statsToReturn
+
+def get_NamesFrom_NBARoster(team):
     
+    """
+    Returns all players from a teams roster
+    
+    """   
+    
+    teamNames_Short = ["bos", "bkn", "ny", "phi", "tor", "gs",
+                        "lac", "lal", "phx", "sac", "chi", "cle",
+                        "det", "ind", "mil", "dal", "hou", "mem",
+                        "no", "sa", "atl", "cha", "mia", "orl",
+                        "wsh", "den", "min", "okc", "por", "utah"]
+    
+    if team == "Boston":
+        
+        team = "bos"
+        
+    elif team == "Brooklyn":
+        
+        team = "bkn"
+        
+    elif team == "New York":
+        
+        team = "ny"
+        
+    elif team == "Philadelphia":
+        
+        team = "phi"
+        
+    elif team == "Toronto":
+        
+        team = "tor"
+
+    elif team == "Golden State":
+        
+        team = "gs"
+        
+    elif team == "LA Clippers":
+        
+        team = "lac"
+        
+    elif team == "LA Lakers":
+        
+        team = "lal"
+        
+    elif team == "Phoenix": 
+        
+        team = "phx"   
+        
+    elif team == "Sacramento":
+    
+        team = "sac"
+        
+    elif team == "Chicago":
+        
+        team = "chi"
+        
+    elif team == "Cleveland":
+        
+        team = "cle"
+        
+    elif team == "Detroit":
+        
+        team = "det"
+        
+    elif team == "Indiana":
+        
+        team = "ind"
+    
+    elif team == "Milwaukee":
+        
+        team = "mil"
+        
+    elif team == "Dallas":
+        
+        team = "dal"
+        
+    elif team == "Houston":
+        
+        team = "hou"
+        
+    elif team == "Memphis":
+        
+        team = "mem"
+        
+    elif team == "New Orleans":
+        
+        team = "no"
+        
+    elif team == "San Antonio":
+        
+        team = "sa"
+        
+    elif team == "Atlanta":
+        
+        team = "atl"
+        
+    elif team == "Charlotte":
+        
+        team = "cha"
+        
+    elif team == "Miami":
+        
+        team = "mia"    
+        
+    elif team == "Orlando":
+        
+        team = "orl"
+    
+    elif team == "Washington":
+        
+        team = "wsh"
+        
+    elif team == "Denver":
+        
+        team = "den"
+        
+    elif team == "Minnesota":
+        
+        team = "min"
+        
+    elif team == "Okla City":
+        
+        team = "okc"
+        
+    elif team == "Portland":
+        
+        team = "por"
+        
+    elif team == "Utah":
+        
+        team = "utah"
+    
+    conn = create_connection("nba_stats")
+    
+    # Connect to your MySQL database
+    db_host = '127.0.0.1'  # Replace with your database host
+    db_user = 'root'  # Replace with your database username
+    db_password = 'root'  # Replace with your database password
+    db_name = 'nba_stats'  # Replace with your database name
+
+    conn = mysql.connector.connect(
+        host=db_host,
+        user=db_user,
+        password=db_password,
+        database=db_name
+    )
+        
+    cursor = conn.cursor()
+    
+    # SQL query to select all names from the table
+    query = f"SELECT Name FROM {team}_roster"  # Replace 'your_table' with the actual table name
+
+    names_list = []
+    
+    try:
+        # Execute the query
+        cursor.execute(query)
+
+        # Fetch all rows
+        rows = cursor.fetchall()
+
+        # Iterate over rows and extract names
+        for row in rows:
+            names_list.append(row[0]) 
+            
+    except mysql.connector.Error as error:
+        print("Error fetching data from MySQL table:", error)
+        
+        names_list.append("ROSTER NOT FOUND") 
+        
+    finally:
+        cursor.close()
+        conn.close()
+
+    return names_list
+
+def checkNBA_PlayerHasStats(playerName):
+    
+    connection = create_connection("nba_stats")
+    
+    cursor = connection.cursor()
+    
+    query = f"SELECT * FROM player_scoring_totals WHERE Name = %s"
+    cursor.execute(query, (playerName,))
+    result = cursor.fetchone()
+
+    if not result:  # If no result found in any table, return False
+        cursor.close()
+        connection.close()
+        return False
+        
+    return True
+
+def check_NBA_InjuryStatus(team):
+    
+    try:
+        
+        player_Names = []
+        
+        chrome_options = Options()
+        chrome_options.add_argument("--no-sandbox")
+        chrome_options.add_argument("--disable-dev-shm-usage")
+        chrome_options.add_argument("--headless")
+        driver = webdriver.Chrome(options=chrome_options)
+        wait = WebDriverWait(driver, 10)
+        
+        if team == "Boston":
+        
+            team = "bos"
+            team_long = "boston-celtics"
+        
+        elif team == "Brooklyn":
+            
+            team = "bkn"
+            team_long = "brooklyn-nets"
+            
+        elif team == "New York":
+            
+            team = "ny"
+            team_long = "new-york-knicks"
+            
+        elif team == "Philadelphia":
+            
+            team = "phi"
+            team_long = "philadelphia-76ers"
+            
+        elif team == "Toronto":
+            
+            team = "tor"
+            team_long = "toronto-raptors"
+
+        elif team == "Golden State":
+            
+            team = "gs"
+            team_long = "golden-state-warriors"
+            
+        elif team == "LA Clippers":
+            
+            team = "lac"
+            team_long = "la-clippers"
+            
+        elif team == "LA Lakers":
+            
+            team = "lal"
+            team_long = "la-lakers"
+            
+        elif team == "Phoenix": 
+            
+            team = "phx"  
+            team_long = "phoenix-suns" 
+            
+        elif team == "Sacramento":
+        
+            team = "sac"
+            team_long = "sacramento-kings"
+            
+        elif team == "Chicago":
+            
+            team = "chi"
+            team_long = "chicago-bulls"
+            
+        elif team == "Cleveland":
+            
+            team = "cle"
+            team_long = "cleveland-cavaliers"
+            
+        elif team == "Detroit":
+            
+            team = "det"
+            team_long = "detroit-pistons"
+            
+        elif team == "Indiana":
+            
+            team = "ind"
+            team_long = "indiana-pacers"
+        
+        elif team == "Milwaukee":
+            
+            team = "mil"
+            team_long = "milwaukee-bucks"
+            
+        elif team == "Dallas":
+            
+            team = "dal"
+            team_long = "dallas-mavericks"
+            
+        elif team == "Houston":
+            
+            team = "hou"
+            team_long = "houston-rockets"
+            
+        elif team == "Memphis":
+            
+            team = "mem"
+            team_long = "memphis-grizzlies"
+            
+        elif team == "New Orleans":
+            
+            team = "no"
+            team_long = "new-orleans-pelicans"
+            
+        elif team == "San Antonio":
+            
+            team = "sa"
+            team_long = "san-antonio-spurs"
+            
+        elif team == "Atlanta":
+            
+            team = "atl"
+            team_long = "atlanta-hawks"
+            
+        elif team == "Charlotte":
+            
+            team = "cha"
+            team_long = "charlotte-hornets"
+            
+        elif team == "Miami":
+            
+            team = "mia"   
+            team_long = "miami-heat" 
+            
+        elif team == "Orlando":
+            
+            team = "orl"
+            team_long = "orlando-magic"
+        
+        elif team == "Washington":
+            
+            team = "wsh"
+            team_long = "washington-wizards"
+            
+        elif team == "Denver":
+            
+            team = "den"
+            team_long = "denver-nuggets"
+            
+        elif team == "Minnesota":
+            
+            team = "min"
+            team_long = "minnesota-timberwolves"
+            
+        elif team == "Okla City":
+            
+            team = "okc"
+            team_long = "oklahoma-city-thunder"
+            
+        elif team == "Portland":
+            
+            team = "por"
+            team_long = "portland-trail-blazers"
+            
+        elif team == "Utah":
+            
+            team = "utah"
+            team_long = "utah-jazz"
+        
+        url = f"https://www.espn.com/nba/team/injuries/_/name/{team}/{team_long}"
+        
+        driver.get(url)
+        
+        html_content = driver.page_source
+        soup = BeautifulSoup(html_content, 'html.parser')
+        
+        name_Cards = soup.find_all("div", class_="ContentList__Item")
+        
+        for card in name_Cards:
+            
+            player_Name = card.find("span", class_="Athlete__PlayerName")
+            
+        
+            player_Names.append(player_Name.text)
+        
+        
+        
+        driver.close()
+        
+        return player_Names
+        
+    except TimeoutException as e:
+        
+        print(f"Caught TimeoutException: {e}")
+        print("Restarting the function...")
+        time.sleep(5)
+        check_NBA_InjuryStatus(team)
 
 # Removes players jr/sr/lll
 def clean_PlayerName(playerName):
@@ -5844,6 +6285,7 @@ def create_connection(database):
                 print("connected")
         except Error as e:
             print(f"Error connecting to MySQL database: {e}")
+            create_connection(database)
         
         return connection
     
@@ -5860,6 +6302,7 @@ def create_connection(database):
                 pass
         except Error as e:
             print(f"Error connecting to MySQL database: {e}")
+            create_connection(database)
         
         return connection
     
@@ -5876,6 +6319,7 @@ def create_connection(database):
                 pass
         except Error as e:
             print(f"Error connecting to MySQL database: {e}")
+            create_connection(database)
         
         return connection
     
@@ -5892,6 +6336,7 @@ def create_connection(database):
                 pass
         except Error as e:
             print(f"Error connecting to MySQL database: {e}")
+            create_connection(database)
         
         return connection
     
@@ -5908,6 +6353,7 @@ def create_connection(database):
                 pass
         except Error as e:
             print(f"Error connecting to MySQL database: {e}")
+            create_connection(database)
         
         return connection
 

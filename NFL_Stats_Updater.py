@@ -18,7 +18,7 @@ import math
 import re
 
 # Update all tables
-def supplyTable_All_NFL():
+def updateAllNFLTables():
     
     supplyTable_QB_Home()
     supplyTable_QB_Away()
@@ -36,6 +36,8 @@ def supplyTable_All_NFL():
     
     supplyTable_TeamDef_Totals()
     supplyTable_TeamOff_Totals()
+    
+    supplyTable_Team_OffenseRoster()
     
 # Supply Quarterback Tables
 def supplyTable_QB_Totals():
@@ -156,7 +158,7 @@ def supplyTable_QB_Totals():
             qb_total_Completion_Perc = 0.00
         else:
             qb_total_Completion_Perc = qb_total_Completions / qb_total_Attempts
-            print(qb_total_Completion_Perc)
+            
     
         # Calculate QB Total Touchdowns
         qb_home_Touchdowns = get_statData(connection, name,"qb_home_stats", "Touchdowns")
@@ -270,7 +272,14 @@ def supplyTable_QB_Home():
     
     today = datetime.date.today()
 
+    current_month = today.month
+    
     current_year = today.year
+    
+    if current_month in [1, 2]:  # January is 1, February is 2
+        current_year -= 1
+    
+    
     
     chrome_options = Options()
     chrome_options.add_argument("--no-sandbox")
@@ -303,7 +312,6 @@ def supplyTable_QB_Home():
             # Set up BeautifulSoup
     html_content = driver.page_source
     soup = BeautifulSoup(html_content, 'html.parser')
-    
     
     statTable = soup.find('div', id = 'div_game_location_splits')
     
@@ -515,7 +523,12 @@ def supplyTable_QB_Away():
     
     today = datetime.date.today()
 
+    current_month = today.month
+    
     current_year = today.year
+    
+    if current_month in [1, 2]:  # January is 1, February is 2
+        current_year -= 1
     
     chrome_options = Options()
     chrome_options.add_argument("--no-sandbox")
@@ -888,7 +901,12 @@ def supplyTable_RB_Home():
 
     today = datetime.date.today()
 
+    current_month = today.month
+    
     current_year = today.year
+    
+    if current_month in [1, 2]:  # January is 1, February is 2
+        current_year -= 1
     
     chrome_options = Options()
     chrome_options.add_argument("--no-sandbox")
@@ -1044,7 +1062,12 @@ def supplyTable_RB_Away():
     
     today = datetime.date.today()
 
+    current_month = today.month
+    
     current_year = today.year
+    
+    if current_month in [1, 2]:  # January is 1, February is 2
+        current_year -= 1
     
     chrome_options = Options()
     chrome_options.add_argument("--no-sandbox")
@@ -1445,7 +1468,12 @@ def supplyTable_WR_Home():
     
     today = datetime.date.today()
 
+    current_month = today.month
+    
     current_year = today.year
+    
+    if current_month in [1, 2]:  # January is 1, February is 2
+        current_year -= 1
     
     chrome_options = Options()
     chrome_options.add_argument("--no-sandbox")
@@ -1659,7 +1687,12 @@ def supplyTable_WR_Away():
     
     today = datetime.date.today()
 
+    current_month = today.month
+    
     current_year = today.year
+    
+    if current_month in [1, 2]:  # January is 1, February is 2
+        current_year -= 1
     
     chrome_options = Options()
     chrome_options.add_argument("--no-sandbox")
@@ -2852,7 +2885,7 @@ def supplyTable_TeamDef_Totals():
                         redzoneScoring_Attempts_PerGame.append(redzoneScoring_Attempts_PerGame_Stat)
                         
     # Get Team Defense RedZone Scores Allowed Per Game
-    driver.get("https://www.teamrankings.com/nfl/stat/opponent-red-zone-scoring-attempts-per-game")
+    driver.get("https://www.teamrankings.com/nfl/stat/opponent-red-zone-scores-per-game")
     
     time.sleep(2)
             # Set up BeautifulSoup
@@ -2883,7 +2916,7 @@ def supplyTable_TeamDef_Totals():
                         redzoneScores_PerGame.append(redzoneScores_PerGame_Stat)
                         
     # Get Team Defense RedZone Scoring Percentage
-    driver.get("https://www.teamrankings.com/nfl/stat/opponent-red-zone-scoring-attempts-per-game")
+    driver.get("https://www.teamrankings.com/nfl/stat/opponent-red-zone-scoring-pct")
     
     time.sleep(2)
             # Set up BeautifulSoup
@@ -4104,5 +4137,1609 @@ def supplyTable_Team_DefenseRoster():
 
 # Supply Teams Offensive Roster
 def supplyTable_Team_OffenseRoster():
+    team_ABR = ["buf", "mia", "ne", "nyj", "bal", "cin", "cle", "pit", "hou", "ind", "jax", "ten", "den", "kc", "lv", 
+                "lac", "dal", "nyg", "phi", "wsh", "chi", "det", "gb", "min", "atl", "car", "no", "tb", "ari", "lar", "sf", "sea"]
     
-    pass
+    teamNames = ["bills", "dolphins", "patriots", "jets", "ravens", "bengals", "browns", "steelers", "texans", "colts", "jaguars", "titans",
+                 "broncos", "chiefs", "raiders", "chargers", "cowboys", "giants", "eagles", "commanders", "bears",
+                 "lions", "packers", "vikings", "falcons", "panthers", "saints", "buccaneers", "cardinals", "rams", "sanfrancisco", "seahawks"]
+    
+    # Connect to your MySQL database
+    db_host = '127.0.0.1'  # Replace with your database host
+    db_user = 'root'  # Replace with your database username
+    db_password = 'root'  # Replace with your database password
+    db_name = 'nfl_stats'  # Replace with your database name
+
+    connection = mysql.connector.connect(
+        host=db_host,
+        user=db_user,
+        password=db_password,
+        database=db_name
+    )
+
+    cursor = connection.cursor()
+    
+    chrome_options = Options()
+    chrome_options.add_argument("--no-sandbox")
+    chrome_options.add_argument("--disable-dev-shm-usage")
+    chrome_options.add_argument("--headless")
+    driver = webdriver.Chrome(options=chrome_options)
+    driver.set_window_size(1080, 1200)
+    wait = WebDriverWait(driver, 10)
+    
+    for teamCount, team in enumerate(team_ABR):
+        QB = ""
+        RB1 = ""
+        RB2 = ""
+        WR1 = ""
+        WR2 = ""
+        WR3 = ""
+        TE = ""
+        
+        driver.get("https://www.espn.com/nfl/team/depth/_/name/" + str(team))
+        time.sleep(2)
+        
+        # Set up BeautifulSoup
+        html_content = driver.page_source
+        soup = BeautifulSoup(html_content, 'html.parser')
+    
+        table = soup.find_all('div', class_ = 'Table__Scroller')
+        tableBody = table[0].find('tbody', class_='Table__TBODY')
+        rows = tableBody.find_all('tr', class_='Table__TR Table__TR--sm Table__even')
+        
+        qb_element = rows[0].find('td', class_='Table__TD')
+        qb_a_element = qb_element.find('a', class_='AnchorLink')
+        qb_name = qb_a_element.text
+        QB = qb_name
+        
+        rb_elements = rows[1].find_all('td', class_='Table__TD')
+        rb1_a_element = rb_elements[0].find('a', class_='AnchorLink')
+        rb2_a_element = rb_elements[1].find('a', class_='AnchorLink')
+        rb1_name = rb1_a_element.text
+        rb2_name = rb2_a_element.text
+        RB1 = rb1_name
+        RB2 = rb2_name
+        
+        wr1_element = rows[2].find('td', class_='Table__TD')
+        wr1_a_element = wr1_element.find('a', class_='AnchorLink')
+        wr1_name = wr1_a_element.text
+        WR1 = wr1_name
+        
+        wr2_element = rows[3].find('td', class_='Table__TD')
+        wr2_a_element = wr2_element.find('a', class_='AnchorLink')
+        wr2_name = wr2_a_element.text
+        WR2 = wr2_name
+        
+        wr3_element = rows[4].find('td', class_='Table__TD')
+        wr3_a_element = wr3_element.find('a', class_='AnchorLink')
+        wr3_name = wr3_a_element.text
+        WR3 = wr3_name
+        
+        te_element = rows[5].find('td', class_='Table__TD')
+        te_a_element = te_element.find('a', class_='AnchorLink')
+        te_name = te_a_element.text
+        TE = te_name
+
+        # Define the table name for the team's offense roster
+        table_name = f'{teamNames[teamCount].lower()}_offense_roster'
+
+        # Define player names for QB, RB1, RB2, WR1, WR2, WR3, and TE
+        player_names = [QB, RB1, RB2, WR1, WR2, WR3, TE]
+
+        # Define SQL INSERT statement
+        insert_sql = f"INSERT IGNORE INTO {table_name} (Name, Position) VALUES (%s, %s) ON DUPLICATE KEY UPDATE Name = VALUES(Name)"
+
+        # Insert player names into the respective table
+        for Name, Position in zip(player_names, ["QB", "RB1", "RB2", "WR1", "WR2", "WR3", "TE"]):
+            cursor.execute(insert_sql, (Name, Position))
+
+    # Commit the changes to the database
+    connection.commit()
+
+    # Close the database connection
+    connection.close()
+        
+    driver.quit()
+
+# Update NFL Player Gamelogs. (QB, RB, WR, TE, Needs Team)  
+def update_NFL_GameLogs():
+    
+    today = datetime.date.today()
+
+    current_month = today.month
+    
+    current_year = today.year
+    
+    if current_month in [1, 2]:  # January is 1, February is 2
+        current_year -= 1
+    
+    conn = create_connection("nfl_stats")
+    
+    # Connect to your MySQL database
+    db_host = '127.0.0.1'  # Replace with your database host
+    db_user = 'root'  # Replace with your database username
+    db_password = 'root'  # Replace with your database password
+    db_name = 'nfl_stats'  # Replace with your database name
+
+    conn = mysql.connector.connect(
+        host=db_host,
+        user=db_user,
+        password=db_password,
+        database=db_name
+    )
+
+    
+    
+    teamNames = ["bills", "dolphins", "patriots", "jets", "ravens", "bengals", "browns", "steelers", "texans", "colts", "jaguars", "titans",
+                 "broncos", "chiefs", "raiders", "chargers", "cowboys", "giants", "eagles", "commanders", "bears",
+                 "lions", "packers", "vikings", "falcons", "panthers", "saints", "buccaneers", "cardinals", "rams", "sanfrancisco", "seahawks"]
+    
+    
+    playerNames_QBs = []
+    playerNames_RB1 = []
+    playerNames_RB2 = []
+    playerNames_WR1 = []
+    playerNames_WR2 = []
+    playerNames_WR3 = []
+    playerNames_TE = []
+    
+    cursor = conn.cursor()
+    
+    for team in teamNames:
+        
+        
+        column = "Name"
+        
+        team_TableName = str(team + "_offense_roster")
+        
+        # Define the positions you want to fetch
+        positions = ['QB', 'RB1', 'RB2', 'WR1', 'WR2', 'WR3', 'TE']
+        
+        # Build the query using the IN clause
+        mysql_query = f"SELECT {column} FROM {team_TableName} WHERE position IN ({', '.join(['%s']*len(positions))}) ORDER BY position"
+        cursor.execute(mysql_query, positions)
+
+        # Fetch all the results at once
+        results = cursor.fetchall()
+
+        # Process the results
+        QB, RB1, RB2, WR1, WR2, WR3, TE = [clean_PlayerName(result[0]) for result in results]
+        
+        playerNames_QBs.append(QB)
+        playerNames_RB1.append (RB1)
+        playerNames_RB2.append(RB2)
+        playerNames_WR1.append(WR1)
+        playerNames_WR2.append (WR2)
+        playerNames_WR3.append(WR3)
+        playerNames_TE.append(TE)
+        
+    cursor.close()
+    
+    
+    
+    
+    chrome_options = Options()
+    chrome_options.add_argument("--no-sandbox")
+    chrome_options.add_argument("--disable-dev-shm-usage")
+    chrome_options.add_argument("--headless")
+    driver = webdriver.Chrome(options=chrome_options)
+    driver2 = webdriver.Chrome(options=chrome_options)
+    driver3 = webdriver.Chrome(options=chrome_options)
+    
+    
+    # List of drivers
+    drivers = [driver, driver2, driver3]  
+    
+    index_size = 3
+    
+    cursor = conn.cursor()
+    
+    for i in range(0, len(playerNames_QBs), index_size):
+        chunk = playerNames_QBs[i:i + index_size]
+        pass
+        # Your code to process the current chunk goes here
+        for j, QB in enumerate(chunk):
+            # Your processing code for each QB in the current chunk
+            formatted_name = QB.replace(" ", "-").replace("'", "-")
+            SQLformatted_name = QB.replace(" ", "").replace("'", "-")
+            if formatted_name == "josh-allen" or formatted_name == "Josh-Allen":
+                
+                formatted_name = "Josh-Allen-4"
+                
+            elif formatted_name == "c.j.-stroud" or formatted_name == "C.J.-Stroud":
+                
+                formatted_name = "c-j-stroud"
+                
+            
+                
+            
+
+            # Use the corresponding driver instance for each QB
+            current_driver = drivers[j]
+            
+            url = "https://www.nfl.com/players/" + str(formatted_name) + "/stats/logs/"
+            
+            
+            # Open the URL
+            current_driver.get(url)
+            
+            WeekList = []
+            QB_CompletionsList = []
+            QB_AttemptsList = []
+            QB_PassYardsList = []
+            QB_Yards_PerCompletionList = []
+            QB_TouchdownsList = []
+            QB_InterceptionsList = []
+            QB_SacksList = []
+            QB_RushAttemptsList = []
+            QB_RushYardsList = []
+            QB_RushTouchdownsList = []
+            
+            html_content = current_driver.page_source
+            soup = BeautifulSoup(html_content, 'html.parser')
+            
+            # Find the table element by class name
+            statTable_element = soup.find_all("table", class_="d3-o-table d3-o-standings--detailed d3-o-table--sortable {sortlist: [[0,1]]}")
+            
+            if len(statTable_element) < 2:
+                rows = statTable_element[0].find_all("tr")
+                
+            else:
+                rows = statTable_element[1].find_all("tr")
+            
+            i = 0
+            for row in rows[1:]:
+                
+                td_elements = row.find_all("td", class_="nfl-t-stats__col-18")
+
+                WeekList.append(int(td_elements[0].text.strip()))
+                
+                if td_elements[4].text.strip() == '':
+                    QB_CompletionsList.append(0)
+                else:
+                    QB_CompletionsList.append(int(td_elements[4].text.strip()))
+                    
+                if td_elements[5].text.strip() == '':
+                    QB_AttemptsList.append(0)
+                else:
+                    QB_AttemptsList.append(int(td_elements[5].text.strip()))
+                    
+                if td_elements[6].text.strip() == '':
+                    QB_PassYardsList.append(0)
+                else:
+                    QB_PassYardsList.append(int(td_elements[6].text.strip()))
+                    
+                if td_elements[7].text.strip() == '':
+                    QB_Yards_PerCompletionList.append(0)
+                else:
+                    QB_Yards_PerCompletionList.append(float(td_elements[7].text.strip()))
+                    
+                if td_elements[8].text.strip() == '':
+                    QB_TouchdownsList.append(0)
+                else:
+                    QB_TouchdownsList.append(int(td_elements[8].text.strip()))
+                    
+                if td_elements[9].text.strip() == '':
+                    QB_InterceptionsList.append(0)
+                else:
+                    QB_InterceptionsList.append(int(td_elements[9].text.strip()))
+                    
+                if td_elements[10].text.strip() == '':
+                    QB_SacksList.append(0)
+                else:
+                    QB_SacksList.append(int(td_elements[10].text.strip()))
+                
+                if td_elements[13].text.strip() == '':
+                    QB_RushAttemptsList.append(0)
+                else:
+                    QB_RushAttemptsList.append(int(td_elements[13].text.strip()))
+                    
+                if td_elements[14].text.strip() == '':
+                    QB_RushYardsList.append(0)
+                else:
+                    QB_RushYardsList.append(int(td_elements[14].text.strip()))
+                    
+                if td_elements[16].text.strip() == '':
+                    QB_RushTouchdownsList.append(0)  
+                else:
+                    QB_RushTouchdownsList.append(int(td_elements[16].text.strip()))
+            
+            # SQL query to check if the table exists
+            check_table_query = f"SHOW TABLES LIKE '{SQLformatted_name}_GameLogs';"
+            cursor.execute(check_table_query)
+
+            # Fetch the result
+            result = cursor.fetchone()
+            
+            if not result:
+                # SQL query to create the table
+                create_table_query = f"""
+                CREATE TABLE `{SQLformatted_name}_GameLogs` (
+                    Week INT PRIMARY KEY,
+                    Completions INT,
+                    Attempts INT,
+                    Pass_Yards INT,
+                    Yards_PerCompletion DECIMAL(3, 1),
+                    Touchdowns INT,
+                    Interceptions INT,
+                    Sacks INT,
+                    Rush_Attempts INT,
+                    Rush_Yards INT,
+                    Rush_Touchdowns INT
+                );
+                """
+                
+                
+                
+                # Execute the query to create the table
+                cursor.execute(create_table_query)
+
+                # Commit the changes
+                conn.commit()
+            
+            for i in range(len(WeekList)):
+                # Check if the row with the same Week already exists
+                check_duplicate_query = f"SELECT COUNT(*) FROM `{SQLformatted_name}_GameLogs` WHERE Week = %s;"
+                cursor.execute(check_duplicate_query, (WeekList[i],))
+                count = cursor.fetchone()[0]
+
+                if count == 0:
+                    # The row doesn't exist, proceed with the insert
+                    insert_query = f"""
+                    INSERT INTO `{SQLformatted_name}_GameLogs` (
+                        Week,
+                        Completions,
+                        Attempts,
+                        Pass_Yards,
+                        Yards_PerCompletion,
+                        Touchdowns,
+                        Interceptions,
+                        Sacks,
+                        Rush_Attempts,
+                        Rush_Yards,
+                        Rush_Touchdowns
+                    ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                    ON DUPLICATE KEY UPDATE
+                        Completions = VALUES(Completions),
+                        Attempts = VALUES(Attempts),
+                        Pass_Yards = VALUES(Pass_Yards),
+                        Yards_PerCompletion = VALUES(Yards_PerCompletion),
+                        Touchdowns = VALUES(Touchdowns),
+                        Interceptions = VALUES(Interceptions),
+                        Sacks = VALUES(Sacks),
+                        Rush_Attempts = VALUES(Rush_Attempts),
+                        Rush_Yards = VALUES(Rush_Yards),
+                        Rush_Touchdowns = VALUES(Rush_Touchdowns);
+                    """
+                    current_values = (
+                        WeekList[i],
+                        QB_CompletionsList[i],
+                        QB_AttemptsList[i],
+                        QB_PassYardsList[i],
+                        QB_Yards_PerCompletionList[i],
+                        QB_TouchdownsList[i],
+                        QB_InterceptionsList[i],
+                        QB_SacksList[i],
+                        QB_RushAttemptsList[i],
+                        QB_RushYardsList[i],
+                        QB_RushTouchdownsList[i]
+                    )
+                    cursor.execute(insert_query, current_values)
+
+            # Commit the changes
+            conn.commit()
+
+        # Close the cursor and connection
+    cursor.close()
+    
+       
+    cursor = conn.cursor() 
+   
+    for i in range(0, len(playerNames_RB1), index_size):
+        chunk = playerNames_RB1[i:i + index_size]
+       
+         # Your code to process the current chunk goes here
+        for j, RB in enumerate(chunk):
+            # Your processing code for each QB in the current chunk
+            formatted_name = RB.replace(" ", "-").replace("'", "-")
+            SQLformatted_name = RB.replace(" ", "").replace("'", "-")
+            
+            if formatted_name == "james-cook" or formatted_name == "James-Cook":
+                
+                formatted_name = "James-Cook-2"
+                
+            if formatted_name == "najee-harris" or formatted_name == "Najee-Harris":
+                
+                formatted_name = "najee-harris-x2665"
+                
+            if formatted_name == "kenneth-walker" or formatted_name == "Kenneth-Walker":
+                
+                formatted_name = "kenneth-walker-iii"
+                
+            
+                
+            # Use the corresponding driver instance for each QB
+            current_driver = drivers[j]
+            
+            url = "https://www.nfl.com/players/" + str(formatted_name) + "/stats/logs/"
+            
+            
+            current_driver.get(url)
+            
+            WeekList = []
+            RB_RushAttemptsList = []
+            RB_RushYardsList = []
+            RB_RushYards_PerAttemptList = []
+            RB_RushTouchdownsList = []
+            RB_RecsList = []
+            RB_RecYardsList = []
+            RB_RecYards_PerRecList = []
+            RB_RecTouchdownsList = []
+            
+            html_content = current_driver.page_source
+            soup = BeautifulSoup(html_content, 'html.parser')
+            
+            # Find the table element by class name
+            statTable_element = soup.find_all("table", class_="d3-o-table d3-o-standings--detailed d3-o-table--sortable {sortlist: [[0,1]]}")
+            
+            if len(statTable_element) < 2:
+                rows = statTable_element[0].find_all("tr")
+                
+            else:
+                rows = statTable_element[1].find_all("tr")
+                
+            i = 0
+            for row in rows[1:]:
+                
+                td_elements = row.find_all("td", class_="nfl-t-stats__col-15")
+
+                WeekList.append(int(td_elements[0].text.strip()))
+                
+                if td_elements[4].text.strip() == '':
+                    RB_RushAttemptsList.append(0)
+                else:
+                    RB_RushAttemptsList.append(int(td_elements[4].text.strip()))
+                    
+                if td_elements[5].text.strip() == '':
+                    RB_RushYardsList.append(0)
+                else:
+                    RB_RushYardsList.append(int(td_elements[5].text.strip()))
+                    
+                if td_elements[6].text.strip() == '':
+                    RB_RushYards_PerAttemptList.append(0)
+                else:
+                    RB_RushYards_PerAttemptList.append(float(td_elements[6].text.strip()))
+                    
+                if td_elements[8].text.strip() == '':
+                    RB_RushTouchdownsList.append(0)
+                else:
+                    RB_RushTouchdownsList.append(int(td_elements[8].text.strip()))
+                    
+                if td_elements[9].text.strip() == '':
+                    RB_RecsList.append(0)
+                else:
+                    RB_RecsList.append(int(td_elements[9].text.strip()))
+                    
+                if td_elements[10].text.strip() == '':
+                    RB_RecYardsList.append(0)
+                else:
+                    RB_RecYardsList.append(int(td_elements[10].text.strip()))
+                    
+                if td_elements[11].text.strip() == '':
+                    RB_RecYards_PerRecList.append(0)
+                else:
+                    RB_RecYards_PerRecList.append(float(td_elements[11].text.strip()))
+                    
+                if td_elements[13].text.strip() == '':
+                    RB_RecTouchdownsList.append(0)
+                else:
+                    RB_RecTouchdownsList.append(int(td_elements[13].text.strip()))
+            
+                
+                # SQL query to check if the table exists
+                check_table_query = f"SHOW TABLES LIKE '{SQLformatted_name}_GameLogs';"
+                cursor.execute(check_table_query)
+
+                # Fetch the result
+                result = cursor.fetchone()
+                
+                if not result:
+                    # SQL query to create the table
+                    create_table_query = f"""
+                    CREATE TABLE `{SQLformatted_name}_GameLogs` (
+                        Week INT PRIMARY KEY,
+                        Rush_Attempts INT,
+                        Rush_Yards INT,
+                        Rush_Yards_PA DECIMAL(3,1),
+                        Rush_Touchdowns INT,
+                        Receptions INT,
+                        Rec_Yards INT,
+                        Rec_Yards_PR DECIMAL(3,1),
+                        Rec_Touchdowns INT
+                    );
+                    """
+                    
+                    
+                    
+                    # Execute the query to create the table
+                    cursor.execute(create_table_query)
+
+                    # Commit the changes
+                    conn.commit()
+                
+                for i in range(len(WeekList)):
+                    # Check if the row with the same Week already exists
+                    check_duplicate_query = f"SELECT COUNT(*) FROM `{SQLformatted_name}_GameLogs` WHERE Week = %s;"
+                    cursor.execute(check_duplicate_query, (WeekList[i],))
+                    count = cursor.fetchone()[0]
+
+                    if count == 0:
+                        # The row doesn't exist, proceed with the insert
+                        insert_query = f"""
+                        INSERT INTO `{SQLformatted_name}_GameLogs` (
+                            Week,
+                            Rush_Attempts,
+                            Rush_Yards,
+                            Rush_Yards_PA,
+                            Rush_Touchdowns,
+                            Receptions,
+                            Rec_Yards,
+                            Rec_Yards_PR,
+                            Rec_Touchdowns
+                        ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+                        ON DUPLICATE KEY UPDATE
+                            Rush_Attempts = VALUES(Rush_Attempts),
+                            Rush_Yards = VALUES(Rush_Yards),
+                            Rush_Yards_PA = VALUES(Rush_Yards_PA),
+                            Rush_Touchdowns = VALUES(Rush_Touchdowns),
+                            Receptions = VALUES(Receptions),
+                            Rec_Yards = VALUES(Rec_Yards),
+                            Rec_Yards_PR = VALUES(Rec_Yards_PR),
+                            Rec_Touchdowns = VALUES(Rec_Touchdowns);
+                            
+                        """
+                        current_values = (
+                            WeekList [i],
+                            RB_RushAttemptsList [i],
+                            RB_RushYardsList [i],
+                            RB_RushYards_PerAttemptList [i],
+                            RB_RushTouchdownsList [i],
+                            RB_RecsList [i],
+                            RB_RecYardsList [i],
+                            RB_RecYards_PerRecList [i],
+                            RB_RecTouchdownsList [i]
+                            )
+                        cursor.execute(insert_query, current_values)
+                
+            # Commit the changes
+            conn.commit()
+
+    # Close the cursor and connection
+    cursor.close()
+    
+    cursor = conn.cursor()
+       
+    for i in range(0, len(playerNames_RB2), index_size):
+        chunk = playerNames_RB2[i:i + index_size]
+       
+         # Your code to process the current chunk goes here
+        for j, RB in enumerate(chunk):
+            # Your processing code for each QB in the current chunk
+            formatted_name = RB.replace(" ", "-").replace("'", "-")
+            SQLformatted_name = RB.replace(" ", "").replace("'", "-")
+                
+            if formatted_name == "de-von-achane" or formatted_name == "De-Von-Achane":
+                
+                formatted_name = "devon-achane"
+                SQLformatted_name = "devonachane"
+                
+            if formatted_name == "antonio-gibson" or formatted_name == "Antonio-Gibson":
+                
+                formatted_name = "antonio-gibson-2"
+                SQLformatted_name = "antoniogibson"
+                
+            if formatted_name == "aj-dillon" or formatted_name == "AJ-Dillon":
+                
+                formatted_name = "a-j-dillon"
+                SQLformatted_name = "ajdillon"
+                
+            if formatted_name == "elijah-mitchell" or formatted_name == "Elijah-Mitchell":
+                
+                formatted_name = "elijah-mitchell-2"
+                SQLformatted_name = "elijahmitchell"
+                
+                
+            # Use the corresponding driver instance for each QB
+            current_driver = drivers[j]
+            
+            url = "https://www.nfl.com/players/" + str(formatted_name) + "/stats/logs/"
+            
+            
+            current_driver.get(url)
+            
+            WeekList = []
+            RB_RushAttemptsList = []
+            RB_RushYardsList = []
+            RB_RushYards_PerAttemptList = []
+            RB_RushTouchdownsList = []
+            RB_RecsList = []
+            RB_RecYardsList = []
+            RB_RecYards_PerRecList = []
+            RB_RecTouchdownsList = []
+            
+            html_content = current_driver.page_source
+            soup = BeautifulSoup(html_content, 'html.parser')
+            
+            # Find the table element by class name
+            statTable_element = soup.find_all("table", class_="d3-o-table d3-o-standings--detailed d3-o-table--sortable {sortlist: [[0,1]]}")
+            
+            if len(statTable_element) < 2:
+                rows = statTable_element[0].find_all("tr")
+                
+            else:
+                rows = statTable_element[1].find_all("tr")
+                
+            i = 0
+            for row in rows[1:]:
+                
+                td_elements = row.find_all("td", class_="nfl-t-stats__col-15")
+
+                WeekList.append(int(td_elements[0].text.strip()))
+                
+                if td_elements[4].text.strip() == '':
+                    RB_RushAttemptsList.append(0)
+                else:
+                    RB_RushAttemptsList.append(int(td_elements[4].text.strip()))
+                    
+                if td_elements[5].text.strip() == '':
+                    RB_RushYardsList.append(0)
+                else:
+                    RB_RushYardsList.append(int(td_elements[5].text.strip()))
+                    
+                if td_elements[6].text.strip() == '':
+                    RB_RushYards_PerAttemptList.append(0)
+                else:
+                    RB_RushYards_PerAttemptList.append(float(td_elements[6].text.strip()))
+                    
+                if td_elements[8].text.strip() == '':
+                    RB_RushTouchdownsList.append(0)
+                else:
+                    RB_RushTouchdownsList.append(int(td_elements[8].text.strip()))
+                    
+                if td_elements[9].text.strip() == '':
+                    RB_RecsList.append(0)
+                else:
+                    RB_RecsList.append(int(td_elements[9].text.strip()))
+                    
+                if td_elements[10].text.strip() == '':
+                    RB_RecYardsList.append(0)
+                else:
+                    RB_RecYardsList.append(int(td_elements[10].text.strip()))
+                    
+                if td_elements[11].text.strip() == '':
+                    RB_RecYards_PerRecList.append(0)
+                else:
+                    RB_RecYards_PerRecList.append(float(td_elements[11].text.strip()))
+                    
+                if td_elements[13].text.strip() == '':
+                    RB_RecTouchdownsList.append(0)
+                else:
+                    RB_RecTouchdownsList.append(int(td_elements[13].text.strip()))
+                
+                
+                # SQL query to check if the table exists
+                check_table_query = f"SHOW TABLES LIKE '{SQLformatted_name}_GameLogs';"
+                cursor.execute(check_table_query)
+
+                # Fetch the result
+                result = cursor.fetchone()
+                
+                if not result:
+                    # SQL query to create the table
+                    create_table_query = f"""
+                    CREATE TABLE `{SQLformatted_name}_GameLogs` (
+                        Week INT PRIMARY KEY,
+                        Rush_Attempts INT,
+                        Rush_Yards INT,
+                        Rush_Yards_PA DECIMAL(3,1),
+                        Rush_Touchdowns INT,
+                        Receptions INT,
+                        Rec_Yards INT,
+                        Rec_Yards_PR DECIMAL(3,1),
+                        Rec_Touchdowns INT
+                    );
+                    """
+                    
+                    
+                    
+                    # Execute the query to create the table
+                    cursor.execute(create_table_query)
+
+                    # Commit the changes
+                    conn.commit()
+                
+                for i in range(len(WeekList)):
+                    # Check if the row with the same Week already exists
+                    check_duplicate_query = f"SELECT COUNT(*) FROM `{SQLformatted_name}_GameLogs` WHERE Week = %s;"
+                    cursor.execute(check_duplicate_query, (WeekList[i],))
+                    count = cursor.fetchone()[0]
+
+                    if count == 0:
+                        # The row doesn't exist, proceed with the insert
+                        insert_query = f"""
+                        INSERT INTO `{SQLformatted_name}_GameLogs` (
+                            Week,
+                            Rush_Attempts,
+                            Rush_Yards,
+                            Rush_Yards_PA,
+                            Rush_Touchdowns,
+                            Receptions,
+                            Rec_Yards,
+                            Rec_Yards_PR,
+                            Rec_Touchdowns
+                        ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+                        ON DUPLICATE KEY UPDATE
+                            Rush_Attempts = VALUES(Rush_Attempts),
+                            Rush_Yards = VALUES(Rush_Yards),
+                            Rush_Yards_PA = VALUES(Rush_Yards_PA),
+                            Rush_Touchdowns = VALUES(Rush_Touchdowns),
+                            Receptions = VALUES(Receptions),
+                            Rec_Yards = VALUES(Rec_Yards),
+                            Rec_Yards_PR = VALUES(Rec_Yards_PR),
+                            Rec_Touchdowns = VALUES(Rec_Touchdowns);
+                            
+                        """
+                        current_values = (
+                            WeekList [i],
+                            RB_RushAttemptsList [i],
+                            RB_RushYardsList [i],
+                            RB_RushYards_PerAttemptList [i],
+                            RB_RushTouchdownsList [i],
+                            RB_RecsList [i],
+                            RB_RecYardsList [i],
+                            RB_RecYards_PerRecList [i],
+                            RB_RecTouchdownsList [i]
+                            )
+                        cursor.execute(insert_query, current_values)
+                
+            # Commit the changes
+            conn.commit()
+
+    # Close the cursor and connection
+    cursor.close()
+    
+    cursor = conn.cursor() 
+   
+    for i in range(0, len(playerNames_WR1), index_size):
+        chunk = playerNames_WR1[i:i + index_size]
+        
+        # Your code to process the current chunk goes here
+        for j, WR in enumerate(chunk):
+            # Your processing code for each QB in the current chunk
+            formatted_name = WR.replace(" ", "-").replace("'", "-")
+            SQLformatted_name = WR.replace(" ", "").replace("'", "-")
+            
+            if formatted_name == "drew-ogletree" or formatted_name == "Drew-Ogletree":
+                
+                formatted_name = "andrew-ogletree"
+                SQLformatted_name = "andrewogletree"
+                
+            if formatted_name == "t.j.-hockenson" or formatted_name == "T.J.-Hockenson":
+                
+                formatted_name = "t-j-hockenson"
+                SQLformatted_name = "tjhockenson"
+            
+            # Use the corresponding driver instance for each QB
+            current_driver = drivers[j]
+            
+            url = "https://www.nfl.com/players/" + str(formatted_name) + "/stats/logs/"
+            
+            
+            current_driver.get(url)
+            
+            WeekList = []
+            WR_ReceptionsList = []
+            WR_RecYardsList = []
+            WR_RecYards_PRList = []
+            WR_RecTouchdownsList = []
+            WR_RushAttemptsList = []
+            WR_RushYardsList = []
+            WR_RushYards_PAList = []
+            WR_RushTouchdowns = []
+            
+            html_content = current_driver.page_source
+            soup = BeautifulSoup(html_content, 'html.parser')
+            
+            # Find the table element by class name
+            statTable_element = soup.find_all("table", class_="d3-o-table d3-o-standings--detailed d3-o-table--sortable {sortlist: [[0,1]]}")
+            
+            if len(statTable_element) < 2:
+                rows = statTable_element[0].find_all("tr")
+                
+            else:
+                rows = statTable_element[1].find_all("tr")
+                
+            i = 0
+            for row in rows[1:]:
+                
+                td_elements = row.find_all("td", class_="nfl-t-stats__col-15")
+
+                WeekList.append(int(td_elements[0].text.strip()))
+                
+                if td_elements[4].text.strip() == '':
+                    WR_ReceptionsList.append(0)
+                else:
+                    WR_ReceptionsList.append(int(td_elements[4].text.strip()))
+                    
+                if td_elements[5].text.strip() == '':
+                    WR_RecYardsList.append(0)
+                else:
+                    WR_RecYardsList.append(int(td_elements[5].text.strip()))
+                    
+                if td_elements[6].text.strip() == '':
+                    WR_RecYards_PRList.append(0)
+                else:
+                    WR_RecYards_PRList.append(float(td_elements[6].text.strip()))
+                    
+                if td_elements[8].text.strip() == '':
+                    WR_RecTouchdownsList.append(0)
+                else:
+                    WR_RecTouchdownsList.append(int(td_elements[8].text.strip()))
+                    
+                if td_elements[9].text.strip() == '':
+                    WR_RushAttemptsList.append(0)
+                else:
+                    WR_RushAttemptsList.append(int(td_elements[9].text.strip()))
+                    
+                if td_elements[10].text.strip() == '':
+                    WR_RushYardsList.append(0)
+                else:
+                    WR_RushYardsList.append(int(td_elements[10].text.strip()))
+                    
+                if td_elements[11].text.strip() == '':
+                    WR_RushYards_PAList.append(0)
+                else:
+                    WR_RushYards_PAList.append(float(td_elements[11].text.strip()))
+                    
+                if td_elements[13].text.strip() == '':
+                    WR_RushTouchdowns.append(0)
+                else:
+                    WR_RushTouchdowns.append(int(td_elements[13].text.strip()))
+                
+                
+                
+                # SQL query to check if the table exists
+                check_table_query = f"SHOW TABLES LIKE '{SQLformatted_name}_GameLogs';"
+                cursor.execute(check_table_query)
+
+                # Fetch the result
+                result = cursor.fetchone()
+                
+                if not result:
+                    # SQL query to create the table
+                    create_table_query = f"""
+                    CREATE TABLE `{SQLformatted_name}_GameLogs` (
+                        Week INT PRIMARY KEY,
+                        Receptions INT,
+                        Rec_Yards INT,
+                        Rec_Yards_PR DECIMAL(3,1),
+                        Rec_Touchdowns INT,
+                        Rush_Attempts INT,
+                        Rush_Yards INT,
+                        Rush_Yards_PA DECIMAL(3,1),
+                        Rush_Touchdowns INT
+                    );
+                    """
+                    
+                    
+                    
+                    # Execute the query to create the table
+                    cursor.execute(create_table_query)
+
+                    # Commit the changes
+                    conn.commit()
+                for i in range(len(WeekList)):
+                    # Check if the row with the same Week already exists
+                    check_duplicate_query = f"SELECT COUNT(*) FROM `{SQLformatted_name}_GameLogs` WHERE Week = %s;"
+                    cursor.execute(check_duplicate_query, (WeekList[i],))
+                    count = cursor.fetchone()[0]
+
+                    if count == 0:
+                        # The row doesn't exist, proceed with the insert
+                        insert_query = f"""
+                        INSERT INTO `{SQLformatted_name}_GameLogs` (
+                            Week,
+                            Receptions,
+                            Rec_Yards,
+                            Rec_Yards_PR,
+                            Rec_Touchdowns,
+                            Rush_Attempts,
+                            Rush_Yards,
+                            Rush_Yards_PA,
+                            Rush_Touchdowns
+                        ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+                        ON DUPLICATE KEY UPDATE
+                            Receptions = VALUES(Receptions),
+                            Rec_Yards = VALUES(Rec_Yards),
+                            Rec_Yards_PR = VALUES(Rec_Yards_PR),
+                            Rec_Touchdowns = VALUES(Rec_Touchdowns),
+                            Rush_Attempts = VALUES(Rush_Attempts),
+                            Rush_Yards = VALUES(Rush_Yards),
+                            Rush_Yards_PA = VALUES(Rush_Yards_PA),
+                            Rush_Touchdowns = VALUES(Rush_Touchdowns);
+                            
+                        """
+                        current_values = (
+                            WeekList [i],
+                            WR_ReceptionsList [i],
+                            WR_RecYardsList [i],
+                            WR_RecYards_PRList [i],
+                            WR_RecTouchdownsList [i],
+                            WR_RushAttemptsList [i],
+                            WR_RushYardsList [i],
+                            WR_RushYards_PAList [i],
+                            WR_RushTouchdowns [i]
+                            )
+                        cursor.execute(insert_query, current_values)
+                
+            # Commit the changes
+            conn.commit()
+
+    # Close the cursor and connection
+    cursor.close()    
+    
+    cursor = conn.cursor() 
+   
+    for i in range(0, len(playerNames_WR2), index_size):
+        chunk = playerNames_WR2[i:i + index_size]
+        
+        # Your code to process the current chunk goes here
+        for j, WR in enumerate(chunk):
+            # Your processing code for each WR in the current chunk
+            formatted_name = WR.replace(" ", "-").replace("'", "-")
+            SQLformatted_name = WR.replace(" ", "").replace("'", "-")
+            
+            if formatted_name == "drew-ogletree" or formatted_name == "Drew-Ogletree":
+                
+                formatted_name = "andrew-ogletree"
+                SQLformatted_name = "andrewogletree"
+                
+            if formatted_name == "t.j.-hockenson" or formatted_name == "T.J.-Hockenson":
+                
+                formatted_name = "t-j-hockenson"
+                SQLformatted_name = "tjhockenson"
+                
+            if formatted_name == "michael-pittman" or formatted_name == "Michael-Pittman":
+                
+                formatted_name = "michael-pittman-2"
+                SQLformatted_name = "michaelpittman"
+            
+            if formatted_name == "a.j.-brown" or formatted_name == "A.J.-Brown":
+                
+                formatted_name = "a-j-brown"
+                SQLformatted_name = "ajbrown"
+                
+            if formatted_name == "dj-moore" or formatted_name == "DJ-Moore":
+                
+                formatted_name = "d-j-moore"
+                SQLformatted_name = "djmoore"
+                
+            if formatted_name == "amon-ra-st.-brown" or formatted_name == "Amon-Ra-St.-Brown":
+                
+                formatted_name = "amon-ra-st-brown"
+                SQLformatted_name = "amonrastbrown"
+                
+            if formatted_name == "dk-metcalf" or formatted_name == "DK-Metcalf":
+                
+                formatted_name = "d-k-metcalf"
+                SQLformatted_name = "dkmetcalf"
+            
+            # Use the corresponding driver instance for each QB
+            current_driver = drivers[j]
+            
+            url = "https://www.nfl.com/players/" + str(formatted_name) + "/stats/logs/"
+            
+            
+            current_driver.get(url)
+    
+            WeekList = []
+            WR_ReceptionsList = []
+            WR_RecYardsList = []
+            WR_RecYards_PRList = []
+            WR_RecTouchdownsList = []
+            WR_RushAttemptsList = []
+            WR_RushYardsList = []
+            WR_RushYards_PAList = []
+            WR_RushTouchdowns = []
+            
+            html_content = current_driver.page_source
+            soup = BeautifulSoup(html_content, 'html.parser')
+            
+            # Find the table element by class name
+            statTable_element = soup.find_all("table", class_="d3-o-table d3-o-standings--detailed d3-o-table--sortable {sortlist: [[0,1]]}")
+            
+            if len(statTable_element) < 2:
+                rows = statTable_element[0].find_all("tr")
+                
+            else:
+                rows = statTable_element[1].find_all("tr")
+            
+            i = 0
+            for row in rows[1:]:
+                
+                td_elements = row.find_all("td", class_="nfl-t-stats__col-15")
+
+                WeekList.append(int(td_elements[0].text.strip()))
+                
+                if td_elements[4].text.strip() == '':
+                    WR_ReceptionsList.append(0)
+                else:
+                    WR_ReceptionsList.append(int(td_elements[4].text.strip()))
+                    
+                if td_elements[5].text.strip() == '':
+                    WR_RecYardsList.append(0)
+                else:
+                    WR_RecYardsList.append(int(td_elements[5].text.strip()))
+                    
+                if td_elements[6].text.strip() == '':
+                    WR_RecYards_PRList.append(0)
+                else:
+                    WR_RecYards_PRList.append(float(td_elements[6].text.strip()))
+                    
+                if td_elements[8].text.strip() == '':
+                    WR_RecTouchdownsList.append(0)
+                else:
+                    WR_RecTouchdownsList.append(int(td_elements[8].text.strip()))
+                    
+                if td_elements[9].text.strip() == '':
+                    WR_RushAttemptsList.append(0)
+                else:
+                    WR_RushAttemptsList.append(int(td_elements[9].text.strip()))
+                    
+                if td_elements[10].text.strip() == '':
+                    WR_RushYardsList.append(0)
+                else:
+                    WR_RushYardsList.append(int(td_elements[10].text.strip()))
+                    
+                if td_elements[11].text.strip() == '':
+                    WR_RushYards_PAList.append(0)
+                else:
+                    WR_RushYards_PAList.append(float(td_elements[11].text.strip()))
+                    
+                if td_elements[13].text.strip() == '':
+                    WR_RushTouchdowns.append(0)
+                else:
+                    WR_RushTouchdowns.append(int(td_elements[13].text.strip()))
+                
+                
+                
+                # SQL query to check if the table exists
+                check_table_query = f"SHOW TABLES LIKE '{SQLformatted_name}_GameLogs';"
+                cursor.execute(check_table_query)
+
+                # Fetch the result
+                result = cursor.fetchone()
+                
+                if not result:
+                    # SQL query to create the table
+                    create_table_query = f"""
+                    CREATE TABLE `{SQLformatted_name}_GameLogs` (
+                        Week INT PRIMARY KEY,
+                        Receptions INT,
+                        Rec_Yards INT,
+                        Rec_Yards_PR DECIMAL(3,1),
+                        Rec_Touchdowns INT,
+                        Rush_Attempts INT,
+                        Rush_Yards INT,
+                        Rush_Yards_PA DECIMAL(3,1),
+                        Rush_Touchdowns INT
+                    );
+                    """
+                    
+                    
+                    
+                    # Execute the query to create the table
+                    cursor.execute(create_table_query)
+
+                    # Commit the changes
+                    conn.commit()
+                for i in range(len(WeekList)):
+                    # Check if the row with the same Week already exists
+                    check_duplicate_query = f"SELECT COUNT(*) FROM `{SQLformatted_name}_GameLogs` WHERE Week = %s;"
+                    cursor.execute(check_duplicate_query, (WeekList[i],))
+                    count = cursor.fetchone()[0]
+
+                    if count == 0:
+                        # The row doesn't exist, proceed with the insert
+                        insert_query = f"""
+                        INSERT INTO `{SQLformatted_name}_GameLogs` (
+                            Week,
+                            Receptions,
+                            Rec_Yards,
+                            Rec_Yards_PR,
+                            Rec_Touchdowns,
+                            Rush_Attempts,
+                            Rush_Yards,
+                            Rush_Yards_PA,
+                            Rush_Touchdowns
+                        ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+                        ON DUPLICATE KEY UPDATE
+                            Receptions = VALUES(Receptions),
+                            Rec_Yards = VALUES(Rec_Yards),
+                            Rec_Yards_PR = VALUES(Rec_Yards_PR),
+                            Rec_Touchdowns = VALUES(Rec_Touchdowns),
+                            Rush_Attempts = VALUES(Rush_Attempts),
+                            Rush_Yards = VALUES(Rush_Yards),
+                            Rush_Yards_PA = VALUES(Rush_Yards_PA),
+                            Rush_Touchdowns = VALUES(Rush_Touchdowns);
+                            
+                        """
+                        current_values = (
+                            WeekList [i],
+                            WR_ReceptionsList [i],
+                            WR_RecYardsList [i],
+                            WR_RecYards_PRList [i],
+                            WR_RecTouchdownsList [i],
+                            WR_RushAttemptsList [i],
+                            WR_RushYardsList [i],
+                            WR_RushYards_PAList [i],
+                            WR_RushTouchdowns [i]
+                            )
+                        cursor.execute(insert_query, current_values)
+                
+            # Commit the changes
+            conn.commit()
+
+    # Close the cursor and connection
+    cursor.close()    
+                
+    cursor = conn.cursor() 
+   
+    for i in range(0, len(playerNames_WR3), index_size):
+        chunk = playerNames_WR3[i:i + index_size]
+        
+        # Your code to process the current chunk goes here
+        for j, WR in enumerate(chunk):
+            # Your processing code for each WR in the current chunk
+            formatted_name = WR.replace(" ", "-").replace("'", "-")
+            SQLformatted_name = WR.replace(" ", "").replace("'", "-")
+            
+            if formatted_name == "drew-ogletree" or formatted_name == "Drew-Ogletree":
+                
+                formatted_name = "andrew-ogletree"
+                SQLformatted_name = "andrewogletree"
+                
+            if formatted_name == "t.j.-hockenson" or formatted_name == "T.J.-Hockenson":
+                
+                formatted_name = "t-j-hockenson"
+                SQLformatted_name = "tjhockenson"
+                
+            if formatted_name == "michael-pittman" or formatted_name == "Michael-Pittman":
+                
+                formatted_name = "michael-pittman-2"
+                SQLformatted_name = "michaelpittman"
+            
+            if formatted_name == "a.j.-brown" or formatted_name == "A.J.-Brown":
+                
+                formatted_name = "a-j-brown"
+                SQLformatted_name = "ajbrown"
+                
+            if formatted_name == "dj-moore" or formatted_name == "DJ-Moore":
+                
+                formatted_name = "d-j-moore"
+                SQLformatted_name = "djmoore"
+                
+            if formatted_name == "amon-ra-st.-brown" or formatted_name == "Amon-Ra-St.-Brown":
+                
+                formatted_name = "amon-ra-st-brown"
+                SQLformatted_name = "amonrastbrown"
+                
+            if formatted_name == "dk-metcalf" or formatted_name == "DK-Metcalf":
+                
+                formatted_name = "d-k-metcalf"
+                SQLformatted_name = "dkmetcalf"
+                
+            if formatted_name == "joshua-palmer" or formatted_name == "Joshua-Palmer":
+                
+                formatted_name = "josh-palmer"
+                SQLformatted_name = "joshpalmer"
+            
+            # Use the corresponding driver instance for each QB
+            current_driver = drivers[j]
+            
+            url = "https://www.nfl.com/players/" + str(formatted_name) + "/stats/logs/"
+            
+            
+            current_driver.get(url)
+    
+            WeekList = []
+            WR_ReceptionsList = []
+            WR_RecYardsList = []
+            WR_RecYards_PRList = []
+            WR_RecTouchdownsList = []
+            WR_RushAttemptsList = []
+            WR_RushYardsList = []
+            WR_RushYards_PAList = []
+            WR_RushTouchdowns = []
+            
+            html_content = current_driver.page_source
+            soup = BeautifulSoup(html_content, 'html.parser')
+            
+            # Find the table element by class name
+            statTable_element = soup.find_all("table", class_="d3-o-table d3-o-standings--detailed d3-o-table--sortable {sortlist: [[0,1]]}")
+            
+            if len(statTable_element) < 2:
+                rows = statTable_element[0].find_all("tr")
+                
+            else:
+                rows = statTable_element[1].find_all("tr")
+            
+            i = 0
+            for row in rows[1:]:
+                
+                td_elements = row.find_all("td", class_="nfl-t-stats__col-15")
+
+                WeekList.append(int(td_elements[0].text.strip()))
+                
+                if td_elements[4].text.strip() == '':
+                    WR_ReceptionsList.append(0)
+                else:
+                    WR_ReceptionsList.append(int(td_elements[4].text.strip()))
+                    
+                if td_elements[5].text.strip() == '':
+                    WR_RecYardsList.append(0)
+                else:
+                    WR_RecYardsList.append(int(td_elements[5].text.strip()))
+                    
+                if td_elements[6].text.strip() == '':
+                    WR_RecYards_PRList.append(0)
+                else:
+                    WR_RecYards_PRList.append(float(td_elements[6].text.strip()))
+                    
+                if td_elements[8].text.strip() == '':
+                    WR_RecTouchdownsList.append(0)
+                else:
+                    WR_RecTouchdownsList.append(int(td_elements[8].text.strip()))
+                    
+                if td_elements[9].text.strip() == '':
+                    WR_RushAttemptsList.append(0)
+                else:
+                    WR_RushAttemptsList.append(int(td_elements[9].text.strip()))
+                    
+                if td_elements[10].text.strip() == '':
+                    WR_RushYardsList.append(0)
+                else:
+                    WR_RushYardsList.append(int(td_elements[10].text.strip()))
+                    
+                if td_elements[11].text.strip() == '':
+                    WR_RushYards_PAList.append(0)
+                else:
+                    WR_RushYards_PAList.append(float(td_elements[11].text.strip()))
+                    
+                if td_elements[13].text.strip() == '':
+                    WR_RushTouchdowns.append(0)
+                else:
+                    WR_RushTouchdowns.append(int(td_elements[13].text.strip()))
+                
+                
+                
+                # SQL query to check if the table exists
+                check_table_query = f"SHOW TABLES LIKE '{SQLformatted_name}_GameLogs';"
+                cursor.execute(check_table_query)
+
+                # Fetch the result
+                result = cursor.fetchone()
+                
+                if not result:
+                    # SQL query to create the table
+                    create_table_query = f"""
+                    CREATE TABLE `{SQLformatted_name}_GameLogs` (
+                        Week INT PRIMARY KEY,
+                        Receptions INT,
+                        Rec_Yards INT,
+                        Rec_Yards_PR DECIMAL(3,1),
+                        Rec_Touchdowns INT,
+                        Rush_Attempts INT,
+                        Rush_Yards INT,
+                        Rush_Yards_PA DECIMAL(3,1),
+                        Rush_Touchdowns INT
+                    );
+                    """
+                    
+                    
+                    
+                    # Execute the query to create the table
+                    cursor.execute(create_table_query)
+
+                    # Commit the changes
+                    conn.commit()
+                for i in range(len(WeekList)):
+                    # Check if the row with the same Week already exists
+                    check_duplicate_query = f"SELECT COUNT(*) FROM `{SQLformatted_name}_GameLogs` WHERE Week = %s;"
+                    cursor.execute(check_duplicate_query, (WeekList[i],))
+                    count = cursor.fetchone()[0]
+
+                    if count == 0:
+                        # The row doesn't exist, proceed with the insert
+                        insert_query = f"""
+                        INSERT INTO `{SQLformatted_name}_GameLogs` (
+                            Week,
+                            Receptions,
+                            Rec_Yards,
+                            Rec_Yards_PR,
+                            Rec_Touchdowns,
+                            Rush_Attempts,
+                            Rush_Yards,
+                            Rush_Yards_PA,
+                            Rush_Touchdowns
+                        ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+                        ON DUPLICATE KEY UPDATE
+                            Receptions = VALUES(Receptions),
+                            Rec_Yards = VALUES(Rec_Yards),
+                            Rec_Yards_PR = VALUES(Rec_Yards_PR),
+                            Rec_Touchdowns = VALUES(Rec_Touchdowns),
+                            Rush_Attempts = VALUES(Rush_Attempts),
+                            Rush_Yards = VALUES(Rush_Yards),
+                            Rush_Yards_PA = VALUES(Rush_Yards_PA),
+                            Rush_Touchdowns = VALUES(Rush_Touchdowns);
+                            
+                        """
+                        current_values = (
+                            WeekList [i],
+                            WR_ReceptionsList [i],
+                            WR_RecYardsList [i],
+                            WR_RecYards_PRList [i],
+                            WR_RecTouchdownsList [i],
+                            WR_RushAttemptsList [i],
+                            WR_RushYardsList [i],
+                            WR_RushYards_PAList [i],
+                            WR_RushTouchdowns [i]
+                            )
+                        cursor.execute(insert_query, current_values)
+                
+            # Commit the changes
+            conn.commit()
+
+    # Close the cursor and connection
+    cursor.close()
+    
+    cursor = conn.cursor() 
+   
+    for i in range(0, len(playerNames_TE), index_size):
+        chunk = playerNames_TE[i:i + index_size]
+        
+        # Your code to process the current chunk goes here
+        for j, TE in enumerate(chunk):
+            # Your processing code for each WR in the current chunk
+            formatted_name = TE.replace(" ", "-").replace("'", "-")
+            SQLformatted_name = TE.replace(" ", "").replace("'", "-")
+            
+            if formatted_name == "drew-ogletree" or formatted_name == "Drew-Ogletree":
+                
+                formatted_name = "andrew-ogletree"
+                SQLformatted_name = "andrewogletree"
+                
+            if formatted_name == "t.j.-hockenson" or formatted_name == "T.J.-Hockenson":
+                
+                formatted_name = "t-j-hockenson"
+                SQLformatted_name = "tjhockenson"
+                
+            if formatted_name == "michael-pittman" or formatted_name == "Michael-Pittman":
+                
+                formatted_name = "michael-pittman-2"
+                SQLformatted_name = "michaelpittman"
+            
+            if formatted_name == "a.j.-brown" or formatted_name == "A.J.-Brown":
+                
+                formatted_name = "a-j-brown"
+                SQLformatted_name = "ajbrown"
+                
+            if formatted_name == "dj-moore" or formatted_name == "DJ-Moore":
+                
+                formatted_name = "d-j-moore"
+                SQLformatted_name = "djmoore"
+                
+            if formatted_name == "amon-ra-st.-brown" or formatted_name == "Amon-Ra-St.-Brown":
+                
+                formatted_name = "amon-ra-st-brown"
+                SQLformatted_name = "amonrastbrown"
+                
+            if formatted_name == "dk-metcalf" or formatted_name == "DK-Metcalf":
+                
+                formatted_name = "d-k-metcalf"
+                SQLformatted_name = "dkmetcalf"
+                
+            if formatted_name == "joshua-palmer" or formatted_name == "Joshua-Palmer":
+                
+                formatted_name = "josh-palmer"
+                SQLformatted_name = "joshpalmer"
+                
+            if formatted_name == "cedrick-wilson" or formatted_name == "Cedrick-Wilson":
+                
+                formatted_name = "ced-wilson"
+                SQLformatted_name = "cedrickwilson"
+                
+            if formatted_name == "cedric-tillman" or formatted_name == "Cedric-Tillman":
+                
+                formatted_name = "cedric-tillman-2"
+                SQLformatted_name = "cedrictillman"
+            
+            if formatted_name == "equanimeous-st.-brown" or formatted_name == "Equanimeous-St.-Brown":
+                
+                formatted_name = "equanimeous-st-brown"
+                SQLformatted_name = "equanimeousstbrown"
+                
+            if formatted_name == "k.j.-osborn" or formatted_name == "K.J.-Osborn":
+                
+                formatted_name = "k-j-osborn"
+                SQLformatted_name = "kjosborn"
+                
+            if formatted_name == "dj-chark" or formatted_name == "DJ-Chark":
+                
+                formatted_name = "d-j-chark"
+                SQLformatted_name = "djchark"
+            
+            # Use the corresponding driver instance for each QB
+            current_driver = drivers[j]
+            
+            url = "https://www.nfl.com/players/" + str(formatted_name) + "/stats/logs/"
+            
+            
+            current_driver.get(url)
+    
+            WeekList = []
+            TE_ReceptionsList = []
+            TE_RecYardsList = []
+            TE_RecYards_PRList = []
+            TE_RecTouchdownsList = []
+            TE_RushAttemptsList = []
+            TE_RushYardsList = []
+            TE_RushYards_PAList = []
+            TE_RushTouchdowns = []
+            
+            html_content = current_driver.page_source
+            soup = BeautifulSoup(html_content, 'html.parser')
+            
+            # Find the table element by class name
+            statTable_element = soup.find_all("table", class_="d3-o-table d3-o-standings--detailed d3-o-table--sortable {sortlist: [[0,1]]}")
+            
+            if len(statTable_element) < 2:
+                rows = statTable_element[0].find_all("tr")
+                
+            else:
+                rows = statTable_element[1].find_all("tr")
+            
+            i = 0
+            for row in rows[1:]:
+                
+                td_elements = row.find_all("td", class_="nfl-t-stats__col-15")
+
+                WeekList.append(int(td_elements[0].text.strip()))
+                
+                if td_elements[4].text.strip() == '':
+                    TE_ReceptionsList.append(0)
+                else:
+                    TE_ReceptionsList.append(int(td_elements[4].text.strip()))
+                    
+                if td_elements[5].text.strip() == '':
+                    TE_RecYardsList.append(0)
+                else:
+                    TE_RecYardsList.append(int(td_elements[5].text.strip()))
+                    
+                if td_elements[6].text.strip() == '':
+                    TE_RecYards_PRList.append(0)
+                else:
+                    TE_RecYards_PRList.append(float(td_elements[6].text.strip()))
+                    
+                if td_elements[8].text.strip() == '':
+                    TE_RecTouchdownsList.append(0)
+                else:
+                    TE_RecTouchdownsList.append(int(td_elements[8].text.strip()))
+                    
+                if td_elements[9].text.strip() == '':
+                    TE_RushAttemptsList.append(0)
+                else:
+                    TE_RushAttemptsList.append(int(td_elements[9].text.strip()))
+                    
+                if td_elements[10].text.strip() == '':
+                    TE_RushYardsList.append(0)
+                else:
+                    TE_RushYardsList.append(int(td_elements[10].text.strip()))
+                    
+                if td_elements[11].text.strip() == '':
+                    TE_RushYards_PAList.append(0)
+                else:
+                    TE_RushYards_PAList.append(float(td_elements[11].text.strip()))
+                    
+                if td_elements[13].text.strip() == '':
+                    TE_RushTouchdowns.append(0)
+                else:
+                    TE_RushTouchdowns.append(int(td_elements[13].text.strip()))
+                
+                
+                # SQL query to check if the table exists
+                check_table_query = f"SHOW TABLES LIKE '{SQLformatted_name}_GameLogs';"
+                cursor.execute(check_table_query)
+
+                # Fetch the result
+                result = cursor.fetchone()
+                
+                if not result:
+                    # SQL query to create the table
+                    create_table_query = f"""
+                    CREATE TABLE `{SQLformatted_name}_GameLogs` (
+                        Week INT PRIMARY KEY,
+                        Receptions INT,
+                        Rec_Yards INT,
+                        Rec_Yards_PR DECIMAL(3,1),
+                        Rec_Touchdowns INT,
+                        Rush_Attempts INT,
+                        Rush_Yards INT,
+                        Rush_Yards_PA DECIMAL(3,1),
+                        Rush_Touchdowns INT
+                    );
+                    """
+                    
+                    
+                    
+                    # Execute the query to create the table
+                    cursor.execute(create_table_query)
+
+                    # Commit the changes
+                    conn.commit()
+                for i in range(len(WeekList)):
+                    # Check if the row with the same Week already exists
+                    check_duplicate_query = f"SELECT COUNT(*) FROM `{SQLformatted_name}_GameLogs` WHERE Week = %s;"
+                    cursor.execute(check_duplicate_query, (WeekList[i],))
+                    count = cursor.fetchone()[0]
+
+                    if count == 0:
+                        # The row doesn't exist, proceed with the insert
+                        insert_query = f"""
+                        INSERT INTO `{SQLformatted_name}_GameLogs` (
+                            Week,
+                            Receptions,
+                            Rec_Yards,
+                            Rec_Yards_PR,
+                            Rec_Touchdowns,
+                            Rush_Attempts,
+                            Rush_Yards,
+                            Rush_Yards_PA,
+                            Rush_Touchdowns
+                        ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+                        ON DUPLICATE KEY UPDATE
+                            Receptions = VALUES(Receptions),
+                            Rec_Yards = VALUES(Rec_Yards),
+                            Rec_Yards_PR = VALUES(Rec_Yards_PR),
+                            Rec_Touchdowns = VALUES(Rec_Touchdowns),
+                            Rush_Attempts = VALUES(Rush_Attempts),
+                            Rush_Yards = VALUES(Rush_Yards),
+                            Rush_Yards_PA = VALUES(Rush_Yards_PA),
+                            Rush_Touchdowns = VALUES(Rush_Touchdowns);
+                            
+                        """
+                        current_values = (
+                            WeekList [i],
+                            TE_ReceptionsList [i],
+                            TE_RecYardsList [i],
+                            TE_RecYards_PRList [i],
+                            TE_RecTouchdownsList [i],
+                            TE_RushAttemptsList [i],
+                            TE_RushYardsList [i],
+                            TE_RushYards_PAList [i],
+                            TE_RushTouchdowns [i]
+                            )
+                        cursor.execute(insert_query, current_values)
+                
+            # Commit the changes
+            conn.commit()
+
+    # Close the cursor and connection
+    cursor.close()
+    
+    
+    
+    # Quit all driver instances after processing
+    for current_driver in drivers:  
+        current_driver.quit()       
+        

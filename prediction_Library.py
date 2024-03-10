@@ -1543,8 +1543,17 @@ def getNBAPred(*args):
         
         teamName = args[0]
         
-        for arg in args[2:]:
-            userChoices.append(arg)
+        if args[2] in teamNames:
+            
+            teamName2 = args[2]
+            
+            for arg in args[3:]:
+                
+                userChoices.append(arg)
+        
+        else:        
+            for arg in args[2:]:
+                userChoices.append(arg)
         
     else:
         
@@ -1569,16 +1578,32 @@ def getNBAPred(*args):
     
     # Offensive scoring
     PLAYER_PRED_POINTS = "Player_Pred_Points"
+    #Test Model
+    PLAYER_PRED_POINTS2 = "Player_Pred_Points2"
+    PLAYER_PRED_POINTS3 = "Player_Pred_Points3"
+    
     PLAYER_PRED_ASSISTS = "Player_Pred_Assists"
     PLAYER_PRED_THREES = "Player_Pred_Threes"
-    PLAYER_PRED_REBOUNDS = "Player_Pred_Rebounds"
+    #Test Model
+    PLAYER_PRED_THREES2 = "Player_Pred_Threes2"
+    PLAYER_PRED_THREES3 = "Player_Pred_Threes3"
+    PLAYER_PRED_FIELDGOALS = "Player_Pred_FieldGoals"
+    #Test Model
+    PLAYER_PRED_FIELDGOALS2 = "Player_Pred_FieldGoals2"
+    PLAYER_PRED_FIELDGOALS3 = "Player_Pred_FieldGoals3"
     
+    PLAYER_PRED_REBOUNDS = "Player_Pred_Rebounds"
     # DEFENSE
     PLAYER_PRED_STEALS = "Player_Pred_Steals"
     PLAYER_PRED_BLOCKS = "Player_Pred_Blocks"
     
     # TEAM MISC
     TEAM_PRED_POINTS = "Team_Pred_Points"
+    TEAM_PRED_POINTS_Test = "Team_Pred_Points_Test"
+    TEAM_PRED_POINTS_Test2 = "Team_Pred_Points_Test2"
+    TEAM_PRED_POINTS_Test3 = "Team_Pred_Points_Test3"
+    TEAM_PRED_POINTS_Test4 = "Team_Pred_Points_Test4"
+    TEAM_PRED_OVERUNDER = "Team_Pred_OverUnder"
     
     for choice in userChoices:
         
@@ -1586,28 +1611,39 @@ def getNBAPred(*args):
             
             if choice == PLAYER_PRED_POINTS:
                 
-                teams_Avg_Points_PerGameAllowed = []
+                player_Pred_FieldGoals = getNBAPred(playerName, "Offense",teamName, "Player_Pred_FieldGoals")
+                player_Pred_FieldGoals = player_Pred_FieldGoals[0]
                 
-                player_Points_PerGame = getNBAStat(playerName, "Player_Scoring", "Player_Points_PerGame")
-                player_Points_PerGame = player_Points_PerGame[0]
+                player_Pred_Threes = getNBAPred(playerName, "Offense",teamName, "Player_Pred_Threes")
+                player_Pred_Threes = player_Pred_Threes[0]
                 
-                vs_team_PointsAllowed_PerGame = getNBAStat(teamName, "Team_Defensive_Scoring", "Team_Opp_Points_PerGame")
-                vs_team_PointsAllowed_PerGame = vs_team_PointsAllowed_PerGame[0]
+                player_Pred_Points = (player_Pred_FieldGoals * 2) + (player_Pred_Threes * 3)
                 
-                for team in teamNames:
-                    
-                    team_pointsAllowed = getNBAStat(team, "Team_Defensive_Scoring", "Team_Opp_Points_PerGame")
-                    team_pointsAllowed = team_pointsAllowed[0]
-                    teams_Avg_Points_PerGameAllowed.append(team_pointsAllowed)
-                    
-                league_Avg_PointsAllowed = sum(teams_Avg_Points_PerGameAllowed) / len(teams_Avg_Points_PerGameAllowed) 
+                statsToReturn.append(player_Pred_Points)
                 
-                if league_Avg_PointsAllowed != 0:
-                    percentage_difference = (vs_team_PointsAllowed_PerGame / league_Avg_PointsAllowed)
-                    
-                adjusted_player_Points_PerGame = player_Points_PerGame * (1 + (2 * percentage_difference)/100)
+            elif choice == PLAYER_PRED_POINTS2:
                 
-                statsToReturn.append(adjusted_player_Points_PerGame)
+                player_Pred_FieldGoals = getNBAPred(playerName, "Offense",teamName, "Player_Pred_FieldGoals2")
+                player_Pred_FieldGoals = player_Pred_FieldGoals[0]
+                
+                player_Pred_Threes = getNBAPred(playerName, "Offense",teamName, "Player_Pred_Threes2")
+                player_Pred_Threes = player_Pred_Threes[0]
+                
+                player_Pred_Points = (player_Pred_FieldGoals * 2) + (player_Pred_Threes * 3)
+                
+                statsToReturn.append(player_Pred_Points)
+                
+            elif choice == PLAYER_PRED_POINTS3:
+                
+                player_Pred_FieldGoals = getNBAPred(playerName, "Offense",teamName, "Player_Pred_FieldGoals3")
+                player_Pred_FieldGoals = player_Pred_FieldGoals[0]
+                
+                player_Pred_Threes = getNBAPred(playerName, "Offense",teamName, "Player_Pred_Threes3")
+                player_Pred_Threes = player_Pred_Threes[0]
+                
+                player_Pred_Points = (player_Pred_FieldGoals * 2) + (player_Pred_Threes * 3)
+                
+                statsToReturn.append(player_Pred_Points)
                 
             elif choice == PLAYER_PRED_ASSISTS:
                 
@@ -1628,7 +1664,14 @@ def getNBAPred(*args):
                 league_Avg_AssistsAllowed = sum(teams_Avg_Assists_PerGameAllowed) / len(teams_Avg_Assists_PerGameAllowed)
                 
                 if league_Avg_AssistsAllowed != 0:
-                    percentage_difference = (vs_team_AssistsAllowed_PerGame / league_Avg_AssistsAllowed)
+                    
+                    if vs_team_AssistsAllowed_PerGame < league_Avg_AssistsAllowed:
+                    
+                        percentage_difference = (vs_team_AssistsAllowed_PerGame / league_Avg_AssistsAllowed) -1
+                        
+                    elif vs_team_AssistsAllowed_PerGame < league_Avg_AssistsAllowed:
+                        
+                        percentage_difference = (vs_team_AssistsAllowed_PerGame / league_Avg_AssistsAllowed)
                   
                 adjusted_player_Assists_PerGame = player_Assists_PerGame * (1 + (2 * percentage_difference)/100)
                 
@@ -1668,7 +1711,14 @@ def getNBAPred(*args):
                 league_Avg_Threes_PerGameAllowedSum = sum(teams_Avg_ThreesAttempted_PerGameAllowed_List) / len(teams_Avg_ThreesAttempted_PerGameAllowed_List)
                 
                 if league_Avg_Threes_PerGameAllowedSum != 0:
-                    percentage_difference_Attempts = (vs_Team_ThreePointers_Attempted_PerGame / league_Avg_Threes_PerGameAllowedSum)
+                    
+                    if vs_Team_ThreePointers_Attempted_PerGame < league_Avg_Threes_PerGameAllowedSum:
+                    
+                        percentage_difference_Attempts = ((vs_Team_ThreePointers_Attempted_PerGame - league_Avg_Threes_PerGameAllowedSum) / league_Avg_Threes_PerGameAllowedSum) -1
+                        
+                    elif vs_Team_ThreePointers_Attempted_PerGame >= league_Avg_Threes_PerGameAllowedSum:
+                        
+                        percentage_difference_Attempts = ((vs_Team_ThreePointers_Attempted_PerGame - league_Avg_Threes_PerGameAllowedSum) / league_Avg_Threes_PerGameAllowedSum)
                     
                 adjusted_player_ThreesAttempts_PerGame = player_threeAttempts_PerGame * (1 + (5 * percentage_difference_Attempts)/100)
                 
@@ -1686,7 +1736,14 @@ def getNBAPred(*args):
                 league_Avg_ThreesPerc_PerGameAllowedSum = sum(teams_Avg_ThreesPerc_PerGameAllowed_List) / len(teams_Avg_ThreesPerc_PerGameAllowed_List)
                 
                 if league_Avg_ThreesPerc_PerGameAllowedSum != 0:
-                    percentage_difference_Perc = (vs_Team_ThreePointers_Perc_PerGame - league_Avg_ThreesPerc_PerGameAllowedSum) / league_Avg_ThreesPerc_PerGameAllowedSum
+                    
+                    if vs_Team_ThreePointers_Perc_PerGame < league_Avg_ThreesPerc_PerGameAllowedSum:
+                        
+                        percentage_difference_Perc = (vs_Team_ThreePointers_Perc_PerGame / league_Avg_ThreesPerc_PerGameAllowedSum) -1
+                        
+                    elif vs_Team_ThreePointers_Perc_PerGame > league_Avg_ThreesPerc_PerGameAllowedSum:
+                        
+                        percentage_difference_Perc = (vs_Team_ThreePointers_Perc_PerGame / league_Avg_ThreesPerc_PerGameAllowedSum)
                     
                 adjusted_player_ThreesPerc_PerGame = player_threePoint_Perc * (1 + (5 * percentage_difference_Perc)/100)
                 
@@ -1694,15 +1751,1456 @@ def getNBAPred(*args):
                 
                 statsToReturn.append(player_Pred_Threes)
             
+            elif choice == PLAYER_PRED_THREES2:
+                
+                teams_Avg_ThreesAttempted_PerGameAllowed_List = []
+                teams_Avg_ThreesPerc_PerGameAllowed_List = []
+                
+                player_threeAttempts_Total = getNBAStat(playerName,"Player_Scoring", "Player_ThreePointers_Attempted")
+                player_threeAttempts_Total = player_threeAttempts_Total[0]
+                
+                player_GamesPlayed = getNBAStat(playerName,"Player_Misc", "Player_GamesPlayed")
+                player_GamesPlayed = player_GamesPlayed[0]
+                
+                if player_threeAttempts_Total != 0 and player_GamesPlayed != 0:
+                    player_threeAttempts_PerGame = player_threeAttempts_Total/player_GamesPlayed
+                    
+                else:
+                    
+                    player_threeAttempts_PerGame = 1
+                    
+                player_threePoint_Perc = getNBAStat(playerName,"Player_Scoring", "Player_ThreePointers_Perc")
+                player_threePoint_Perc = player_threePoint_Perc[0]
+                
+                vs_Team_ThreePointers_Attempted_PerGame = getNBAStat(teamName, "Team_Defensive_Shooting", "Team_Opp_ThreePointer_Attempts_PerGame")
+                vs_Team_ThreePointers_Attempted_PerGame = vs_Team_ThreePointers_Attempted_PerGame[0]
+                
+                for team in teamNames:
+                    
+                    team_ThreePointers_Attempted_PerGame = getNBAStat(team, "Team_Defensive_Shooting", "Team_Opp_ThreePointer_Attempts_PerGame")
+                    team_ThreePointers_Attempted_PerGame = team_ThreePointers_Attempted_PerGame[0]
+                    
+                    teams_Avg_ThreesAttempted_PerGameAllowed_List.append(team_ThreePointers_Attempted_PerGame)
+                    
+                league_Avg_Threes_PerGameAllowedSum = sum(teams_Avg_ThreesAttempted_PerGameAllowed_List) / len(teams_Avg_ThreesAttempted_PerGameAllowed_List)
+                
+                if league_Avg_Threes_PerGameAllowedSum != 0:
+                    
+                    if vs_Team_ThreePointers_Attempted_PerGame < league_Avg_Threes_PerGameAllowedSum:
+                        
+                        percentage_difference_Attempts = (vs_Team_ThreePointers_Attempted_PerGame / league_Avg_Threes_PerGameAllowedSum) - 1
+                
+                    elif vs_Team_ThreePointers_Attempted_PerGame >= league_Avg_Threes_PerGameAllowedSum:
+                        
+                        percentage_difference_Attempts = (vs_Team_ThreePointers_Attempted_PerGame / league_Avg_Threes_PerGameAllowedSum)
+                
+                adjusted_player_ThreesAttempts_PerGame = player_threeAttempts_PerGame * (1 + (10 * percentage_difference_Attempts)/100)
+                
+                
+                vs_Team_ThreePointers_Perc_PerGame = getNBAStat(teamName, "Team_Defensive_Shooting", "Team_Opp_ThreePoint_Perc")
+                vs_Team_ThreePointers_Perc_PerGame = vs_Team_ThreePointers_Perc_PerGame[0]
+                
+                for team in teamNames:
+                    
+                    team_ThreePointersPerc_PerGame = getNBAStat(team, "Team_Defensive_Shooting", "Team_Opp_ThreePoint_Perc")
+                    team_ThreePointersPerc_PerGame = team_ThreePointersPerc_PerGame[0]
+                    
+                    teams_Avg_ThreesPerc_PerGameAllowed_List.append(team_ThreePointersPerc_PerGame)
+                    
+                league_Avg_ThreesPerc_PerGameAllowedSum = sum(teams_Avg_ThreesPerc_PerGameAllowed_List) / len(teams_Avg_ThreesPerc_PerGameAllowed_List)
+                
+                if league_Avg_ThreesPerc_PerGameAllowedSum != 0:
+                    
+                    if vs_Team_ThreePointers_Perc_PerGame < league_Avg_ThreesPerc_PerGameAllowedSum:
+                        
+                        percentage_difference_Perc = ((vs_Team_ThreePointers_Perc_PerGame - league_Avg_ThreesPerc_PerGameAllowedSum) / league_Avg_ThreesPerc_PerGameAllowedSum)-1
+                        
+                    elif vs_Team_ThreePointers_Perc_PerGame >= league_Avg_ThreesPerc_PerGameAllowedSum:
+                        
+                        percentage_difference_Perc = ((vs_Team_ThreePointers_Perc_PerGame - league_Avg_ThreesPerc_PerGameAllowedSum) / league_Avg_ThreesPerc_PerGameAllowedSum)
+                
+                adjusted_player_ThreesPerc_PerGame = player_threePoint_Perc * (1 + (10 * percentage_difference_Perc)/100)
+                
+                player_Pred_Threes = adjusted_player_ThreesAttempts_PerGame * (adjusted_player_ThreesPerc_PerGame/100)
+                
+                statsToReturn.append(player_Pred_Threes)
+            
+            elif choice == PLAYER_PRED_THREES3:
+                
+                teams_Avg_ThreesAttempted_PerGameAllowed_List = []
+                teams_Avg_ThreesPerc_PerGameAllowed_List = []
+                
+                player_threeAttempts_Total = getNBAStat(playerName,"Player_Scoring", "Player_ThreePointers_Attempted")
+                player_threeAttempts_Total = player_threeAttempts_Total[0]
+                
+                player_GamesPlayed = getNBAStat(playerName,"Player_Misc", "Player_GamesPlayed")
+                player_GamesPlayed = player_GamesPlayed[0]
+                
+                if player_threeAttempts_Total != 0 and player_GamesPlayed != 0:
+                    player_threeAttempts_PerGame = player_threeAttempts_Total/player_GamesPlayed
+                    
+                else:
+                    
+                    player_threeAttempts_PerGame = 1
+                    
+                player_threePoint_Perc = getNBAStat(playerName,"Player_Scoring", "Player_ThreePointers_Perc")
+                player_threePoint_Perc = player_threePoint_Perc[0]
+                
+                vs_Team_ThreePointers_Attempted_PerGame = getNBAStat(teamName, "Team_Defensive_Shooting", "Team_Opp_ThreePointer_Attempts_PerGame")
+                vs_Team_ThreePointers_Attempted_PerGame = vs_Team_ThreePointers_Attempted_PerGame[0]
+                
+                for team in teamNames:
+                    
+                    team_ThreePointers_Attempted_PerGame = getNBAStat(team, "Team_Defensive_Shooting", "Team_Opp_ThreePointer_Attempts_PerGame")
+                    team_ThreePointers_Attempted_PerGame = team_ThreePointers_Attempted_PerGame[0]
+                    
+                    teams_Avg_ThreesAttempted_PerGameAllowed_List.append(team_ThreePointers_Attempted_PerGame)
+                    
+                league_Avg_Threes_PerGameAllowedSum = sum(teams_Avg_ThreesAttempted_PerGameAllowed_List) / len(teams_Avg_ThreesAttempted_PerGameAllowed_List)
+                
+                if league_Avg_Threes_PerGameAllowedSum != 0:
+                    
+                    if vs_Team_ThreePointers_Attempted_PerGame < league_Avg_Threes_PerGameAllowedSum:
+                        
+                        percentage_difference_Attempts = (vs_Team_ThreePointers_Attempted_PerGame / league_Avg_Threes_PerGameAllowedSum)-1
+                        
+                    elif vs_Team_ThreePointers_Attempted_PerGame >= league_Avg_Threes_PerGameAllowedSum:
+                        
+                        percentage_difference_Attempts = (vs_Team_ThreePointers_Attempted_PerGame / league_Avg_Threes_PerGameAllowedSum)
+                
+                
+                adjusted_player_ThreesAttempts_PerGame = player_threeAttempts_PerGame * (1 + (30 * percentage_difference_Attempts)/100)
+                
+                
+                vs_Team_ThreePointers_Perc_PerGame = getNBAStat(teamName, "Team_Defensive_Shooting", "Team_Opp_ThreePoint_Perc")
+                vs_Team_ThreePointers_Perc_PerGame = vs_Team_ThreePointers_Perc_PerGame[0]
+                
+                for team in teamNames:
+                    
+                    team_ThreePointersPerc_PerGame = getNBAStat(team, "Team_Defensive_Shooting", "Team_Opp_ThreePoint_Perc")
+                    team_ThreePointersPerc_PerGame = team_ThreePointersPerc_PerGame[0]
+                    
+                    teams_Avg_ThreesPerc_PerGameAllowed_List.append(team_ThreePointersPerc_PerGame)
+                    
+                league_Avg_ThreesPerc_PerGameAllowedSum = sum(teams_Avg_ThreesPerc_PerGameAllowed_List) / len(teams_Avg_ThreesPerc_PerGameAllowed_List)
+                
+                if league_Avg_ThreesPerc_PerGameAllowedSum != 0:
+                    
+                    if vs_Team_ThreePointers_Perc_PerGame < league_Avg_ThreesPerc_PerGameAllowedSum:
+                    
+                        percentage_difference_Perc = ((vs_Team_ThreePointers_Perc_PerGame - league_Avg_ThreesPerc_PerGameAllowedSum) / league_Avg_ThreesPerc_PerGameAllowedSum)-1
+                        
+                    elif vs_Team_ThreePointers_Perc_PerGame >= league_Avg_ThreesPerc_PerGameAllowedSum:
+                        
+                        percentage_difference_Perc = ((vs_Team_ThreePointers_Perc_PerGame - league_Avg_ThreesPerc_PerGameAllowedSum) / league_Avg_ThreesPerc_PerGameAllowedSum)
+                
+                
+                
+                adjusted_player_ThreesPerc_PerGame = player_threePoint_Perc * (1+(30 * percentage_difference_Perc)/100)
+                
+                player_Pred_Threes = adjusted_player_ThreesAttempts_PerGame * (adjusted_player_ThreesPerc_PerGame/100)
+                
+                statsToReturn.append(player_Pred_Threes)
+            
+            elif choice == PLAYER_PRED_FIELDGOALS:
+                
+                # Assign Lists for teams average Field Goals Attempted
+                teams_Avg_FieldGoalsAttempted_PerGameAllowed_List = []
+                teams_Avg_FieldGoalPerc_PerGameAllowed_List = []
+                
+                # Get Player's Field Goals Attempted Total
+                player_FieldGoalAttempts_Total = getNBAStat(playerName,"Player_Scoring", "Player_FieldGoals_Attempted")
+                player_FieldGoalAttempts_Total = player_FieldGoalAttempts_Total[0]
+                
+                # Get Player's total played games
+                player_GamesPlayed = getNBAStat(playerName,"Player_Misc", "Player_GamesPlayed")
+                player_GamesPlayed = player_GamesPlayed[0]
+                
+                # Calculate Player's Field goal attempts per game
+                if player_FieldGoalAttempts_Total != 0 and player_FieldGoalAttempts_Total != 0:
+                    player_FieldGoalAttempts_PerGame = player_FieldGoalAttempts_Total/player_GamesPlayed
+                    
+                else:
+                    
+                    player_FieldGoalAttempts_PerGame = 1
+                
+                # Get Player's field goal percentage 
+                player_FieldGoal_Perc = getNBAStat(playerName,"Player_Scoring", "Player_FieldGoal_Perc")
+                player_FieldGoal_Perc = player_FieldGoal_Perc[0]
+                
+                # Get versus team's allowed field goal attempts per game
+                vs_Team_FieldGoals_Attempted_PerGame = getNBAStat(teamName, "Team_Defensive_Shooting", "Team_Opp_FieldGoal_Attempts_PerGame")
+                vs_Team_FieldGoals_Attempted_PerGame = vs_Team_FieldGoals_Attempted_PerGame[0]
+                
+                # Get and calculate the league average for field goal attempts per game
+                for team in teamNames:
+                    
+                    team_FieldGoals_Attempted_PerGame = getNBAStat(team, "Team_Defensive_Shooting", "Team_Opp_FieldGoal_Attempts_PerGame")
+                    team_FieldGoals_Attempted_PerGame = team_FieldGoals_Attempted_PerGame[0]
+                    
+                    teams_Avg_FieldGoalsAttempted_PerGameAllowed_List.append(team_FieldGoals_Attempted_PerGame)
+                    
+                league_Avg_FieldGoals_PerGameAllowedSum = sum(teams_Avg_FieldGoalsAttempted_PerGameAllowed_List) / len(teams_Avg_FieldGoalsAttempted_PerGameAllowed_List)
+                
+                # Calculate adjusted player's attempted field goals per game
+                if league_Avg_FieldGoals_PerGameAllowedSum != 0:
+                    
+                    if vs_Team_FieldGoals_Attempted_PerGame <  league_Avg_FieldGoals_PerGameAllowedSum:
+                        percentage_difference_Attempts = (vs_Team_FieldGoals_Attempted_PerGame / league_Avg_FieldGoals_PerGameAllowedSum) - 1
+                        
+                    elif vs_Team_FieldGoals_Attempted_PerGame >=  league_Avg_FieldGoals_PerGameAllowedSum:
+                        
+                        percentage_difference_Attempts = (vs_Team_FieldGoals_Attempted_PerGame / league_Avg_FieldGoals_PerGameAllowedSum)
+                    
+                adjusted_player_FieldGoalsAttempts_PerGame = player_FieldGoalAttempts_PerGame * (1 + (5 * percentage_difference_Attempts)/100)
+                
+                # Get versus team's Field Goals allowed per game
+                vs_Team_FieldGoals_Allowed_PerGame = getNBAStat(teamName, "Team_Defensive_Shooting", "Team_Opp_FieldGoals_PerGame")
+                vs_Team_FieldGoals_Allowed_PerGame = vs_Team_FieldGoals_Allowed_PerGame[0]
+                
+                # Calculate versus team's field goal percentage allowed per game
+                vs_Team_FieldGoals_Perc_PerGame = vs_Team_FieldGoals_Allowed_PerGame/vs_Team_FieldGoals_Attempted_PerGame
+                
+                # Get and calculate the league's average field goals allowed per game
+                for team in teamNames:
+                    
+                    team_FieldGoals_PerGame = getNBAStat(team, "Team_Defensive_Shooting", "Team_Opp_FieldGoals_PerGame")
+                    team_FieldGoals_PerGame = team_FieldGoals_PerGame[0]
+                    
+                    team_FieldGoals_Attempted_PerGame = getNBAStat(team, "Team_Defensive_Shooting", "Team_Opp_FieldGoal_Attempts_PerGame")
+                    team_FieldGoals_Attempted_PerGame = team_FieldGoals_Attempted_PerGame[0]
+                    
+                    team_FieldGoal_Perc_PerGame = team_FieldGoals_PerGame/team_FieldGoals_Attempted_PerGame
+                    
+                    teams_Avg_FieldGoalPerc_PerGameAllowed_List.append(team_FieldGoal_Perc_PerGame)
+                    
+                league_Avg_FieldGoalsPerc_PerGameAllowedSum = sum(teams_Avg_FieldGoalPerc_PerGameAllowed_List) / len(teams_Avg_FieldGoalPerc_PerGameAllowed_List)
+                
+                # Calculate adjusted player's attempted field goals per game
+                if league_Avg_FieldGoalsPerc_PerGameAllowedSum != 0:
+                    
+                    if vs_Team_FieldGoals_Perc_PerGame < league_Avg_FieldGoalsPerc_PerGameAllowedSum:
+                        
+                        percentage_difference_Perc = ((vs_Team_FieldGoals_Perc_PerGame - league_Avg_FieldGoalsPerc_PerGameAllowedSum) / league_Avg_FieldGoalsPerc_PerGameAllowedSum) - 1
+                        
+                    elif  vs_Team_FieldGoals_Perc_PerGame >= league_Avg_FieldGoalsPerc_PerGameAllowedSum:
+                        
+                        percentage_difference_Perc = ((vs_Team_FieldGoals_Perc_PerGame - league_Avg_FieldGoalsPerc_PerGameAllowedSum) / league_Avg_FieldGoalsPerc_PerGameAllowedSum)
+                    
+                adjusted_player_FieldGoalPerc_PerGame = player_FieldGoal_Perc * (1 + (5 * percentage_difference_Perc)/100)
+                
+                # Calculate Player's predicted field goals 
+                player_Pred_FieldGoals = adjusted_player_FieldGoalsAttempts_PerGame * (adjusted_player_FieldGoalPerc_PerGame/100)
+                
+                statsToReturn.append(player_Pred_FieldGoals)
+             
+            elif choice == PLAYER_PRED_FIELDGOALS2:
+                
+                # Assign Lists for teams average Field Goals Attempted
+                teams_Avg_FieldGoalsAttempted_PerGameAllowed_List = []
+                teams_Avg_FieldGoalPerc_PerGameAllowed_List = []
+                
+                # Get Player's Field Goals Attempted Total
+                player_FieldGoalAttempts_Total = getNBAStat(playerName,"Player_Scoring", "Player_FieldGoals_Attempted")
+                player_FieldGoalAttempts_Total = player_FieldGoalAttempts_Total[0]
+                
+                # Get Player's total played games
+                player_GamesPlayed = getNBAStat(playerName,"Player_Misc", "Player_GamesPlayed")
+                player_GamesPlayed = player_GamesPlayed[0]
+                
+                # Calculate Player's Field goal attempts per game
+                if player_FieldGoalAttempts_Total != 0 and player_FieldGoalAttempts_Total != 0:
+                    player_FieldGoalAttempts_PerGame = player_FieldGoalAttempts_Total/player_GamesPlayed
+                    
+                else:
+                    
+                    player_FieldGoalAttempts_PerGame = 1
+                
+                # Get Player's field goal percentage 
+                player_FieldGoal_Perc = getNBAStat(playerName,"Player_Scoring", "Player_FieldGoal_Perc")
+                player_FieldGoal_Perc = player_FieldGoal_Perc[0]
+                
+                # Get versus team's allowed field goal attempts per game
+                vs_Team_FieldGoals_Attempted_PerGame = getNBAStat(teamName, "Team_Defensive_Shooting", "Team_Opp_FieldGoal_Attempts_PerGame")
+                vs_Team_FieldGoals_Attempted_PerGame = vs_Team_FieldGoals_Attempted_PerGame[0]
+                
+                # Get and calculate the league average for field goal attempts per game
+                for team in teamNames:
+                    
+                    team_FieldGoals_Attempted_PerGame = getNBAStat(team, "Team_Defensive_Shooting", "Team_Opp_FieldGoal_Attempts_PerGame")
+                    team_FieldGoals_Attempted_PerGame = team_FieldGoals_Attempted_PerGame[0]
+                    
+                    teams_Avg_FieldGoalsAttempted_PerGameAllowed_List.append(team_FieldGoals_Attempted_PerGame)
+                    
+                league_Avg_FieldGoals_PerGameAllowedSum = sum(teams_Avg_FieldGoalsAttempted_PerGameAllowed_List) / len(teams_Avg_FieldGoalsAttempted_PerGameAllowed_List)
+                
+                # Calculate adjusted player's attempted field goals per game
+                if league_Avg_FieldGoals_PerGameAllowedSum != 0:
+                    
+                    if vs_Team_FieldGoals_Attempted_PerGame < league_Avg_FieldGoals_PerGameAllowedSum:
+                        
+                        percentage_difference_Attempts = (vs_Team_FieldGoals_Attempted_PerGame / league_Avg_FieldGoals_PerGameAllowedSum) - 1
+                        
+                    elif vs_Team_FieldGoals_Attempted_PerGame >= league_Avg_FieldGoals_PerGameAllowedSum:
+                        
+                        percentage_difference_Attempts = (vs_Team_FieldGoals_Attempted_PerGame / league_Avg_FieldGoals_PerGameAllowedSum)
+                    
+                adjusted_player_FieldGoalsAttempts_PerGame = player_FieldGoalAttempts_PerGame * (1 + (10 * percentage_difference_Attempts)/100)
+                
+                # Get versus team's Field Goals allowed per game
+                vs_Team_FieldGoals_Allowed_PerGame = getNBAStat(teamName, "Team_Defensive_Shooting", "Team_Opp_FieldGoals_PerGame")
+                vs_Team_FieldGoals_Allowed_PerGame = vs_Team_FieldGoals_Allowed_PerGame[0]
+                
+                # Calculate versus team's field goal percentage allowed per game
+                vs_Team_FieldGoals_Perc_PerGame = vs_Team_FieldGoals_Allowed_PerGame/vs_Team_FieldGoals_Attempted_PerGame
+                
+                # Get and calculate the league's average field goals allowed per game
+                for team in teamNames:
+                    
+                    team_FieldGoals_PerGame = getNBAStat(team, "Team_Defensive_Shooting", "Team_Opp_FieldGoals_PerGame")
+                    team_FieldGoals_PerGame = team_FieldGoals_PerGame[0]
+                    
+                    team_FieldGoals_Attempted_PerGame = getNBAStat(team, "Team_Defensive_Shooting", "Team_Opp_FieldGoal_Attempts_PerGame")
+                    team_FieldGoals_Attempted_PerGame = team_FieldGoals_Attempted_PerGame[0]
+                    
+                    team_FieldGoal_Perc_PerGame = team_FieldGoals_PerGame/team_FieldGoals_Attempted_PerGame
+                    
+                    teams_Avg_FieldGoalPerc_PerGameAllowed_List.append(team_FieldGoal_Perc_PerGame)
+                    
+                league_Avg_FieldGoalsPerc_PerGameAllowedSum = sum(teams_Avg_FieldGoalPerc_PerGameAllowed_List) / len(teams_Avg_FieldGoalPerc_PerGameAllowed_List)
+                
+                # Calculate adjusted player's attempted field goals per game
+                if league_Avg_FieldGoalsPerc_PerGameAllowedSum != 0:
+                    
+                    if vs_Team_FieldGoals_Perc_PerGame < league_Avg_FieldGoalsPerc_PerGameAllowedSum:
+                        
+                        percentage_difference_Perc = ((vs_Team_FieldGoals_Perc_PerGame - league_Avg_FieldGoalsPerc_PerGameAllowedSum) / league_Avg_FieldGoalsPerc_PerGameAllowedSum) - 1
+                        
+                    elif vs_Team_FieldGoals_Perc_PerGame >= league_Avg_FieldGoalsPerc_PerGameAllowedSum:
+                        
+                        percentage_difference_Perc = ((vs_Team_FieldGoals_Perc_PerGame - league_Avg_FieldGoalsPerc_PerGameAllowedSum) / league_Avg_FieldGoalsPerc_PerGameAllowedSum)
+                    
+                adjusted_player_FieldGoalPerc_PerGame = player_FieldGoal_Perc * (1 + (10 * percentage_difference_Perc)/100)
+                
+                # Calculate Player's predicted field goals 
+                player_Pred_FieldGoals = adjusted_player_FieldGoalsAttempts_PerGame * (adjusted_player_FieldGoalPerc_PerGame/100)
+                
+                statsToReturn.append(player_Pred_FieldGoals) 
+            
+            elif choice == PLAYER_PRED_FIELDGOALS3:
+                
+                # Assign Lists for teams average Field Goals Attempted
+                teams_Avg_FieldGoalsAttempted_PerGameAllowed_List = []
+                teams_Avg_FieldGoalPerc_PerGameAllowed_List = []
+                
+                # Get Player's Field Goals Attempted Total
+                player_FieldGoalAttempts_Total = getNBAStat(playerName,"Player_Scoring", "Player_FieldGoals_Attempted")
+                player_FieldGoalAttempts_Total = player_FieldGoalAttempts_Total[0]
+                
+                # Get Player's total played games
+                player_GamesPlayed = getNBAStat(playerName,"Player_Misc", "Player_GamesPlayed")
+                player_GamesPlayed = player_GamesPlayed[0]
+                
+                # Calculate Player's Field goal attempts per game
+                if player_FieldGoalAttempts_Total != 0 and player_FieldGoalAttempts_Total != 0:
+                    player_FieldGoalAttempts_PerGame = player_FieldGoalAttempts_Total/player_GamesPlayed
+                    
+                else:
+                    
+                    player_FieldGoalAttempts_PerGame = 1
+                
+                # Get Player's field goal percentage 
+                player_FieldGoal_Perc = getNBAStat(playerName,"Player_Scoring", "Player_FieldGoal_Perc")
+                player_FieldGoal_Perc = player_FieldGoal_Perc[0]
+                
+                # Get versus team's allowed field goal attempts per game
+                vs_Team_FieldGoals_Attempted_PerGame = getNBAStat(teamName, "Team_Defensive_Shooting", "Team_Opp_FieldGoal_Attempts_PerGame")
+                vs_Team_FieldGoals_Attempted_PerGame = vs_Team_FieldGoals_Attempted_PerGame[0]
+                
+                # Get and calculate the league average for field goal attempts per game
+                for team in teamNames:
+                    
+                    team_FieldGoals_Attempted_PerGame = getNBAStat(team, "Team_Defensive_Shooting", "Team_Opp_FieldGoal_Attempts_PerGame")
+                    team_FieldGoals_Attempted_PerGame = team_FieldGoals_Attempted_PerGame[0]
+                    
+                    teams_Avg_FieldGoalsAttempted_PerGameAllowed_List.append(team_FieldGoals_Attempted_PerGame)
+                    
+                league_Avg_FieldGoals_PerGameAllowedSum = sum(teams_Avg_FieldGoalsAttempted_PerGameAllowed_List) / len(teams_Avg_FieldGoalsAttempted_PerGameAllowed_List)
+                
+                # Calculate adjusted player's attempted field goals per game
+                if league_Avg_FieldGoals_PerGameAllowedSum != 0:
+                    
+                    if vs_Team_FieldGoals_Attempted_PerGame < league_Avg_FieldGoals_PerGameAllowedSum:
+                    
+                        percentage_difference_Attempts = (vs_Team_FieldGoals_Attempted_PerGame / league_Avg_FieldGoals_PerGameAllowedSum) -1
+                        
+                    elif vs_Team_FieldGoals_Attempted_PerGame >= league_Avg_FieldGoals_PerGameAllowedSum:
+                        
+                        percentage_difference_Attempts = (vs_Team_FieldGoals_Attempted_PerGame / league_Avg_FieldGoals_PerGameAllowedSum)
+                    
+                adjusted_player_FieldGoalsAttempts_PerGame = player_FieldGoalAttempts_PerGame * (1 + (20 * percentage_difference_Attempts)/100)
+                
+                # Get versus team's Field Goals allowed per game
+                vs_Team_FieldGoals_Allowed_PerGame = getNBAStat(teamName, "Team_Defensive_Shooting", "Team_Opp_FieldGoals_PerGame")
+                vs_Team_FieldGoals_Allowed_PerGame = vs_Team_FieldGoals_Allowed_PerGame[0]
+                
+                # Calculate versus team's field goal percentage allowed per game
+                vs_Team_FieldGoals_Perc_PerGame = vs_Team_FieldGoals_Allowed_PerGame/vs_Team_FieldGoals_Attempted_PerGame
+                
+                # Get and calculate the league's average field goals allowed per game
+                for team in teamNames:
+                    
+                    team_FieldGoals_PerGame = getNBAStat(team, "Team_Defensive_Shooting", "Team_Opp_FieldGoals_PerGame")
+                    team_FieldGoals_PerGame = team_FieldGoals_PerGame[0]
+                    
+                    team_FieldGoals_Attempted_PerGame = getNBAStat(team, "Team_Defensive_Shooting", "Team_Opp_FieldGoal_Attempts_PerGame")
+                    team_FieldGoals_Attempted_PerGame = team_FieldGoals_Attempted_PerGame[0]
+                    
+                    team_FieldGoal_Perc_PerGame = team_FieldGoals_PerGame/team_FieldGoals_Attempted_PerGame
+                    
+                    teams_Avg_FieldGoalPerc_PerGameAllowed_List.append(team_FieldGoal_Perc_PerGame)
+                    
+                league_Avg_FieldGoalsPerc_PerGameAllowedSum = sum(teams_Avg_FieldGoalPerc_PerGameAllowed_List) / len(teams_Avg_FieldGoalPerc_PerGameAllowed_List)
+                
+                # Calculate adjusted player's attempted field goals per game
+                if league_Avg_FieldGoalsPerc_PerGameAllowedSum != 0:
+                    
+                    if vs_Team_FieldGoals_Perc_PerGame < league_Avg_FieldGoalsPerc_PerGameAllowedSum: 
+                    
+                        percentage_difference_Perc = ((vs_Team_FieldGoals_Perc_PerGame - league_Avg_FieldGoalsPerc_PerGameAllowedSum) / league_Avg_FieldGoalsPerc_PerGameAllowedSum) -1
+                        
+                    elif vs_Team_FieldGoals_Perc_PerGame >= league_Avg_FieldGoalsPerc_PerGameAllowedSum:
+                        
+                        percentage_difference_Perc = ((vs_Team_FieldGoals_Perc_PerGame - league_Avg_FieldGoalsPerc_PerGameAllowedSum) / league_Avg_FieldGoalsPerc_PerGameAllowedSum)
+                    
+                adjusted_player_FieldGoalPerc_PerGame = player_FieldGoal_Perc * (1 + (20 * percentage_difference_Perc)/100)
+                
+                # Calculate Player's predicted field goals 
+                player_Pred_FieldGoals = adjusted_player_FieldGoalsAttempts_PerGame * (adjusted_player_FieldGoalPerc_PerGame/100)
+                
+                statsToReturn.append(player_Pred_FieldGoals)
+               
+            elif choice == PLAYER_PRED_REBOUNDS:
+                
+                league_Avg_OffRebounds_PerGameAllowed_List = []
+                league_Avg_DefRebounds_PerGameAllowed_List = []
+                
+                # Get Player Offensive Rebounds
+                player_OffRebounds = getNBAStat(playerName,"Player_Rebounds", "Player_Offensive_Rebounds")
+                player_OffRebounds = player_OffRebounds[0]
+                
+                # Get Player Defensive Rebounds
+                player_DefRebounds = getNBAStat(playerName,"Player_Rebounds", "Player_Defensive_Rebounds")
+                player_DefRebounds = player_DefRebounds[0]
+                
+                #Get Player Games Played
+                player_GamesPlayed = getNBAStat(playerName,"Player_Misc", "Player_GamesPlayed")
+                player_GamesPlayed = player_GamesPlayed[0]
+                
+                # Get Opposing Team's Offensive Rebounds Allowed Per Game
+                team_Opp_OffRebounds_AllowedPerGame = getNBAStat(teamName, "Team_Opp_Misc", "Team_Opp_OffRebounds_PerGame")
+                team_Opp_OffRebounds_AllowedPerGame = team_Opp_OffRebounds_AllowedPerGame[0]
+                
+                # Get Opposing Team's Defensive Rebounds Allowed Per Game
+                team_Opp_DefRebounds_AllowedPerGame = getNBAStat(teamName, "Team_Opp_Misc", "Team_Opp_DefRebounds_PerGame")
+                team_Opp_DefRebounds_AllowedPerGame = team_Opp_DefRebounds_AllowedPerGame[0]
+                
+                # Calculate league average for offensive rebounds
+                for team in teamNames:
+                    
+                    league_Opp_OffRebounds_AllowedPerGame = getNBAStat(team, "Team_Opp_Misc", "Team_Opp_OffRebounds_PerGame")
+                    league_Opp_OffRebounds_AllowedPerGame = team_Opp_OffRebounds_AllowedPerGame
+                    
+                    league_Avg_OffRebounds_PerGameAllowed_List.append(league_Opp_OffRebounds_AllowedPerGame)
+                    
+                league_Avg_OffRebounds_PerGameAllowedSum = sum(league_Avg_OffRebounds_PerGameAllowed_List) / len(league_Avg_OffRebounds_PerGameAllowed_List)
+                
+                # Calculate Offensive Rebounds percentage difference from opp team and league
+                if league_Avg_OffRebounds_PerGameAllowedSum != 0:
+                    
+                    if team_Opp_OffRebounds_AllowedPerGame < league_Avg_OffRebounds_PerGameAllowedSum:
+                    
+                        percentage_difference_OffRebounds = (team_Opp_OffRebounds_AllowedPerGame / league_Avg_OffRebounds_PerGameAllowedSum) - 1
+                        
+                    elif team_Opp_OffRebounds_AllowedPerGame >= league_Avg_OffRebounds_PerGameAllowedSum:
+                        
+                        percentage_difference_OffRebounds = (team_Opp_OffRebounds_AllowedPerGame / league_Avg_OffRebounds_PerGameAllowedSum)
+                    
+                # Calculate league average for defensive rebounds
+                for team in teamNames:
+                    
+                    league_Opp_DefRebounds_AllowedPerGame = getNBAStat(team, "Team_Opp_Misc", "Team_Opp_DefRebounds_PerGame")
+                    league_Opp_DefRebounds_AllowedPerGame = team_Opp_DefRebounds_AllowedPerGame
+                    
+                    league_Avg_DefRebounds_PerGameAllowed_List.append(league_Opp_DefRebounds_AllowedPerGame)
+                    
+                league_Avg_DefRebounds_PerGameAllowedSum = sum(league_Avg_DefRebounds_PerGameAllowed_List) / len(league_Avg_DefRebounds_PerGameAllowed_List)
+                
+                # Calculate Defensive Rebounds percentage difference from opp team and league
+                if league_Avg_DefRebounds_PerGameAllowedSum != 0:
+                    
+                    if team_Opp_DefRebounds_AllowedPerGame < league_Avg_DefRebounds_PerGameAllowedSum:
+                    
+                        percentage_difference_DefRebounds = (team_Opp_DefRebounds_AllowedPerGame / league_Avg_DefRebounds_PerGameAllowedSum) - 1
+                        
+                    elif team_Opp_DefRebounds_AllowedPerGame >= league_Avg_DefRebounds_PerGameAllowedSum:
+                        
+                        percentage_difference_DefRebounds = (team_Opp_DefRebounds_AllowedPerGame / league_Avg_DefRebounds_PerGameAllowedSum)
+                
+                # Calculate player offensive rebounds per game
+                player_OffRebounds_PerGame = player_OffRebounds/player_GamesPlayed
+                
+                # Calculate player defensive rebounds per game
+                player_DefRebounds_PerGame = player_DefRebounds/player_GamesPlayed
+                
+                # Calculate adjusted player offensive rebounds
+                adjusted_Player_OffRebounds_PerGame = player_OffRebounds_PerGame * (1 + (5 * percentage_difference_OffRebounds)/100)
+                
+                # Calculate adjusted player defensive rebounds
+                adjusted_Player_DefRebounds_PerGame = player_DefRebounds_PerGame * (1 + (5 * percentage_difference_DefRebounds)/100)
+                
+                # Calculate player's predicted total rebounds
+                pred_Player_TotalRebounds = adjusted_Player_OffRebounds_PerGame + adjusted_Player_DefRebounds_PerGame
+                
+                # Append stat to statsToReturn
+                statsToReturn.append(pred_Player_TotalRebounds)
+                
         elif category == "Defense":
             
             pass
         
         elif category == "Team":
             
-            pass
+            if choice == TEAM_PRED_POINTS:
+                
+                league_Avg_PointsPerGame_List = []
+                
+                # Get Teams points per game
+                team_Points_PerGame = getNBAStat(teamName, "Team_Offensive_Scoring", "Team_Points_PerGame")
+                team_Points_PerGame = team_Points_PerGame[0]
+                
+                # Get opposing teams points per game
+                opp_team_Points_PerGame = getNBAStat(teamName2, "Team_Defensive_Scoring", "Team_Opp_Points_PerGame")
+                opp_team_Points_PerGame = opp_team_Points_PerGame[0]
+                
+                # Calculate league average points per game
+                for team in teamNames:
+                    
+                    league_Team_PointsPerGame = getNBAStat(team, "Team_Defensive_Scoring", "Team_Opp_Points_PerGame")
+                    league_Team_PointsPerGame = league_Team_PointsPerGame[0]
+                    
+                    league_Avg_PointsPerGame_List.append(league_Team_PointsPerGame)
+
+                league_Avg_PointsPerGameSum = sum(league_Avg_PointsPerGame_List)/len(league_Avg_PointsPerGame_List)
+                
+                # Calculate percentage difference from opposing team and league average
+                if league_Avg_PointsPerGameSum != 0:
+                    percentage_difference_PointsPerGame = (opp_team_Points_PerGame / league_Avg_PointsPerGameSum)
+                
+                # Calculate adjusted team points per game   
+                adjusted_Team_PointsPerGame = team_Points_PerGame * (1 + (5 * percentage_difference_PointsPerGame)/100)
+                
+                # Append adjusted team points per game to stats to return
+                statsToReturn.append(adjusted_Team_PointsPerGame)
+
+            elif choice == TEAM_PRED_POINTS_Test:
+                
+                team_Roster = []
+                team_Points_List = []
+                
+                team_Roster = get_NamesFrom_NBARoster(teamName)
+                injured_Players = check_NBA_InjuryStatus(teamName)
+                
+                # Remove any player in team_roster that is also in injured_players
+                team_Roster = [player for player in team_Roster if player not in injured_Players]
+                
+                if len(team_Roster) >=17:
+                    
+                    minute_Cutoff = 17.5
+                    
+                elif len(team_Roster) >=15 and len(team_Roster) < 17 :
+                    
+                    minute_Cutoff = 15.5
+                    
+                elif len(team_Roster) >=12 and len(team_Roster) < 15:
+                    
+                    minute_Cutoff = 12.5
+                    
+                elif len(team_Roster) >=9 and len(team_Roster) < 12:
+                    
+                    minute_Cutoff = 9.5
+                    
+                else:
+                    
+                    minute_Cutoff = 5
+                
+                for player in team_Roster:
+                    
+                    result = checkNBA_PlayerHasStats(player)
+                    
+                    if result:
+                    
+                        player_Minutes_Played = getNBAStat(player, "Player_Misc", "Player_GamesPlayed")
+                        player_Minutes_Played = player_Minutes_Played[0]
+                        
+                        if player_Minutes_Played > minute_Cutoff:
+                        
+                            player_Pred_Points = getNBAPred(player, "Offense",teamName2, "Player_Pred_Points")
+                            player_Pred_Points = player_Pred_Points[0]
+                            
+                            team_Points_List.append(player_Pred_Points)
+                        
+                    else:
+                        
+                        continue
+                    
+                team_Points = sum(team_Points_List)
+                
+                statsToReturn.append(team_Points)
+                
+                
+            
+            
+            elif choice == TEAM_PRED_POINTS_Test2:
+                
+                # Connect to your MySQL database
+                db_host = '127.0.0.1'  # Replace with your database host
+                db_user = 'root'  # Replace with your database username
+                db_password = 'root'  # Replace with your database password
+                db_name = 'nba_stats'  # Replace with your database name
+
+                conn = mysql.connector.connect(
+                    host=db_host,
+                    user=db_user,
+                    password=db_password,
+                    database=db_name
+                )
+                
+                cursor = conn.cursor()
+                
+                if teamName == "Boston":
         
-    
+                    team1_short = "bos"
+                    
+                
+                elif teamName == "Brooklyn":
+                    
+                    team1_short = "bkn"
+                    team_short = "brooklyn-nets"
+                    
+                elif teamName == "New York":
+                    
+                    team1_short = "ny"
+                    
+                    
+                elif teamName == "Philadelphia":
+                    
+                    team1_short = "phi"
+                    
+                    
+                elif teamName == "Toronto":
+                    
+                    team1_short = "tor"
+                    
+
+                elif teamName == "Golden State":
+                    
+                    team1_short = "gs"
+                    
+                    
+                elif teamName == "LA Clippers":
+                    
+                    team1_short = "lac"
+                    
+                    
+                elif teamName == "LA Lakers":
+                    
+                    team1_short = "lal"
+                    
+                    
+                elif teamName == "Phoenix": 
+                    
+                    team1_short = "phx"  
+                     
+                    
+                elif teamName == "Sacramento":
+                
+                    team1_short = "sac"
+                    
+                    
+                elif teamName == "Chicago":
+                    
+                    team1_short = "chi"
+                    
+                    
+                elif teamName == "Cleveland":
+                    
+                    team1_short = "cle"
+                    
+                    
+                elif teamName == "Detroit":
+                    
+                    team1_short = "det"
+                    
+                    
+                elif teamName == "Indiana":
+                    
+                    team1_short = "ind"
+                    
+                
+                elif teamName == "Milwaukee":
+                    
+                    team1_short = "mil"
+                    
+                    
+                elif teamName == "Dallas":
+                    
+                    team1_short = "dal"
+                    
+                    
+                elif teamName == "Houston":
+                    
+                    team1_short = "hou"
+                    
+                    
+                elif teamName == "Memphis":
+                    
+                    team1_short = "mem"
+                    
+                    
+                elif teamName == "New Orleans":
+                    
+                    team1_short = "no"
+                    
+                    
+                elif teamName == "San Antonio":
+                    
+                    team1_short = "sa"
+                    
+                    
+                elif teamName == "Atlanta":
+                    
+                    team1_short = "atl"
+                    
+                    
+                elif teamName == "Charlotte":
+                    
+                    team1_short = "cha"
+                    
+                    
+                elif teamName == "Miami":
+                    
+                    team1_short = "mia"   
+                     
+                    
+                elif teamName == "Orlando":
+                    
+                    team1_short = "orl"
+                    
+                
+                elif teamName == "Washington":
+                    
+                    team1_short = "wsh"
+                    
+                    
+                elif teamName == "Denver":
+                    
+                    team1_short = "den"
+                    
+                    
+                elif teamName == "Minnesota":
+                    
+                    team1_short = "min"
+                    
+                    
+                elif teamName == "Okla City":
+                    
+                    team1_short = "okc"
+                    
+                    
+                elif teamName == "Portland":
+                    
+                    team1_short = "por"
+                    
+                    
+                elif teamName == "Utah":
+                    
+                    team1_short = "utah"
+                
+                team_Roster = []
+                team_Points_List = [] 
+                playing_Roster = []  
+            
+                team_Roster = get_NamesFrom_NBARoster(teamName)
+                injured_Players = check_NBA_InjuryStatus(teamName)
+                
+                # Remove any player in team_roster that is also in injured_players
+                team_Roster = [player for player in team_Roster if player not in injured_Players]
+                
+                playing_Roster = team_Roster.copy()
+                
+                fourth_String_Players = []
+                fifth_String_Players = []
+                
+                for player in playing_Roster:
+                    
+                    query = f"SELECT * FROM {team1_short}_roster WHERE Name = %s AND String = 4"
+                    cursor.execute(query, (player,))
+                    result = cursor.fetchall()
+                    
+                    if result:
+                        fourth_String_Players.append(player)
+                        
+                    else:
+                        
+                        continue
+                    
+                    
+                    query = f"SELECT * FROM {team1_short}_roster WHERE Name = %s AND String = 5"
+                    cursor.execute(query, (player,))
+                    result = cursor.fetchall()
+                    
+                    if result:
+                        fifth_String_Players.append(player)
+                        
+                    else:
+                        
+                        continue
+                    
+                playing_Roster = [player for player in playing_Roster if player not in fourth_String_Players]
+                playing_Roster = [player for player in playing_Roster if player not in fifth_String_Players]
+                
+                playing_Roster = list(set(playing_Roster))
+                
+                player_Points_AlreadyAdded = []
+                
+                for player in injured_Players:
+                    
+                    query = f"SELECT position, string FROM {team1_short}_roster WHERE Name = %s"
+                    cursor.execute(query, (player,))
+                    result = cursor.fetchall()
+                    
+                    if result:
+                        
+                        position, string = result[0]
+                        
+                        
+                        query = f"SELECT Name FROM {team1_short}_roster WHERE Position = '{position}' AND String = '{string+1}'"
+                        cursor.execute(query)
+                        result = cursor.fetchone()
+                        
+                        if result:
+                            underStudy_Player = result[0]
+                            
+                            player_Points_AlreadyAdded.append(underStudy_Player)
+                            
+                            # Get injured Players minutes per game
+                            
+                            injuredPlayer_MinutesPerGame = getNBAStat(player,"Player_Misc", "Player_Minutes_PerGame")
+                            injuredPlayer_MinutesPerGame = injuredPlayer_MinutesPerGame[0]
+                            
+                            underStudy_PointsPerMinute = getNBACalc(underStudy_Player, "Player", "Player_Points_PerMinute")
+                            underStudy_PointsPerMinute = underStudy_PointsPerMinute[0]
+                            
+                            underStudy_Player_PredPoints = underStudy_PointsPerMinute * injuredPlayer_MinutesPerGame
+                            
+                            team_Points_List.append(underStudy_Player_PredPoints)
+                        
+                    else:
+                        
+                        continue
+                        
+                playing_Roster = [player for player in playing_Roster if player not in player_Points_AlreadyAdded]
+                
+                for player in playing_Roster:
+                    
+                    result = checkNBA_PlayerHasStats(player)
+                    
+                    if result:
+                    
+                        
+                        
+                        player_Pred_Points = getNBAPred(player, "Offense",teamName2, "Player_Pred_Points")
+                        player_Pred_Points = player_Pred_Points[0]
+                            
+                        team_Points_List.append(player_Pred_Points)
+                        
+                    else:
+                        
+                        continue
+                print(team_Points_List)   
+                team_Points = sum(team_Points_List)
+                
+                # Close the cursor and connection
+                cursor.close()
+                connection.close()
+                
+                statsToReturn.append(team_Points)
+                    
+            elif choice == TEAM_PRED_POINTS_Test3:
+                
+                # Connect to your MySQL database
+                db_host = '127.0.0.1'  # Replace with your database host
+                db_user = 'root'  # Replace with your database username
+                db_password = 'root'  # Replace with your database password
+                db_name = 'nba_stats'  # Replace with your database name
+
+                conn = mysql.connector.connect(
+                    host=db_host,
+                    user=db_user,
+                    password=db_password,
+                    database=db_name
+                )
+                
+                cursor = conn.cursor()
+                
+                if teamName == "Boston":
+        
+                    team1_short = "bos"
+                    
+                
+                elif teamName == "Brooklyn":
+                    
+                    team1_short = "bkn"
+                    team_short = "brooklyn-nets"
+                    
+                elif teamName == "New York":
+                    
+                    team1_short = "ny"
+                    
+                    
+                elif teamName == "Philadelphia":
+                    
+                    team1_short = "phi"
+                    
+                    
+                elif teamName == "Toronto":
+                    
+                    team1_short = "tor"
+                    
+
+                elif teamName == "Golden State":
+                    
+                    team1_short = "gs"
+                    
+                    
+                elif teamName == "LA Clippers":
+                    
+                    team1_short = "lac"
+                    
+                    
+                elif teamName == "LA Lakers":
+                    
+                    team1_short = "lal"
+                    
+                    
+                elif teamName == "Phoenix": 
+                    
+                    team1_short = "phx"  
+                     
+                    
+                elif teamName == "Sacramento":
+                
+                    team1_short = "sac"
+                    
+                    
+                elif teamName == "Chicago":
+                    
+                    team1_short = "chi"
+                    
+                    
+                elif teamName == "Cleveland":
+                    
+                    team1_short = "cle"
+                    
+                    
+                elif teamName == "Detroit":
+                    
+                    team1_short = "det"
+                    
+                    
+                elif teamName == "Indiana":
+                    
+                    team1_short = "ind"
+                    
+                
+                elif teamName == "Milwaukee":
+                    
+                    team1_short = "mil"
+                    
+                    
+                elif teamName == "Dallas":
+                    
+                    team1_short = "dal"
+                    
+                    
+                elif teamName == "Houston":
+                    
+                    team1_short = "hou"
+                    
+                    
+                elif teamName == "Memphis":
+                    
+                    team1_short = "mem"
+                    
+                    
+                elif teamName == "New Orleans":
+                    
+                    team1_short = "no"
+                    
+                    
+                elif teamName == "San Antonio":
+                    
+                    team1_short = "sa"
+                    
+                    
+                elif teamName == "Atlanta":
+                    
+                    team1_short = "atl"
+                    
+                    
+                elif teamName == "Charlotte":
+                    
+                    team1_short = "cha"
+                    
+                    
+                elif teamName == "Miami":
+                    
+                    team1_short = "mia"   
+                     
+                    
+                elif teamName == "Orlando":
+                    
+                    team1_short = "orl"
+                    
+                
+                elif teamName == "Washington":
+                    
+                    team1_short = "wsh"
+                    
+                    
+                elif teamName == "Denver":
+                    
+                    team1_short = "den"
+                    
+                    
+                elif teamName == "Minnesota":
+                    
+                    team1_short = "min"
+                    
+                    
+                elif teamName == "Okla City":
+                    
+                    team1_short = "okc"
+                    
+                    
+                elif teamName == "Portland":
+                    
+                    team1_short = "por"
+                    
+                    
+                elif teamName == "Utah":
+                    
+                    team1_short = "utah"
+                
+                team_Roster = []
+                team_Points_List = [] 
+                playing_Roster = []  
+            
+                team_Roster = get_NamesFrom_NBARoster(teamName)
+                injured_Players = check_NBA_InjuryStatus(teamName)
+                
+                # Remove any player in team_roster that is also in injured_players
+                team_Roster = [player for player in team_Roster if player not in injured_Players]
+                
+                playing_Roster = team_Roster.copy()
+                
+                fourth_String_Players = []
+                fifth_String_Players = []
+                
+                for player in playing_Roster:
+                    
+                    query = f"SELECT * FROM {team1_short}_roster WHERE Name = %s AND String = 4"
+                    cursor.execute(query, (player,))
+                    result = cursor.fetchall()
+                    
+                    if result:
+                        fourth_String_Players.append(player)
+                        
+                    else:
+                        
+                        continue
+                    
+                    
+                    query = f"SELECT * FROM {team1_short}_roster WHERE Name = %s AND String = 5"
+                    cursor.execute(query, (player,))
+                    result = cursor.fetchall()
+                    
+                    if result:
+                        fifth_String_Players.append(player)
+                        
+                    else:
+                        
+                        continue
+                    
+                playing_Roster = [player for player in playing_Roster if player not in fourth_String_Players]
+                playing_Roster = [player for player in playing_Roster if player not in fifth_String_Players]
+                
+                playing_Roster = list(set(playing_Roster))
+                
+                player_Points_AlreadyAdded = []
+                
+                for player in injured_Players:
+                    
+                    query = f"SELECT position, string FROM {team1_short}_roster WHERE Name = %s"
+                    cursor.execute(query, (player,))
+                    result = cursor.fetchall()
+                    
+                    if result:
+                        
+                        position, string = result[0]
+                        
+                        
+                        query = f"SELECT Name FROM {team1_short}_roster WHERE Position = '{position}' AND String = '{string+1}'"
+                        cursor.execute(query)
+                        result = cursor.fetchone()
+                        
+                        if result:
+                            underStudy_Player = result[0]
+                            
+                            player_Points_AlreadyAdded.append(underStudy_Player)
+                            
+                            # Get injured Players minutes per game
+                            
+                            injuredPlayer_MinutesPerGame = getNBAStat(player,"Player_Misc", "Player_Minutes_PerGame")
+                            injuredPlayer_MinutesPerGame = injuredPlayer_MinutesPerGame[0]
+                            
+                            underStudy_PointsPerMinute = getNBACalc(underStudy_Player, "Player", "Player_Points_PerMinute")
+                            underStudy_PointsPerMinute = underStudy_PointsPerMinute[0]
+                            
+                            underStudy_Player_PredPoints = underStudy_PointsPerMinute * injuredPlayer_MinutesPerGame
+                            
+                            team_Points_List.append(underStudy_Player_PredPoints)
+                        
+                    else:
+                        
+                        continue
+                        
+                playing_Roster = [player for player in playing_Roster if player not in player_Points_AlreadyAdded]
+                
+                for player in playing_Roster:
+                    
+                    result = checkNBA_PlayerHasStats(player)
+                    
+                    if result:
+                    
+                        
+                        
+                        player_Pred_Points = getNBAPred(player, "Offense",teamName2, "Player_Pred_Points2")
+                        player_Pred_Points = player_Pred_Points[0]
+                            
+                        team_Points_List.append(player_Pred_Points)
+                        
+                    else:
+                        
+                        continue
+                print(team_Points_List)   
+                team_Points = sum(team_Points_List)
+                
+                # Close the cursor and connection
+                cursor.close()
+                connection.close()
+                
+                statsToReturn.append(team_Points)        
+             
+            elif choice == TEAM_PRED_POINTS_Test4:
+                
+                # Connect to your MySQL database
+                db_host = '127.0.0.1'  # Replace with your database host
+                db_user = 'root'  # Replace with your database username
+                db_password = 'root'  # Replace with your database password
+                db_name = 'nba_stats'  # Replace with your database name
+
+                conn = mysql.connector.connect(
+                    host=db_host,
+                    user=db_user,
+                    password=db_password,
+                    database=db_name
+                )
+                
+                cursor = conn.cursor()
+                
+                if teamName == "Boston":
+        
+                    team1_short = "bos"
+                    
+                
+                elif teamName == "Brooklyn":
+                    
+                    team1_short = "bkn"
+                    team_short = "brooklyn-nets"
+                    
+                elif teamName == "New York":
+                    
+                    team1_short = "ny"
+                    
+                    
+                elif teamName == "Philadelphia":
+                    
+                    team1_short = "phi"
+                    
+                    
+                elif teamName == "Toronto":
+                    
+                    team1_short = "tor"
+                    
+
+                elif teamName == "Golden State":
+                    
+                    team1_short = "gs"
+                    
+                    
+                elif teamName == "LA Clippers":
+                    
+                    team1_short = "lac"
+                    
+                    
+                elif teamName == "LA Lakers":
+                    
+                    team1_short = "lal"
+                    
+                    
+                elif teamName == "Phoenix": 
+                    
+                    team1_short = "phx"  
+                     
+                    
+                elif teamName == "Sacramento":
+                
+                    team1_short = "sac"
+                    
+                    
+                elif teamName == "Chicago":
+                    
+                    team1_short = "chi"
+                    
+                    
+                elif teamName == "Cleveland":
+                    
+                    team1_short = "cle"
+                    
+                    
+                elif teamName == "Detroit":
+                    
+                    team1_short = "det"
+                    
+                    
+                elif teamName == "Indiana":
+                    
+                    team1_short = "ind"
+                    
+                
+                elif teamName == "Milwaukee":
+                    
+                    team1_short = "mil"
+                    
+                    
+                elif teamName == "Dallas":
+                    
+                    team1_short = "dal"
+                    
+                    
+                elif teamName == "Houston":
+                    
+                    team1_short = "hou"
+                    
+                    
+                elif teamName == "Memphis":
+                    
+                    team1_short = "mem"
+                    
+                    
+                elif teamName == "New Orleans":
+                    
+                    team1_short = "no"
+                    
+                    
+                elif teamName == "San Antonio":
+                    
+                    team1_short = "sa"
+                    
+                    
+                elif teamName == "Atlanta":
+                    
+                    team1_short = "atl"
+                    
+                    
+                elif teamName == "Charlotte":
+                    
+                    team1_short = "cha"
+                    
+                    
+                elif teamName == "Miami":
+                    
+                    team1_short = "mia"   
+                     
+                    
+                elif teamName == "Orlando":
+                    
+                    team1_short = "orl"
+                    
+                
+                elif teamName == "Washington":
+                    
+                    team1_short = "wsh"
+                    
+                    
+                elif teamName == "Denver":
+                    
+                    team1_short = "den"
+                    
+                    
+                elif teamName == "Minnesota":
+                    
+                    team1_short = "min"
+                    
+                    
+                elif teamName == "Okla City":
+                    
+                    team1_short = "okc"
+                    
+                    
+                elif teamName == "Portland":
+                    
+                    team1_short = "por"
+                    
+                    
+                elif teamName == "Utah":
+                    
+                    team1_short = "utah"
+                
+                team_Roster = []
+                team_Points_List = [] 
+                playing_Roster = []  
+            
+                team_Roster = get_NamesFrom_NBARoster(teamName)
+                injured_Players = check_NBA_InjuryStatus(teamName)
+                
+                # Remove any player in team_roster that is also in injured_players
+                team_Roster = [player for player in team_Roster if player not in injured_Players]
+                
+                playing_Roster = team_Roster.copy()
+                
+                fourth_String_Players = []
+                fifth_String_Players = []
+                
+                for player in playing_Roster:
+                    
+                    query = f"SELECT * FROM {team1_short}_roster WHERE Name = %s AND String = 4"
+                    cursor.execute(query, (player,))
+                    result = cursor.fetchall()
+                    
+                    if result:
+                        fourth_String_Players.append(player)
+                        
+                    else:
+                        
+                        continue
+                    
+                    
+                    query = f"SELECT * FROM {team1_short}_roster WHERE Name = %s AND String = 5"
+                    cursor.execute(query, (player,))
+                    result = cursor.fetchall()
+                    
+                    if result:
+                        fifth_String_Players.append(player)
+                        
+                    else:
+                        
+                        continue
+                    
+                playing_Roster = [player for player in playing_Roster if player not in fourth_String_Players]
+                playing_Roster = [player for player in playing_Roster if player not in fifth_String_Players]
+                
+                playing_Roster = list(set(playing_Roster))
+                
+                player_Points_AlreadyAdded = []
+                
+                for player in injured_Players:
+                    
+                    query = f"SELECT position, string FROM {team1_short}_roster WHERE Name = %s"
+                    cursor.execute(query, (player,))
+                    result = cursor.fetchall()
+                    
+                    if result:
+                        
+                        position, string = result[0]
+                        
+                        
+                        query = f"SELECT Name FROM {team1_short}_roster WHERE Position = '{position}' AND String = '{string+1}'"
+                        cursor.execute(query)
+                        result = cursor.fetchone()
+                        
+                        if result:
+                            underStudy_Player = result[0]
+                            
+                            player_Points_AlreadyAdded.append(underStudy_Player)
+                            
+                            # Get injured Players minutes per game
+                            
+                            injuredPlayer_MinutesPerGame = getNBAStat(player,"Player_Misc", "Player_Minutes_PerGame")
+                            injuredPlayer_MinutesPerGame = injuredPlayer_MinutesPerGame[0]
+                            
+                            underStudy_PointsPerMinute = getNBACalc(underStudy_Player, "Player", "Player_Points_PerMinute")
+                            underStudy_PointsPerMinute = underStudy_PointsPerMinute[0]
+                            
+                            underStudy_Player_PredPoints = underStudy_PointsPerMinute * injuredPlayer_MinutesPerGame
+                            
+                            team_Points_List.append(underStudy_Player_PredPoints)
+                        
+                    else:
+                        
+                        continue
+                        
+                playing_Roster = [player for player in playing_Roster if player not in player_Points_AlreadyAdded]
+                
+                for player in playing_Roster:
+                    
+                    result = checkNBA_PlayerHasStats(player)
+                    
+                    if result:
+                    
+                        
+                        
+                        player_Pred_Points = getNBAPred(player, "Offense",teamName2, "Player_Pred_Points3")
+                        player_Pred_Points = player_Pred_Points[0]
+                            
+                        team_Points_List.append(player_Pred_Points)
+                        
+                    else:
+                        
+                        continue
+                print(team_Points_List)   
+                team_Points = sum(team_Points_List)
+                
+                # Close the cursor and connection
+                cursor.close()
+                connection.close()
+                
+                statsToReturn.append(team_Points) 
+                
+            elif choice == TEAM_PRED_OVERUNDER:
+                
+                team1_Points = getNBAPred(teamName, "Team", teamName2, "Team_Pred_Points")
+                team1_Points = team1_Points[0]
+                
+                team2_Points = getNBAPred(teamName2, "Team", teamName, "Team_Pred_Points")
+                team2_Points = team2_Points[0]
+                
+                total_Points = team1_Points + team2_Points
+                
+                statsToReturn.append(total_Points)
+                
     connection.close()  
      
     return statsToReturn

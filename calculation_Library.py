@@ -2135,4 +2135,132 @@ def getNBACalc(*args):
             userChoices = args[2:]
     
     connection = create_connection("nba_stats")
-    print("connected")        
+    print("connected")   
+    
+    # ----Stat Call Commands----
+    
+    PLAYER_POINTS_PERMINUTE = "Player_Points_PerMinute" 
+    
+    for choice in userChoices:
+         
+        if category == "Player":
+            
+            if choice == PLAYER_POINTS_PERMINUTE:
+                
+                # Get players minutes per game
+                player_Minutes_PerGame = getNBAStat(playerName,"Player_Misc", "Player_Minutes_PerGame")
+                player_Minutes_PerGame = player_Minutes_PerGame[0]
+                
+                # Get Players points per game
+                player_Points_PerGame = getNBAStat(playerName,"Player_Scoring", "Player_Points_PerGame")
+                player_Points_PerGame = player_Points_PerGame[0]
+                
+                # Divide players points by minutes
+                player_Points_PerMinute = player_Points_PerGame/player_Minutes_PerGame
+                
+                statsToReturn.append(player_Points_PerMinute)
+                
+    return statsToReturn
+    
+def calculate_League_Averages(*args):
+
+    # Sport selection is at args[0]
+    # Category is at args[1]
+    # userChoices is at args[2]
+
+    """
+    Purpose:
+        Calculates league averages of any stat in MySQL database.
+
+    Returns:
+        A league average sum as a list
+
+    """
+
+    statsToReturn = []
+    userChoices = []
+
+    for arg in args[2:]:
+        userChoices.append(arg)
+    
+
+    if args[0] == "NFL":
+
+        if args[1] == "Team_Defense_Passing":
+
+            pass
+
+        elif args[1] == "Team_Defensive_Rushing":
+
+            pass
+        
+        elif args[1] == "Team_Defense_Totals":
+            
+            pass
+        
+        elif args[1] == "Team_Offense_Rushing":
+            
+            pass
+        
+        elif args[1] == "Team_Offense_Totals":
+            
+            pass
+
+    elif args[0] == "NBA":
+
+        if args[1] == "Team_Defense_Scoring":
+            
+            pass
+        
+        elif args[1] == "Team_Defense_Shooting":
+            
+            pass
+        
+        elif args[1] == "Team_Opp_Misc":
+            
+            pass
+        
+        elif args[1] == "Team_Misc":
+            
+            pass
+        
+        elif args[1] == "Team_Offensive_Scoring":
+            
+            pass
+        
+        elif args[1] == "Team_Offensive_Shooting":
+            
+            pass
+        
+        elif args[1] == "Team_Winning_Perc":
+            
+            pass
+
+    elif args[0] == "MLB":
+
+        if args[1] == "Team_Totals":
+            
+            pass
+        
+        elif args[1] == "Team_Home":
+            
+            pass
+        
+        elif args[1] == "Team_Away":
+            
+            pass
+        
+        elif args[1] == "Team_Day":
+            
+            pass
+        
+        elif args[1] == "Team_Night":
+            
+            pass
+        
+        elif args[1] == "Team_1st_Inning":
+            
+            pass
+        
+
+    return statsToReturn    

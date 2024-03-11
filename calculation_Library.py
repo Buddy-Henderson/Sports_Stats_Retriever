@@ -2139,7 +2139,11 @@ def getNBACalc(*args):
     
     # ----Stat Call Commands----
     
+    # Per Minute Calculatuions
     PLAYER_POINTS_PERMINUTE = "Player_Points_PerMinute" 
+    PLAYER_REBOUNDS_PERMINUTE = "Player_Rebounds_PerMinute"
+    PLAYER_BLOCKS_PERMINUTE = "Player_Blocks_PerMinute"
+    PLAYER_ASSISTS_PERMINUTE = "Player_Assists_PerMinute"
     
     for choice in userChoices:
          
@@ -2159,6 +2163,52 @@ def getNBACalc(*args):
                 player_Points_PerMinute = player_Points_PerGame/player_Minutes_PerGame
                 
                 statsToReturn.append(player_Points_PerMinute)
+
+            elif choice == PLAYER_REBOUNDS_PERMINUTE:
+
+                # Get players minutes per game
+                player_Minutes_PerGame = getNBAStat(playerName,"Player_Misc", "Player_Minutes_PerGame")
+                player_Minutes_PerGame = player_Minutes_PerGame[0]
+
+                # Get Players Rebounds per game
+                player_Rebounds_PerGame = getNBAStat(playerName,"Player_Rebounds", "Player_Rebounds_PerGame")
+                player_Rebounds_PerGame = player_Rebounds_PerGame[0]
+
+                player_Rebounds_PerMinute = player_Rebounds_PerGame/player_Minutes_PerGame
+
+                statsToReturn.append(player_Rebounds_PerMinute)
+
+            elif choice == PLAYER_BLOCKS_PERMINUTE:
+
+                # Get players minutes per game
+                player_Minutes_PerGame = getNBAStat(playerName,"Player_Misc", "Player_Minutes_PerGame")
+                player_Minutes_PerGame = player_Minutes_PerGame[0]
+
+                # Get Players Blocks per game
+                player_Blocks_PerGame = getNBAStat(playerName,"Player_Blocks", "Player_Blocks_PerGame")
+                player_Blocks_PerGame = player_Blocks_PerGame[0]
+
+                player_Blocks_PerMinute = player_Blocks_PerGame/player_Minutes_PerGame
+
+                statsToReturn.append(player_Blocks_PerMinute)
+
+            elif choice == PLAYER_ASSISTS_PERMINUTE:
+
+                # Get players minutes per game
+                player_Minutes_PerGame = getNBAStat(playerName,"Player_Misc", "Player_Minutes_PerGame")
+                player_Minutes_PerGame = player_Minutes_PerGame[0]
+
+                # Get Players Assists per game
+                player_Assists_PerGame = getNBAStat(playerName,"Player_Assists_Turnovers", "Player_Assists_PerGame")
+                player_Assists_PerGame = player_Assists_PerGame[0]
+
+                player_Assists_PerMinute = player_Assists_PerGame/player_Minutes_PerGame
+
+                statsToReturn.append(player_Assists_PerMinute)
+
+            
+
+                
                 
     return statsToReturn
     

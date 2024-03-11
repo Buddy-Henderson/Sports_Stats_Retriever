@@ -5139,7 +5139,7 @@ def getNBAStat(*args):
                 
                 Player_GamesStarted = get_statData(connection, playerName, "player_scoring_totals", "GamesStarted")
                     
-                statsToReturn.append(Player_GamesStarted)
+                statsToReturn.append(int(Player_GamesStarted))
                 
             # Player Minutes Per Game
             elif userChoices[count] == PLAYER_MINUTES_PERGAME:
@@ -5274,7 +5274,7 @@ def getNBAStat(*args):
                     
                     Player_Off_Rebounds = 1
                     
-                statsToReturn.append(Player_Off_Rebounds)
+                statsToReturn.append(float(Player_Off_Rebounds))
                 
             # Player Defensive Rebounds
             elif userChoices[count] == PLAYER_DEFENSIVE_REBOUNDS:
@@ -5285,7 +5285,7 @@ def getNBAStat(*args):
                     
                     Player_Def_Rebounds = 1
                     
-                statsToReturn.append(Player_Def_Rebounds)
+                statsToReturn.append(float(Player_Def_Rebounds))
                 
             # Player Total Rebounds
             elif userChoices[count] == PLAYER_TOTAL_REBOUNDS:
@@ -5296,7 +5296,7 @@ def getNBAStat(*args):
                     
                     Player_Total_Rebounds = 1
                     
-                statsToReturn.append(Player_Total_Rebounds)
+                statsToReturn.append(float(Player_Total_Rebounds))
                 
              # Player Rebounds Per Game
             elif userChoices[count] == PLAYER_REBOUNDS_PERGAME:
@@ -5307,7 +5307,7 @@ def getNBAStat(*args):
                     
                     Player_Rebounds_PerGame = 1
                     
-                statsToReturn.append(Player_Rebounds_PerGame)
+                statsToReturn.append(float(Player_Rebounds_PerGame))
                 
             count += 1
     
@@ -5372,14 +5372,18 @@ def getNBAStat(*args):
                 
                 Player_Blocks = get_statData(connection, playerName, "player_blocks_totals", "Blocks")
                     
-                statsToReturn.append(Player_Blocks)
+                statsToReturn.append(float(Player_Blocks))
                 
              # Player Blocks Per Game
             elif userChoices[count] == PLAYER_BLOCKS_PERGAME:
                 
                 Player_Blocks_PerGame = get_statData(connection, playerName, "player_blocks_totals", "BlocksPerGame")
+                
+                if Player_Blocks_PerGame == None:
                     
-                statsToReturn.append(Player_Blocks_PerGame)
+                    Player_Blocks_PerGame = 1
+                    
+                statsToReturn.append(float(Player_Blocks_PerGame))
                 
             count += 1
     
@@ -5400,6 +5404,10 @@ def getNBAStat(*args):
             elif userChoices[count] == PLAYER_ASSISTS_PERGAME:
                 
                 Player_Assists_PerGame = get_statData(connection, playerName, "player_assists_turnovers_totals", "AssistsPerGame")
+                    
+                if Player_Assists_PerGame == None:
+                    
+                    Player_Assists_PerGame = 1
                     
                 statsToReturn.append(float(Player_Assists_PerGame))
                 

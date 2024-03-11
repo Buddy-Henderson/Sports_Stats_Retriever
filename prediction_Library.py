@@ -1672,7 +1672,7 @@ def getNBAPred(*args):
                     
                         percentage_difference = (vs_team_AssistsAllowed_PerGame / league_Avg_AssistsAllowed) -1
                         
-                    elif vs_team_AssistsAllowed_PerGame < league_Avg_AssistsAllowed:
+                    elif vs_team_AssistsAllowed_PerGame >= league_Avg_AssistsAllowed:
                         
                         percentage_difference = (vs_team_AssistsAllowed_PerGame / league_Avg_AssistsAllowed)
                   

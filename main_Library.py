@@ -5516,6 +5516,10 @@ def getNBAStat(*args):
                 
                 Team_Opp_ThreePoint_Perc = get_NBA_teamStatData(connection, teamName, "team_defense_shooting", "opp_ThreePoint_Perc")
                     
+                if Team_Opp_ThreePoint_Perc == None:
+                    
+                    Team_Opp_ThreePoint_Perc = 1.0
+                    
                 statsToReturn.append(float(Team_Opp_ThreePoint_Perc))
                 
             # Team Opponents Field Goals Per Game
@@ -5543,6 +5547,10 @@ def getNBAStat(*args):
             elif userChoices[count] == TEAM_OPP_THREEPOINTER_ATTEMPTS_PERGAME:
                 
                 Team_Opp_ThreePointers_Attempts_PerGame = get_NBA_teamStatData(connection, teamName, "team_defense_shooting", "opp_3Pointers_Attempts_PerGame")
+                
+                if Team_Opp_ThreePointers_Attempts_PerGame == None:
+                    
+                    Team_Opp_ThreePointers_Attempts_PerGame = 1
                     
                 statsToReturn.append(float(Team_Opp_ThreePointers_Attempts_PerGame))
             
@@ -6071,7 +6079,10 @@ def checkNBA_PlayerHasStats(playerName):
         cursor.close()
         connection.close()
         return False
-        
+    
+    cursor.close()
+    connection.close()  
+      
     return True
 
 def check_NBA_InjuryStatus(team):
@@ -6452,3 +6463,4 @@ def get_NBA_teamStatData(connection, name, table, stat):
     else:
         print("Connection is None")
     return stat_value
+

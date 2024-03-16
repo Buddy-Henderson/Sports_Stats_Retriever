@@ -1605,6 +1605,7 @@ def getNBAPred(*args):
     TEAM_PRED_POINTS_Test3 = "Team_Pred_Points_Test3"
     TEAM_PRED_POINTS_Test4 = "Team_Pred_Points_Test4"
     TEAM_PRED_POINTS_Test5 = "Team_Pred_Points_Test5"
+    TEAM_PRED_POINTS_Test6 = "Team_Pred_Points_Test6"
     TEAM_PRED_OVERUNDER = "Team_Pred_OverUnder"
     TEAM_PRED_MONEYLINE = "Team_Pred_MoneyLine"
     
@@ -3259,10 +3260,56 @@ def getNBAPred(*args):
                 
                 # Calculate percentage difference from opposing team and league average
                 if league_Avg_PointsPerGameSum != 0:
-                    percentage_difference_PointsPerGame = (opp_team_Points_PerGame / league_Avg_PointsPerGameSum)
+                    
+                    if opp_team_Points_PerGame < league_Avg_PointsPerGameSum:
+                    
+                        percentage_difference_PointsPerGame = (opp_team_Points_PerGame / league_Avg_PointsPerGameSum) -1
+                        
+                    elif opp_team_Points_PerGame >= league_Avg_PointsPerGameSum:
+                        
+                        percentage_difference_PointsPerGame = (opp_team_Points_PerGame / league_Avg_PointsPerGameSum)
                 
                 # Calculate adjusted team points per game   
                 adjusted_Team_PointsPerGame = team_Points_PerGame * (1 + (20 * percentage_difference_PointsPerGame)/100)
+                
+                # Append adjusted team points per game to stats to return
+                statsToReturn.append(adjusted_Team_PointsPerGame)
+                
+            elif choice == TEAM_PRED_POINTS_Test6:
+
+                league_Avg_PointsPerGame_List = []
+                
+                # Get Teams points per game
+                team_Points_PerGame = getNBAStat(teamName, "Team_Offensive_Scoring", "Team_Points_PerGame")
+                team_Points_PerGame = team_Points_PerGame[0]
+                
+                # Get opposing teams points per game
+                opp_team_Points_PerGame = getNBAStat(teamName2, "Team_Defensive_Scoring", "Team_Opp_Points_PerGame")
+                opp_team_Points_PerGame = opp_team_Points_PerGame[0]
+                
+                # Calculate league average points per game
+                for team in teamNames:
+                    
+                    league_Team_PointsPerGame = getNBAStat(team, "Team_Defensive_Scoring", "Team_Opp_Points_PerGame")
+                    league_Team_PointsPerGame = league_Team_PointsPerGame[0]
+                    
+                    league_Avg_PointsPerGame_List.append(league_Team_PointsPerGame)
+
+                league_Avg_PointsPerGameSum = sum(league_Avg_PointsPerGame_List)/len(league_Avg_PointsPerGame_List)
+                
+                # Calculate percentage difference from opposing team and league average
+                if league_Avg_PointsPerGameSum != 0:
+                    
+                    if opp_team_Points_PerGame < league_Avg_PointsPerGameSum:
+                    
+                        percentage_difference_PointsPerGame = (opp_team_Points_PerGame / league_Avg_PointsPerGameSum) -1
+                        
+                    elif opp_team_Points_PerGame >= league_Avg_PointsPerGameSum:
+                        
+                        percentage_difference_PointsPerGame = (opp_team_Points_PerGame / league_Avg_PointsPerGameSum)
+                
+                # Calculate adjusted team points per game   
+                adjusted_Team_PointsPerGame = team_Points_PerGame * (1 + (10 * percentage_difference_PointsPerGame)/100)
                 
                 # Append adjusted team points per game to stats to return
                 statsToReturn.append(adjusted_Team_PointsPerGame)
